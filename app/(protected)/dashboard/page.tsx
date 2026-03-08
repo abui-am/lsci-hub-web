@@ -1,18 +1,24 @@
 import { requireAuth } from '@/lib/auth'
-import { SignOutButton } from '@/components/auth/SignOutButton'
 
-export default async function DashboardPage() {
+export default async function DashboardOverviewPage() {
   const user = await requireAuth()
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-4">
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
         <p className="text-muted-foreground">
-          Signed in as <span className="font-medium text-foreground">{user.email}</span>
+          Welcome back. Signed in as{' '}
+          <span className="font-medium text-foreground">{user.email}</span>
         </p>
       </div>
-      <SignOutButton />
+      <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+        <h2 className="text-lg font-medium">Getting started</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Use the sidebar to navigate between Overview and Settings. This area
+          can be used for dashboard widgets, recent activity, or key metrics.
+        </p>
+      </div>
     </div>
   )
 }

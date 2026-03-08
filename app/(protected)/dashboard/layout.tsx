@@ -1,4 +1,5 @@
 import { requireAuth } from '@/lib/auth'
+import { DashboardShell } from '@/components/dashboard/DashboardShell'
 
 export default async function DashboardLayout({
   children,
@@ -6,5 +7,11 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   await requireAuth()
-  return <>{children}</>
+
+  return (
+    
+    <div className="min-h-svh w-full bg-background">
+      <DashboardShell>{children}</DashboardShell>
+    </div>
+  )
 }
