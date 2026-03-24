@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:admin": "tsx scripts/seed-admin.ts"
+    "seed:admin": "tsx scripts/seed-admin.ts",
+    "seed:test-accounts": "tsx scripts/seed-test-accounts.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

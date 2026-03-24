@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requireSession } from '@/lib/auth'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 
 export default async function DashboardLayout({
@@ -6,7 +6,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  await requireAuth()
+  await requireSession()
 
   return (
     

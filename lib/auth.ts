@@ -7,7 +7,10 @@ import { redirect } from 'next/navigation'
  */
 export async function requireAuth() {
   const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
   if (error || !user) {
     redirect('/login')
   }
@@ -19,6 +22,27 @@ export async function requireAuth() {
  */
 export async function getCurrentUser() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   return user
 }
+
+export {
+  getSessionContext,
+  getSessionContextForUser,
+  requireMembershipRole,
+  requireOrgType,
+  requireOrgUser,
+  requirePlatformOrMembershipRole,
+  requirePlatformSuperAdmin,
+  requireSession,
+} from '@/lib/rbac'
+export type {
+  MembershipRole,
+  OrgSector,
+  OrgType,
+  OrganizationRow,
+  ProfileRow,
+  SessionContext,
+} from '@/lib/rbac/types'

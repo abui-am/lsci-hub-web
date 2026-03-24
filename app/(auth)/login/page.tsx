@@ -1,7 +1,13 @@
 import Link from 'next/link'
 import { LoginForm } from '@/components/auth/LoginForm'
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ redirect?: string; error?: string }>
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { redirect: redirectPath, error: queryError } = await searchParams
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
@@ -11,7 +17,7 @@ export default function LoginPage() {
             Enter your email and password
           </p>
         </div>
-        <LoginForm />
+        <LoginForm redirectTo={redirectPath} queryError={queryError} />
         <p className="text-center text-sm text-muted-foreground">
           Accounts are created by the superadmin. Request access if you need one.
         </p>

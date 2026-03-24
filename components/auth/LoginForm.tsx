@@ -7,11 +7,25 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-export function LoginForm() {
+const QUERY_ERRORS: Record<string, string> = {
+  no_profile:
+    'Your account has no profile in this app’s database, or the app is using a different Supabase project than the one where you were invited. Confirm NEXT_PUBLIC_SUPABASE_URL and keys match your project. If this persists, ask a platform administrator to add your profile.',
+  no_organization:
+    'Your profile is not linked to an organization yet. Ask a platform administrator to assign your account.',
+}
+
+type LoginFormProps = {
+  redirectTo?: string
+  queryError?: string
+}
+
+export function LoginForm({ redirectTo, queryError }: LoginFormProps) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    queryError ? QUERY_ERRORS[queryError] ?? null : null
+  )
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +43,11 @@ export function LoginForm() {
         return
       }
       router.refresh()
-      router.push('/')
+      const safe =
+        redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
+          ? redirectTo
+          : '/'
+      router.push(safe)
     } finally {
       setLoading(false)
     }

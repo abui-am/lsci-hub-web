@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Documentation
+
+- **[Authentication and RBAC](docs/auth-rbac.md)** — Supabase Auth, `profiles` / `organizations`, middleware, server guards, seeds, troubleshooting (DNS / env).
+- **Permission matrix:** [`.cursor/project/domain/rbac-matrix.md`](.cursor/project/domain/rbac-matrix.md)
+- **Supabase SQL:** [`supabase/README.md`](supabase/README.md)
+
 ## Getting Started
 
 First, run the development server:
