@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { GitMerge, ClipboardList, MessagesSquare, Package } from 'lucide-react'
+import { requireSession } from '@/lib/rbac/guards'
 
 const sections = [
   {
@@ -24,14 +25,48 @@ const sections = [
     icon: GitMerge,
   },
   {
+    href: '/dashboard/marketplace/rfq/open',
+    title: 'Open RFQs',
+    description:
+      'Supplier can send quotes to any open RFQ. AI is a recommender only (TRD block 8).',
+    icon: MessagesSquare,
+  },
+  {
     href: '/dashboard/marketplace/rfq',
     title: 'RFQ responses',
-    description: 'Supplier bids and buyer evaluation (TRD block 8).',
+    description: 'Your submitted supplier quotes and their evaluation.',
     icon: MessagesSquare,
   },
 ] as const
 
-export default function MarketplaceHubPage() {
+export default async function MarketplaceHubPage() {
+  const session = await requireSession()
+  const isSuper = session.profile.is_platform_superadmin
+  const isSupplier = session.profile.is_supplier
+  const isBuyer = session.profile.is_buyer
+
+  const visibleSections = sections.filter((item) => {
+    if (isSuper) return true
+
+    if (item.href.startsWith('/dashboard/marketplace/supply')) {
+      return isSupplier
+    }
+    if (item.href.startsWith('/dashboard/marketplace/demand')) {
+      return isBuyer
+    }
+    if (item.href === '/dashboard/marketplace/rfq/open') {
+      return isSupplier
+    }
+    if (item.href === '/dashboard/marketplace/rfq') {
+      return isSupplier || isBuyer
+    }
+    if (item.href === '/dashboard/marketplace/matches') {
+      return isSupplier || isBuyer
+    }
+
+    return false
+  })
+
   return (
     <div className="space-y-8">
       <div>
@@ -43,26 +78,32 @@ export default function MarketplaceHubPage() {
           v2): listings, matching, RFQ, and negotiation.
         </p>
       </div>
-      <ul className="grid gap-4 sm:grid-cols-2">
-        {sections.map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              className="flex gap-4 rounded-lg border bg-card p-5 text-card-foreground shadow-sm transition-colors hover:bg-muted/40"
-            >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted">
-                <item.icon className="size-5 text-foreground" aria-hidden />
-              </div>
-              <div>
-                <h2 className="font-medium">{item.title}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {item.description}
-                </p>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {!visibleSections.length ? (
+        <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
+          No marketplace sections available for your current role.
+        </p>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {visibleSections.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="flex gap-4 rounded-lg border bg-card p-5 text-card-foreground shadow-sm transition-colors hover:bg-muted/40"
+              >
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted">
+                  <item.icon className="size-5 text-foreground" aria-hidden />
+                </div>
+                <div>
+                  <h2 className="font-medium">{item.title}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {item.description}
+                  </p>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

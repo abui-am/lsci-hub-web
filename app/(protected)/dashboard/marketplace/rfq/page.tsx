@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { relationOne } from '@/lib/supabase/relation'
+import { requireSession } from '@/lib/rbac/guards'
 import {
   Table,
   TableBody,
@@ -10,9 +11,14 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft } from 'lucide-react'
+import { RfqResponseStatusActions } from '@/components/dashboard/marketplace/RfqResponseStatusActions'
 
 export default async function MarketplaceRfqPage() {
+  const session = await requireSession()
   const supabase = await createClient()
+
+  const canManageResponses =
+    session.profile.is_platform_superadmin || session.profile.is_buyer
   const { data: rows, error } = await supabase
     .from('rfq_responses')
     .select(
@@ -71,6 +77,7 @@ export default async function MarketplaceRfqPage() {
                 <TableHead className="px-3">Offer</TableHead>
                 <TableHead className="px-3">Lead (d)</TableHead>
                 <TableHead className="px-3">Status</TableHead>
+                <TableHead className="px-3">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -113,6 +120,13 @@ export default async function MarketplaceRfqPage() {
                     </TableCell>
                     <TableCell className="px-3 capitalize">
                       {row.status}
+                    </TableCell>
+                    <TableCell className="px-3">
+                      <RfqResponseStatusActions
+                        id={row.id}
+                        status={row.status as 'pending' | 'accepted' | 'rejected'}
+                        canManage={canManageResponses}
+                      />
                     </TableCell>
                   </TableRow>
                 )

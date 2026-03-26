@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { relationOne } from '@/lib/supabase/relation'
+import { Plus } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -44,6 +45,13 @@ export default async function MarketplaceSupplyPage() {
           <ArrowLeft className="size-4" aria-hidden />
           Marketplace
         </Link>
+        <Link
+          href="/dashboard/marketplace/supply/new"
+          className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:bg-muted"
+        >
+          <Plus className="size-4" aria-hidden />
+          Create
+        </Link>
       </div>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Supply listings</h1>
@@ -73,6 +81,7 @@ export default async function MarketplaceSupplyPage() {
                 <TableHead className="px-3">Lead (d)</TableHead>
                 <TableHead className="px-3">Export</TableHead>
                 <TableHead className="px-3">Status</TableHead>
+                <TableHead className="px-3">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -117,6 +126,14 @@ export default async function MarketplaceSupplyPage() {
                     </TableCell>
                     <TableCell className="px-3 capitalize">
                       {row.status}
+                    </TableCell>
+                    <TableCell className="px-3">
+                      <Link
+                        href={`/dashboard/marketplace/supply/edit/${row.id}`}
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Edit
+                      </Link>
                     </TableCell>
                   </TableRow>
                 )

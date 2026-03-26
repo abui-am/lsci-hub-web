@@ -15,7 +15,7 @@ export default async function Home() {
         <p className="text-muted-foreground">
           {user
             ? 'Signed in. Open the dashboard to continue.'
-            : 'Admin dashboard. Sign in with an account created by your superadmin.'}
+            : 'Admin dashboard. Supplier and buyer accounts can sign up publicly. Organizations are linked by your platform administrator.'}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
           {user ? (

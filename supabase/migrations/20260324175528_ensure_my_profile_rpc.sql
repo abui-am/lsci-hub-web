@@ -30,4 +30,4 @@ $$;
 REVOKE ALL ON FUNCTION public.ensure_my_profile() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.ensure_my_profile() TO authenticated;
 
-COMMENT ON FUNCTION public.ensure_my_profile() IS 'Idempotent: insert profiles row for auth.uid() when missing.';
+COMMENT ON FUNCTION public.ensure_my_profile() IS 'Idempotent: insert profiles row for auth.uid() when missing.';;

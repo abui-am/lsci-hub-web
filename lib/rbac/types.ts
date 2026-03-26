@@ -23,6 +23,8 @@ export interface ProfileRow {
   organization_id: string | null
   role: MembershipRole
   is_platform_superadmin: boolean
+  is_supplier: boolean
+  is_buyer: boolean
   phone: string | null
   created_at: string
   deleted_at: string | null

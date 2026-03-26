@@ -14,7 +14,6 @@ AS $$
   WHERE p.id = auth.uid() AND p.deleted_at IS NULL
   LIMIT 1;
 $$;
-
 CREATE OR REPLACE FUNCTION public.auth_profile_role()
 RETURNS public.membership_role
 LANGUAGE sql
@@ -27,7 +26,6 @@ AS $$
   WHERE p.id = auth.uid() AND p.deleted_at IS NULL
   LIMIT 1;
 $$;
-
 CREATE OR REPLACE FUNCTION public.auth_profile_org_type()
 RETURNS public.org_type
 LANGUAGE sql
@@ -43,11 +41,9 @@ AS $$
     AND o.deleted_at IS NULL
   LIMIT 1;
 $$;
-
 GRANT EXECUTE ON FUNCTION public.auth_profile_org_id() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.auth_profile_role() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.auth_profile_org_type() TO authenticated;
-
 -- Drop policies that still reference profiles via inline subqueries (idempotent refresh).
 DROP POLICY IF EXISTS profiles_select_self_or_super ON public.profiles;
 DROP POLICY IF EXISTS profiles_update_self_or_super ON public.profiles;
@@ -89,7 +85,6 @@ DROP POLICY IF EXISTS conversations_delete_super ON public.conversations;
 DROP POLICY IF EXISTS messages_select ON public.messages;
 DROP POLICY IF EXISTS messages_insert ON public.messages;
 DROP POLICY IF EXISTS messages_delete_super ON public.messages;
-
 -- profiles
 CREATE POLICY profiles_select_self_or_super
   ON public.profiles FOR SELECT
@@ -101,7 +96,6 @@ CREATE POLICY profiles_select_self_or_super
       AND organization_id = public.auth_profile_org_id()
     )
   );
-
 CREATE POLICY profiles_update_self_or_super
   ON public.profiles FOR UPDATE
   USING (public.is_platform_superadmin() OR id = auth.uid())
@@ -112,7 +106,6 @@ CREATE POLICY profiles_update_self_or_super
       AND is_platform_superadmin = false
     )
   );
-
 CREATE POLICY profiles_insert_own_or_super
   ON public.profiles FOR INSERT
   WITH CHECK (
@@ -122,7 +115,6 @@ CREATE POLICY profiles_insert_own_or_super
       AND is_platform_superadmin = false
     )
   );
-
 -- organizations
 CREATE POLICY orgs_select_policy
   ON public.organizations FOR SELECT
@@ -135,11 +127,9 @@ CREATE POLICY orgs_select_policy
     )
     OR (public.auth_profile_org_type() = 'government')
   );
-
 CREATE POLICY orgs_insert_super
   ON public.organizations FOR INSERT
   WITH CHECK (public.is_platform_superadmin());
-
 CREATE POLICY orgs_update_super_or_org_admin
   ON public.organizations FOR UPDATE
   USING (
@@ -156,30 +146,24 @@ CREATE POLICY orgs_update_super_or_org_admin
       AND public.auth_profile_role() = 'admin'
     )
   );
-
 CREATE POLICY orgs_delete_super
   ON public.organizations FOR DELETE
   USING (public.is_platform_superadmin());
-
 -- products
 CREATE POLICY products_select_authenticated
   ON public.products FOR SELECT
   TO authenticated
   USING (deleted_at IS NULL);
-
 CREATE POLICY products_insert_super
   ON public.products FOR INSERT
   WITH CHECK (public.is_platform_superadmin());
-
 CREATE POLICY products_update_super
   ON public.products FOR UPDATE
   USING (public.is_platform_superadmin())
   WITH CHECK (public.is_platform_superadmin());
-
 CREATE POLICY products_delete_super
   ON public.products FOR DELETE
   USING (public.is_platform_superadmin());
-
 -- product_sources
 CREATE POLICY product_sources_select
   ON public.product_sources FOR SELECT
@@ -187,7 +171,6 @@ CREATE POLICY product_sources_select
     public.is_platform_superadmin()
     OR organization_id = public.auth_profile_org_id()
   );
-
 CREATE POLICY product_sources_write
   ON public.product_sources FOR INSERT
   WITH CHECK (
@@ -197,7 +180,6 @@ CREATE POLICY product_sources_write
       AND public.auth_profile_role() IN ('admin', 'manager')
     )
   );
-
 CREATE POLICY product_sources_update
   ON public.product_sources FOR UPDATE
   USING (
@@ -208,7 +190,6 @@ CREATE POLICY product_sources_update
     public.is_platform_superadmin()
     OR organization_id = public.auth_profile_org_id()
   );
-
 CREATE POLICY product_sources_delete
   ON public.product_sources FOR DELETE
   USING (
@@ -218,7 +199,6 @@ CREATE POLICY product_sources_delete
       AND public.auth_profile_role() = 'admin'
     )
   );
-
 -- supply_listings
 CREATE POLICY supply_select
   ON public.supply_listings FOR SELECT
@@ -236,7 +216,6 @@ CREATE POLICY supply_select
       )
     )
   );
-
 CREATE POLICY supply_write
   ON public.supply_listings FOR INSERT
   WITH CHECK (
@@ -252,7 +231,6 @@ CREATE POLICY supply_write
       )
     )
   );
-
 CREATE POLICY supply_update
   ON public.supply_listings FOR UPDATE
   USING (
@@ -263,7 +241,6 @@ CREATE POLICY supply_update
     public.is_platform_superadmin()
     OR organization_id = public.auth_profile_org_id()
   );
-
 CREATE POLICY supply_delete
   ON public.supply_listings FOR DELETE
   USING (
@@ -273,7 +250,6 @@ CREATE POLICY supply_delete
       AND public.auth_profile_role() IN ('admin', 'manager')
     )
   );
-
 -- demand_listings
 CREATE POLICY demand_select
   ON public.demand_listings FOR SELECT
@@ -281,7 +257,6 @@ CREATE POLICY demand_select
     public.is_platform_superadmin()
     OR organization_id = public.auth_profile_org_id()
   );
-
 CREATE POLICY demand_write
   ON public.demand_listings FOR INSERT
   WITH CHECK (
@@ -297,7 +272,6 @@ CREATE POLICY demand_write
       )
     )
   );
-
 CREATE POLICY demand_update
   ON public.demand_listings FOR UPDATE
   USING (
@@ -308,7 +282,6 @@ CREATE POLICY demand_update
     public.is_platform_superadmin()
     OR organization_id = public.auth_profile_org_id()
   );
-
 CREATE POLICY demand_delete
   ON public.demand_listings FOR DELETE
   USING (
@@ -318,7 +291,6 @@ CREATE POLICY demand_delete
       AND public.auth_profile_role() IN ('admin', 'manager')
     )
   );
-
 -- matches
 CREATE POLICY matches_select
   ON public.matches FOR SELECT
@@ -336,11 +308,9 @@ CREATE POLICY matches_select
     )
     OR (public.auth_profile_org_type() = 'government')
   );
-
 CREATE POLICY matches_write_super
   ON public.matches FOR INSERT
   WITH CHECK (public.is_platform_superadmin());
-
 CREATE POLICY matches_update_participants
   ON public.matches FOR UPDATE
   USING (
@@ -369,22 +339,18 @@ CREATE POLICY matches_update_participants
         AND d.organization_id = public.auth_profile_org_id()
     )
   );
-
 CREATE POLICY matches_delete_super
   ON public.matches FOR DELETE
   USING (public.is_platform_superadmin());
-
 -- marketplace (tables may be absent on very old DBs — guard with DO blocks not portable; assume TRD marketplace migration applied)
 CREATE POLICY locations_select_authenticated
   ON public.locations FOR SELECT
   TO authenticated
   USING (true);
-
 CREATE POLICY locations_write_superadmin
   ON public.locations FOR ALL
   USING (public.is_platform_superadmin())
   WITH CHECK (public.is_platform_superadmin());
-
 CREATE POLICY rfq_select
   ON public.rfq_responses FOR SELECT
   USING (
@@ -396,7 +362,6 @@ CREATE POLICY rfq_select
     )
     OR supplier_organization_id = public.auth_profile_org_id()
   );
-
 CREATE POLICY rfq_insert_supplier
   ON public.rfq_responses FOR INSERT
   WITH CHECK (
@@ -411,7 +376,6 @@ CREATE POLICY rfq_insert_supplier
       )
     )
   );
-
 CREATE POLICY rfq_update_parties
   ON public.rfq_responses FOR UPDATE
   USING (
@@ -432,11 +396,9 @@ CREATE POLICY rfq_update_parties
         AND d.organization_id = public.auth_profile_org_id()
     )
   );
-
 CREATE POLICY rfq_delete_super
   ON public.rfq_responses FOR DELETE
   USING (public.is_platform_superadmin());
-
 CREATE POLICY conversations_select
   ON public.conversations FOR SELECT
   USING (
@@ -452,7 +414,6 @@ CREATE POLICY conversations_select
         AND r.supplier_organization_id = public.auth_profile_org_id()
     )
   );
-
 CREATE POLICY conversations_insert
   ON public.conversations FOR INSERT
   WITH CHECK (
@@ -464,7 +425,6 @@ CREATE POLICY conversations_insert
         AND public.auth_profile_role() IN ('admin', 'manager')
     )
   );
-
 CREATE POLICY conversations_update_parties
   ON public.conversations FOR UPDATE
   USING (
@@ -480,11 +440,9 @@ CREATE POLICY conversations_update_parties
         AND r.supplier_organization_id = public.auth_profile_org_id()
     )
   );
-
 CREATE POLICY conversations_delete_super
   ON public.conversations FOR DELETE
   USING (public.is_platform_superadmin());
-
 CREATE POLICY messages_select
   ON public.messages FOR SELECT
   USING (
@@ -502,7 +460,6 @@ CREATE POLICY messages_select
         AND r.supplier_organization_id = public.auth_profile_org_id()
     )
   );
-
 CREATE POLICY messages_insert
   ON public.messages FOR INSERT
   WITH CHECK (
@@ -523,7 +480,6 @@ CREATE POLICY messages_insert
       )
     )
   );
-
 CREATE POLICY messages_delete_super
   ON public.messages FOR DELETE
   USING (public.is_platform_superadmin());

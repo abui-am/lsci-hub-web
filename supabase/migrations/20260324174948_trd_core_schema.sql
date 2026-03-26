@@ -210,53 +210,6 @@ AS $$
   LIMIT 1;
 $$;
 
--- Used in RLS policies: read caller’s profile without re-entering profiles RLS (avoids infinite recursion).
-CREATE OR REPLACE FUNCTION public.auth_profile_org_id()
-RETURNS uuid
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT p.organization_id
-  FROM public.profiles p
-  WHERE p.id = auth.uid() AND p.deleted_at IS NULL
-  LIMIT 1;
-$$;
-
-CREATE OR REPLACE FUNCTION public.auth_profile_role()
-RETURNS public.membership_role
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT p.role
-  FROM public.profiles p
-  WHERE p.id = auth.uid() AND p.deleted_at IS NULL
-  LIMIT 1;
-$$;
-
-CREATE OR REPLACE FUNCTION public.auth_profile_org_type()
-RETURNS public.org_type
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT o.type
-  FROM public.profiles p
-  JOIN public.organizations o ON o.id = p.organization_id
-  WHERE p.id = auth.uid()
-    AND p.deleted_at IS NULL
-    AND o.deleted_at IS NULL
-  LIMIT 1;
-$$;
-
-GRANT EXECUTE ON FUNCTION public.auth_profile_org_id() TO authenticated;
-GRANT EXECUTE ON FUNCTION public.auth_profile_role() TO authenticated;
-GRANT EXECUTE ON FUNCTION public.auth_profile_org_type() TO authenticated;
-
 -- ---------------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------------
@@ -276,7 +229,7 @@ CREATE POLICY profiles_select_self_or_super
     OR id = auth.uid()
     OR (
       organization_id IS NOT NULL
-      AND organization_id = public.auth_profile_org_id()
+      AND organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
   );
 
@@ -292,7 +245,7 @@ CREATE POLICY profiles_update_self_or_super
   );
 
 CREATE POLICY profiles_insert_own_or_super
-  ON public.profiles FOR INSERT
+  On public.profiles FOR INSERT
   WITH CHECK (
     public.is_platform_superadmin()
     OR (
@@ -306,12 +259,30 @@ CREATE POLICY orgs_select_policy
   ON public.organizations FOR SELECT
   USING (
     public.is_platform_superadmin()
-    OR id = public.auth_profile_org_id()
+    OR id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     OR (
-      public.auth_profile_org_type() IN ('industry', 'hotel')
+      EXISTS (
+        SELECT 1
+        FROM public.profiles p
+        JOIN public.organizations o ON o.id = p.organization_id
+        WHERE p.id = auth.uid()
+          AND p.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+          AND o.type IN ('industry', 'hotel')
+      )
       AND type IN ('farmer', 'umkm')
     )
-    OR (public.auth_profile_org_type() = 'government')
+    OR (
+      EXISTS (
+        SELECT 1
+        FROM public.profiles p
+        JOIN public.organizations o ON o.id = p.organization_id
+        WHERE p.id = auth.uid()
+          AND p.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+          AND o.type = 'government'
+      )
+    )
   );
 
 CREATE POLICY orgs_insert_super
@@ -323,15 +294,15 @@ CREATE POLICY orgs_update_super_or_org_admin
   USING (
     public.is_platform_superadmin()
     OR (
-      id = public.auth_profile_org_id()
-      AND public.auth_profile_role() = 'admin'
+      id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
+      AND (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL) = 'admin'
     )
   )
   WITH CHECK (
     public.is_platform_superadmin()
     OR (
-      id = public.auth_profile_org_id()
-      AND public.auth_profile_role() = 'admin'
+      id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
+      AND (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL) = 'admin'
     )
   );
 
@@ -363,7 +334,7 @@ CREATE POLICY product_sources_select
   ON public.product_sources FOR SELECT
   USING (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   );
 
 CREATE POLICY product_sources_write
@@ -371,8 +342,8 @@ CREATE POLICY product_sources_write
   WITH CHECK (
     public.is_platform_superadmin()
     OR (
-      organization_id = public.auth_profile_org_id()
-      AND public.auth_profile_role() IN ('admin', 'manager')
+      organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
+      AND (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL) IN ('admin', 'manager')
     )
   );
 
@@ -380,11 +351,11 @@ CREATE POLICY product_sources_update
   ON public.product_sources FOR UPDATE
   USING (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   )
   WITH CHECK (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   );
 
 CREATE POLICY product_sources_delete
@@ -392,8 +363,8 @@ CREATE POLICY product_sources_delete
   USING (
     public.is_platform_superadmin()
     OR (
-      organization_id = public.auth_profile_org_id()
-      AND public.auth_profile_role() = 'admin'
+      organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
+      AND (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL) = 'admin'
     )
   );
 
@@ -402,10 +373,18 @@ CREATE POLICY supply_select
   ON public.supply_listings FOR SELECT
   USING (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     OR (
       status = 'active'
-      AND public.auth_profile_org_type() IN ('industry', 'hotel')
+      AND EXISTS (
+        SELECT 1
+        FROM public.profiles p
+        JOIN public.organizations o ON o.id = p.organization_id
+        WHERE p.id = auth.uid()
+          AND p.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+          AND o.type IN ('industry', 'hotel')
+      )
       AND EXISTS (
         SELECT 1 FROM public.organizations seller
         WHERE seller.id = supply_listings.organization_id
@@ -420,7 +399,7 @@ CREATE POLICY supply_write
   WITH CHECK (
     public.is_platform_superadmin()
     OR (
-      organization_id = public.auth_profile_org_id()
+      organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
       AND EXISTS (
         SELECT 1
         FROM public.organizations o
@@ -435,11 +414,11 @@ CREATE POLICY supply_update
   ON public.supply_listings FOR UPDATE
   USING (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   )
   WITH CHECK (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   );
 
 CREATE POLICY supply_delete
@@ -447,8 +426,8 @@ CREATE POLICY supply_delete
   USING (
     public.is_platform_superadmin()
     OR (
-      organization_id = public.auth_profile_org_id()
-      AND public.auth_profile_role() IN ('admin', 'manager')
+      organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
+      AND (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL) IN ('admin', 'manager')
     )
   );
 
@@ -457,7 +436,7 @@ CREATE POLICY demand_select
   ON public.demand_listings FOR SELECT
   USING (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   );
 
 CREATE POLICY demand_write
@@ -465,7 +444,7 @@ CREATE POLICY demand_write
   WITH CHECK (
     public.is_platform_superadmin()
     OR (
-      organization_id = public.auth_profile_org_id()
+      organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
       AND EXISTS (
         SELECT 1
         FROM public.organizations o
@@ -480,11 +459,11 @@ CREATE POLICY demand_update
   ON public.demand_listings FOR UPDATE
   USING (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   )
   WITH CHECK (
     public.is_platform_superadmin()
-    OR organization_id = public.auth_profile_org_id()
+    OR organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   );
 
 CREATE POLICY demand_delete
@@ -492,8 +471,8 @@ CREATE POLICY demand_delete
   USING (
     public.is_platform_superadmin()
     OR (
-      organization_id = public.auth_profile_org_id()
-      AND public.auth_profile_role() IN ('admin', 'manager')
+      organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
+      AND (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL) IN ('admin', 'manager')
     )
   );
 
@@ -505,14 +484,21 @@ CREATE POLICY matches_select
     OR EXISTS (
       SELECT 1 FROM public.supply_listings s
       WHERE s.id = matches.supply_listing_id
-        AND s.organization_id = public.auth_profile_org_id()
+        AND s.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = matches.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
-    OR (public.auth_profile_org_type() = 'government')
+    OR EXISTS (
+      SELECT 1
+      FROM public.profiles p
+      JOIN public.organizations o ON o.id = p.organization_id
+      WHERE p.id = auth.uid()
+        AND p.deleted_at IS NULL
+        AND o.type = 'government'
+    )
   );
 
 CREATE POLICY matches_write_super
@@ -526,12 +512,12 @@ CREATE POLICY matches_update_participants
     OR EXISTS (
       SELECT 1 FROM public.supply_listings s
       WHERE s.id = matches.supply_listing_id
-        AND s.organization_id = public.auth_profile_org_id()
+        AND s.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = matches.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
   )
   WITH CHECK (
@@ -539,12 +525,12 @@ CREATE POLICY matches_update_participants
     OR EXISTS (
       SELECT 1 FROM public.supply_listings s
       WHERE s.id = matches.supply_listing_id
-        AND s.organization_id = public.auth_profile_org_id()
+        AND s.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = matches.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
   );
 
@@ -554,4 +540,4 @@ CREATE POLICY matches_delete_super
 
 COMMENT ON TABLE public.organizations IS 'TRD §1 — org actor type drives RBAC scope.';
 COMMENT ON TABLE public.profiles IS 'App user row (TRD §2 users); id references auth.users.';
-COMMENT ON TABLE public.matches IS 'TRD §7 — corrected name (TRD PDF mistakenly reused demand_listings).';
+COMMENT ON TABLE public.matches IS 'TRD §7 — corrected name (TRD PDF mistakenly reused demand_listings).';;

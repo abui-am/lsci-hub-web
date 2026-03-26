@@ -74,8 +74,8 @@ const DEMO_IDS = {
   location: 'cccccccc-cccc-cccc-cccc-ccccccccccc1',
   productChili: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1',
   productCoffee: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2',
-  supplyListing: 'dddddddd-dddd-dddd-dddd-dddddddddd1',
-  demandListing: 'dddddddd-dddd-dddd-dddd-dddddddddd2',
+  supplyListing: 'dddddddd-dddd-dddd-dddd-ddddddddddd1',
+  demandListing: 'dddddddd-dddd-dddd-dddd-ddddddddddd2',
   match: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee1',
 } as const
 
@@ -89,6 +89,8 @@ type TestAccount = {
   organizationId: string | null
   role: MembershipRole
   isPlatformSuperadmin: boolean
+  isSupplier: boolean
+  isBuyer: boolean
 }
 
 const ACCOUNTS: TestAccount[] = [
@@ -98,6 +100,8 @@ const ACCOUNTS: TestAccount[] = [
     organizationId: null,
     role: 'admin',
     isPlatformSuperadmin: true,
+    isSupplier: true,
+    isBuyer: true,
   },
   {
     email: 'farmer-admin@test.local',
@@ -105,6 +109,8 @@ const ACCOUNTS: TestAccount[] = [
     organizationId: ORG_IDS.farmer,
     role: 'admin',
     isPlatformSuperadmin: false,
+    isSupplier: true,
+    isBuyer: false,
   },
   {
     email: 'farmer-member@test.local',
@@ -112,6 +118,8 @@ const ACCOUNTS: TestAccount[] = [
     organizationId: ORG_IDS.farmer,
     role: 'member',
     isPlatformSuperadmin: false,
+    isSupplier: true,
+    isBuyer: false,
   },
   {
     email: 'umkm-manager@test.local',
@@ -119,6 +127,8 @@ const ACCOUNTS: TestAccount[] = [
     organizationId: ORG_IDS.umkm,
     role: 'manager',
     isPlatformSuperadmin: false,
+    isSupplier: true,
+    isBuyer: false,
   },
   {
     email: 'hotel-admin@test.local',
@@ -126,6 +136,8 @@ const ACCOUNTS: TestAccount[] = [
     organizationId: ORG_IDS.hotel,
     role: 'admin',
     isPlatformSuperadmin: false,
+    isSupplier: false,
+    isBuyer: true,
   },
   {
     email: 'gov-member@test.local',
@@ -133,6 +145,8 @@ const ACCOUNTS: TestAccount[] = [
     organizationId: ORG_IDS.government,
     role: 'member',
     isPlatformSuperadmin: false,
+    isSupplier: false,
+    isBuyer: true,
   },
 ]
 
@@ -388,6 +402,8 @@ async function seedProfiles() {
         organization_id: a.organizationId,
         role: a.role,
         is_platform_superadmin: a.isPlatformSuperadmin,
+        is_supplier: a.isSupplier,
+        is_buyer: a.isBuyer,
         phone: null,
         deleted_at: null,
       },

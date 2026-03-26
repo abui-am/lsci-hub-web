@@ -1,6 +1,6 @@
 -- TRD v2 — full marketplace layer: locations, org trust fields, listing detail,
 -- demand lifecycle, match AI fields, RFQ responses, conversations & messages.
--- Supersedes / extends 20260324174948_trd_core_schema.sql (does not replace profiles-as-users).
+-- Supersedes / extends 20260321120000_trd_core_schema.sql (does not replace profiles-as-users).
 
 -- ---------------------------------------------------------------------------
 -- Enums
@@ -215,9 +215,9 @@ CREATE POLICY rfq_select
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = rfq_responses.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
-    OR supplier_organization_id = public.auth_profile_org_id()
+    OR supplier_organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
   );
 
 CREATE POLICY rfq_insert_supplier
@@ -225,7 +225,7 @@ CREATE POLICY rfq_insert_supplier
   WITH CHECK (
     public.is_platform_superadmin()
     OR (
-      supplier_organization_id = public.auth_profile_org_id()
+      supplier_organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
       AND EXISTS (
         SELECT 1 FROM public.demand_listings d
         WHERE d.id = rfq_responses.demand_listing_id
@@ -239,20 +239,20 @@ CREATE POLICY rfq_update_parties
   ON public.rfq_responses FOR UPDATE
   USING (
     public.is_platform_superadmin()
-    OR supplier_organization_id = public.auth_profile_org_id()
+    OR supplier_organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = rfq_responses.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
   )
   WITH CHECK (
     public.is_platform_superadmin()
-    OR supplier_organization_id = public.auth_profile_org_id()
+    OR supplier_organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = rfq_responses.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
   );
 
@@ -268,12 +268,12 @@ CREATE POLICY conversations_select
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = conversations.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
     OR EXISTS (
       SELECT 1 FROM public.rfq_responses r
       WHERE r.demand_listing_id = conversations.demand_listing_id
-        AND r.supplier_organization_id = public.auth_profile_org_id()
+        AND r.supplier_organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
   );
 
@@ -284,8 +284,8 @@ CREATE POLICY conversations_insert
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = conversations.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
-        AND public.auth_profile_role() IN ('admin', 'manager')
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
+        AND (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL) IN ('admin', 'manager')
     )
   );
 
@@ -296,12 +296,12 @@ CREATE POLICY conversations_update_parties
     OR EXISTS (
       SELECT 1 FROM public.demand_listings d
       WHERE d.id = conversations.demand_listing_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
     OR EXISTS (
       SELECT 1 FROM public.rfq_responses r
       WHERE r.demand_listing_id = conversations.demand_listing_id
-        AND r.supplier_organization_id = public.auth_profile_org_id()
+        AND r.supplier_organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
   );
 
@@ -318,13 +318,13 @@ CREATE POLICY messages_select
       SELECT 1 FROM public.conversations c
       JOIN public.demand_listings d ON d.id = c.demand_listing_id
       WHERE c.id = messages.conversation_id
-        AND d.organization_id = public.auth_profile_org_id()
+        AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
     OR EXISTS (
       SELECT 1 FROM public.conversations c
       JOIN public.rfq_responses r ON r.demand_listing_id = c.demand_listing_id
       WHERE c.id = messages.conversation_id
-        AND r.supplier_organization_id = public.auth_profile_org_id()
+        AND r.supplier_organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
     )
   );
 
@@ -338,17 +338,17 @@ CREATE POLICY messages_insert
         SELECT 1 FROM public.conversations c
         JOIN public.demand_listings d ON d.id = c.demand_listing_id
         WHERE c.id = messages.conversation_id
-          AND d.organization_id = public.auth_profile_org_id()
+          AND d.organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
       )
       OR EXISTS (
         SELECT 1 FROM public.conversations c
         JOIN public.rfq_responses r ON r.demand_listing_id = c.demand_listing_id
         WHERE c.id = messages.conversation_id
-          AND r.supplier_organization_id = public.auth_profile_org_id()
+          AND r.supplier_organization_id = (SELECT p.organization_id FROM public.profiles p WHERE p.id = auth.uid() AND p.deleted_at IS NULL)
       )
     )
   );
 
 CREATE POLICY messages_delete_super
   ON public.messages FOR DELETE
-  USING (public.is_platform_superadmin());
+  USING (public.is_platform_superadmin());;

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { relationOne } from '@/lib/supabase/relation'
+import { requireSession } from '@/lib/rbac/guards'
 import {
   Table,
   TableBody,
@@ -9,9 +10,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
+import { DemandListingActivateButton } from '@/components/dashboard/marketplace/DemandListingActivateButton'
 
 export default async function MarketplaceDemandPage() {
+  const session = await requireSession()
   const supabase = await createClient()
   const { data: rows, error } = await supabase
     .from('demand_listings')
@@ -19,6 +22,13 @@ export default async function MarketplaceDemandPage() {
       `
       id,
       required_quantity,
+      rfq_responses (
+        id,
+        quantity_offer,
+        price_offer,
+        status,
+        organizations ( name )
+      ),
       required_by,
       price_range_from,
       price_range_to,
@@ -44,6 +54,13 @@ export default async function MarketplaceDemandPage() {
         >
           <ArrowLeft className="size-4" aria-hidden />
           Marketplace
+        </Link>
+        <Link
+          href="/dashboard/marketplace/demand/new"
+          className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:bg-muted"
+        >
+          <Plus className="size-4" aria-hidden />
+          Create
         </Link>
       </div>
       <div>
@@ -74,6 +91,8 @@ export default async function MarketplaceDemandPage() {
                 <TableHead className="px-3">Target</TableHead>
                 <TableHead className="px-3">Bidding</TableHead>
                 <TableHead className="px-3">Status</TableHead>
+                <TableHead className="px-3">Accepted</TableHead>
+                <TableHead className="px-3">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -84,6 +103,16 @@ export default async function MarketplaceDemandPage() {
                 const org = relationOne(
                   row.organizations as { name: string } | { name: string }[] | null
                 )
+                type RfqRow = {
+                  id: string
+                  quantity_offer: number | null
+                  price_offer: number | null
+                  status: 'pending' | 'accepted' | 'rejected'
+                  organizations: { name: string } | { name: string }[] | null
+                }
+                const acceptedQuotes = (
+                  (row.rfq_responses as RfqRow[] | null) ?? []
+                ).filter((r) => r.status === 'accepted')
                 const band =
                   row.price_range_from != null || row.price_range_to != null
                     ? `${row.price_range_from ?? '…'} – ${row.price_range_to ?? '…'}`
@@ -118,6 +147,46 @@ export default async function MarketplaceDemandPage() {
                     </TableCell>
                     <TableCell className="px-3 whitespace-normal">
                       {String(row.status).replace(/_/g, ' ')}
+                    </TableCell>
+                    <TableCell className="px-3 whitespace-normal">
+                      {acceptedQuotes.length === 0 ? (
+                        <span className="text-muted-foreground">—</span>
+                      ) : (
+                        <div className="space-y-1">
+                          {acceptedQuotes.map((q) => {
+                            const supplier = relationOne(
+                              q.organizations as
+                                | { name: string }
+                                | { name: string }[]
+                                | null
+                            )
+                            return (
+                              <p key={q.id} className="text-xs">
+                                {supplier?.name ?? 'Supplier'}: {q.quantity_offer ?? '—'}
+                                {q.price_offer != null ? ` @ ${q.price_offer}` : ''}
+                              </p>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="px-3">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/dashboard/marketplace/demand/edit/${row.id}`}
+                          className="text-sm text-primary hover:underline"
+                        >
+                          Edit
+                        </Link>
+                        {(session.profile.is_platform_superadmin ||
+                          session.profile.is_buyer) && (
+                          <>
+                            {row.status === 'draft' ? (
+                              <DemandListingActivateButton demandId={row.id} />
+                            ) : null}
+                          </>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 )

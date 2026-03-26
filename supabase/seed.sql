@@ -113,7 +113,7 @@ INSERT INTO public.supply_listings (
   created_by
 )
 VALUES (
-  'dddddddd-dddd-dddd-dddd-dddddddddd1',
+  'dddddddd-dddd-dddd-dddd-ddddddddddd1',
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1',
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1',
   500,
@@ -147,7 +147,7 @@ INSERT INTO public.demand_listings (
   created_by
 )
 VALUES (
-  'dddddddd-dddd-dddd-dddd-dddddddddd2',
+  'dddddddd-dddd-dddd-dddd-ddddddddddd2',
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2',
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1',
   200,
@@ -175,8 +175,8 @@ INSERT INTO public.matches (
 )
 VALUES (
   'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee1',
-  'dddddddd-dddd-dddd-dddd-dddddddddd1',
-  'dddddddd-dddd-dddd-dddd-dddddddddd2',
+  'dddddddd-dddd-dddd-dddd-ddddddddddd1',
+  'dddddddd-dddd-dddd-dddd-ddddddddddd2',
   0.87,
   '{"product":0.95,"capacity":0.85,"price":0.82,"location":0.8,"certifications":0.9}'::jsonb,
   'Demo match: same product, quantity fits, price band overlap, NTB corridor.',

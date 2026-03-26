@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
+  Building2,
   Settings,
   LogOut,
   PanelLeftClose,
@@ -27,6 +28,7 @@ import { createClient } from '@/lib/supabase/client'
 const mainNav = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Marketplace', href: '/dashboard/marketplace', icon: Store },
+  { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ] as const
 

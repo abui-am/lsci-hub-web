@@ -34,7 +34,7 @@ export async function getSessionContextForUser(
     supabase
       .from('profiles')
       .select(
-        'id, name, organization_id, role, is_platform_superadmin, phone, created_at, deleted_at'
+        'id, name, organization_id, role, is_platform_superadmin, is_supplier, is_buyer, phone, created_at, deleted_at'
       )
       .eq('id', user.id)
       .is('deleted_at', null)

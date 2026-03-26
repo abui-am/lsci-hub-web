@@ -38,13 +38,13 @@ pnpm run seed:test-accounts
 
 Creates organizations + Auth users + `profiles` for local testing. Password for every seeded test user: **`TestPassword123!`**
 
-| Email | Role |
-|-------|------|
-| `superadmin@test.local` | Platform superadmin |
-| `farmer-admin@test.local` | Farmer org, `admin` |
-| `farmer-member@test.local` | Same farmer org, `member` |
-| `umkm-manager@test.local` | UMKM org, `manager` |
-| `hotel-admin@test.local` | Hotel org, `admin` |
-| `gov-member@test.local` | Government org, `member` |
+| Email | Role | Supplier | Buyer |
+|-------|------|----------|-------|
+| `superadmin@test.local` | Platform superadmin | Yes | Yes |
+| `farmer-admin@test.local` | Farmer org, `admin` | Yes | No |
+| `farmer-member@test.local` | Same farmer org, `member` | Yes | No |
+| `umkm-manager@test.local` | UMKM org, `manager` | Yes | No |
+| `hotel-admin@test.local` | Hotel org, `admin` | No | Yes |
+| `gov-member@test.local` | Government org, `member` | No | Yes |
 
 Re-running updates passwords and upserts `profiles` (idempotent). Also upserts marketplace demo rows (listings + match).
