@@ -35,6 +35,7 @@ type DemandListingEdit = {
   certifications_required: string[]
   target_location: string | null
   incoterms: string | null
+  image_url: string | null
   is_open_for_bidding: boolean
   status: DemandListingStatus | null
 }
@@ -44,6 +45,8 @@ type Props = {
   products: ProductRow[]
   canCreateProducts?: boolean
   initial?: DemandListingEdit
+  backHref?: string
+  successRedirectPath?: string
 }
 
 const ADD_NEW_PRODUCT_VALUE = '__add_new_product__'
@@ -107,7 +110,14 @@ function parseSpecificationsKeyValue(text: string): Record<string, unknown> {
   return out
 }
 
-export function DemandListingForm({ mode, products, initial, canCreateProducts }: Props) {
+export function DemandListingForm({
+  mode,
+  products,
+  initial,
+  canCreateProducts,
+  backHref = '/dashboard/marketplace/demand',
+  successRedirectPath = '/dashboard/marketplace/demand',
+}: Props) {
   const router = useRouter()
 
   const [productOptions, setProductOptions] = useState<ProductRow[]>(products)
@@ -138,6 +148,7 @@ export function DemandListingForm({ mode, products, initial, canCreateProducts }
   )
   const [targetLocation, setTargetLocation] = useState<string>(initial?.target_location ?? '')
   const [incoterms, setIncoterms] = useState<string>(initial?.incoterms ?? '')
+  const [imageUrl, setImageUrl] = useState<string>(initial?.image_url ?? '')
   const [openForBidding, setOpenForBidding] = useState<boolean>(
     initial?.is_open_for_bidding ?? true
   )
@@ -232,6 +243,7 @@ export function DemandListingForm({ mode, products, initial, canCreateProducts }
       certifications_required: certs,
       target_location: targetLocation.trim() ? targetLocation.trim() : null,
       incoterms: incoterms.trim() ? incoterms.trim() : null,
+      image_url: imageUrl.trim() ? imageUrl.trim() : null,
       is_open_for_bidding: openForBidding,
       status,
     }
@@ -255,7 +267,7 @@ export function DemandListingForm({ mode, products, initial, canCreateProducts }
       return
     }
 
-    router.push('/dashboard/marketplace/demand')
+    router.push(successRedirectPath)
     router.refresh()
   }
 
@@ -276,7 +288,7 @@ export function DemandListingForm({ mode, products, initial, canCreateProducts }
       return
     }
 
-    router.push('/dashboard/marketplace/demand')
+    router.push(successRedirectPath)
     router.refresh()
   }
 
@@ -284,7 +296,7 @@ export function DemandListingForm({ mode, products, initial, canCreateProducts }
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <Link
-          href="/dashboard/marketplace/demand"
+          href={backHref}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
           Back to demand listings
@@ -450,6 +462,15 @@ export function DemandListingForm({ mode, products, initial, canCreateProducts }
           <div className="space-y-2">
             <label className="text-sm font-medium">Incoterms</label>
             <Input value={incoterms} onChange={(e) => setIncoterms(e.target.value)} placeholder="FOB, CIF, ..." />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-medium">Photo URL</label>
+            <Input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/product.jpg"
+            />
           </div>
 
           <div className="space-y-2">

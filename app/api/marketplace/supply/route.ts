@@ -69,6 +69,9 @@ export async function POST(request: NextRequest) {
     certifications,
     available_from,
     available_until,
+    image_url,
+    supplier_location,
+    expiration_date,
     status,
   } = body as Record<string, unknown>
 
@@ -91,6 +94,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'your account cannot create supply listings' }, { status: 403 })
   }
 
+  const imageUrl =
+    typeof image_url === 'string' && image_url.trim() !== '' ? image_url.trim() : null
+  const supplierLocation =
+    typeof supplier_location === 'string' && supplier_location.trim() !== ''
+      ? supplier_location.trim()
+      : null
+  const expirationDate =
+    typeof expiration_date === 'string' && expiration_date.trim() !== ''
+      ? expiration_date.trim()
+      : null
+
   const { data, error } = await supabase
     .from('supply_listings')
     .insert({
@@ -105,6 +119,9 @@ export async function POST(request: NextRequest) {
       certifications: certs,
       available_from: typeof available_from === 'string' ? available_from : null,
       available_until: typeof available_until === 'string' ? available_until : null,
+      image_url: imageUrl,
+      supplier_location: supplierLocation,
+      expiration_date: expirationDate,
       status: st as ListingStatus,
     })
     .select('id')

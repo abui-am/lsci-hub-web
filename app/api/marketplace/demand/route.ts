@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
     target_location,
     incoterms,
     is_open_for_bidding,
+    image_url,
     status,
   } = body as Record<string, unknown>
 
@@ -114,6 +115,8 @@ export async function POST(request: NextRequest) {
   const targetLocationStr =
     typeof target_location === 'string' ? target_location : null
   const incotermsStr = typeof incoterms === 'string' ? incoterms : null
+  const imageUrl =
+    typeof image_url === 'string' && image_url.trim() !== '' ? image_url.trim() : null
 
   if (!productId) return NextResponse.json({ error: 'product_id is required' }, { status: 400 })
   if (requiredQtyN == null) return NextResponse.json({ error: 'required_quantity is required' }, { status: 400 })
@@ -139,6 +142,7 @@ export async function POST(request: NextRequest) {
       certifications_required: certsRequired,
       target_location: targetLocationStr,
       incoterms: incotermsStr,
+      image_url: imageUrl,
       is_open_for_bidding: openBidding,
       status: st,
     })

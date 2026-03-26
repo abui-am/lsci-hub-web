@@ -66,6 +66,9 @@ export async function PATCH(
     certifications,
     available_from,
     available_until,
+    image_url,
+    supplier_location,
+    expiration_date,
     status,
   } = body as Record<string, unknown>
 
@@ -106,6 +109,22 @@ export async function PATCH(
   if (certs) update.certifications = certs
   if (typeof available_from === 'string') update.available_from = available_from
   if (typeof available_until === 'string') update.available_until = available_until
+  if ('image_url' in (body as Record<string, unknown>)) {
+    update.image_url =
+      typeof image_url === 'string' && image_url.trim() !== '' ? image_url.trim() : null
+  }
+  if ('supplier_location' in (body as Record<string, unknown>)) {
+    update.supplier_location =
+      typeof supplier_location === 'string' && supplier_location.trim() !== ''
+        ? supplier_location.trim()
+        : null
+  }
+  if ('expiration_date' in (body as Record<string, unknown>)) {
+    update.expiration_date =
+      typeof expiration_date === 'string' && expiration_date.trim() !== ''
+        ? expiration_date.trim()
+        : null
+  }
   if (st) update.status = st as ListingStatus
 
   const { error } = await supabase

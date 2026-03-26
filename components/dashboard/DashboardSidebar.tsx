@@ -27,7 +27,7 @@ import { createClient } from '@/lib/supabase/client'
 
 const mainNav = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Marketplace', href: '/dashboard/marketplace', icon: Store },
+  { label: 'Marketplace', href: '/marketplace', icon: Store },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ] as const
 
@@ -47,7 +47,6 @@ export function DashboardSidebar({
         ...mainNav.slice(2),
       ]
     : mainNav
-
   const handleSignOut = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -62,7 +61,7 @@ export function DashboardSidebar({
           href="/dashboard"
           className="flex items-center gap-2 px-2 py-2 font-semibold text-sidebar-foreground"
         >
-          <span className="text-lg">LSCI Hub</span>
+          <span className="text-lg">Indosourcing</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>

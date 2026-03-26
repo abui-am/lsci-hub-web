@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/providers/ToastProvider'
+import { formatCurrencyIDR } from '@/lib/utils'
 
 type OpenRfqForResponse = {
   demandListingId: string
@@ -43,6 +44,24 @@ type SupplyOption = {
   id: string
   quantity: number | null
   price_estimate: number | null
+  min_order_quantity: number | null
+  lead_time_days: number | null
+  price_type: string | null
+  supplier_location: string | null
+  expiration_date: string | null
+  available_from: string | null
+  available_until: string | null
+  status: string | null
+  products:
+    | {
+        name: string | null
+        unit: string | null
+      }
+    | {
+        name: string | null
+        unit: string | null
+      }[]
+    | null
 }
 
 async function createRfqResponse(payload: SubmitPayload) {
@@ -63,7 +82,15 @@ async function createRfqResponse(payload: SubmitPayload) {
   return { ok: true as const }
 }
 
-export function RfqRespondSheet({ rfq }: { rfq: OpenRfqForResponse }) {
+export function RfqRespondSheet({
+  rfq,
+  triggerLabel = 'Send quote',
+  triggerClassName,
+}: {
+  rfq: OpenRfqForResponse
+  triggerLabel?: string
+  triggerClassName?: string
+}) {
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
   const [priceOffer, setPriceOffer] = useState('')
@@ -154,6 +181,19 @@ export function RfqRespondSheet({ rfq }: { rfq: OpenRfqForResponse }) {
     return true
   }, [priceOfferNumber, quantityOfferNumber, maxDemandQuantity, leadTimeDaysNumber])
 
+  const activeSupplyDetail = useMemo(() => {
+    if (!supplyOptions.length) return null
+    if (selectedSupplyListingId === 'auto') return supplyOptions[0] ?? null
+    return supplyOptions.find((opt) => opt.id === selectedSupplyListingId) ?? null
+  }, [selectedSupplyListingId, supplyOptions])
+
+  const activeSupplyProduct = useMemo(() => {
+    if (!activeSupplyDetail?.products) return null
+    return Array.isArray(activeSupplyDetail.products)
+      ? activeSupplyDetail.products[0] ?? null
+      : activeSupplyDetail.products
+  }, [activeSupplyDetail])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!canSubmit) {
@@ -208,8 +248,8 @@ export function RfqRespondSheet({ rfq }: { rfq: OpenRfqForResponse }) {
   return (
     <Sheet open={open} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
-        <Button variant="default" size="sm">
-          Send quote
+        <Button variant="default" size="sm" className={triggerClassName}>
+          {triggerLabel}
         </Button>
       </SheetTrigger>
       <SheetContent>
@@ -253,7 +293,7 @@ export function RfqRespondSheet({ rfq }: { rfq: OpenRfqForResponse }) {
                 {supplyOptions.map((opt, index) => (
                   <SelectItem key={opt.id} value={opt.id}>
                     Listing #{index + 1} - qty {opt.quantity ?? '—'}
-                    {opt.price_estimate != null ? ` - price ${opt.price_estimate}` : ''}
+                    {opt.price_estimate != null ? ` - price ${formatCurrencyIDR(opt.price_estimate)}` : ''}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -262,6 +302,51 @@ export function RfqRespondSheet({ rfq }: { rfq: OpenRfqForResponse }) {
               Auto mode picks your latest active listing for the same product.
             </p>
           </div>
+
+          {activeSupplyDetail ? (
+            <div className="rounded-lg border bg-muted/20 p-3 text-sm">
+              <p className="font-medium text-foreground">
+                Supply detail {selectedSupplyListingId === 'auto' ? '(auto preview)' : ''}
+              </p>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2 text-muted-foreground">
+                <p>
+                  <span className="font-medium text-foreground">Product:</span>{' '}
+                  {activeSupplyProduct?.name ?? rfq.productName}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Status:</span>{' '}
+                  {activeSupplyDetail.status ?? '—'}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Qty:</span>{' '}
+                  {activeSupplyDetail.quantity ?? '—'} {activeSupplyProduct?.unit ?? ''}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Min order:</span>{' '}
+                  {activeSupplyDetail.min_order_quantity ?? '—'}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Price:</span>{' '}
+                  {formatCurrencyIDR(activeSupplyDetail.price_estimate)}{' '}
+                  {activeSupplyDetail.price_type ? `(${activeSupplyDetail.price_type})` : ''}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Lead time:</span>{' '}
+                  {activeSupplyDetail.lead_time_days != null
+                    ? `${activeSupplyDetail.lead_time_days} days`
+                    : '—'}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Location:</span>{' '}
+                  {activeSupplyDetail.supplier_location ?? '—'}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Expires:</span>{' '}
+                  {activeSupplyDetail.expiration_date ?? '—'}
+                </p>
+              </div>
+            </div>
+          ) : null}
 
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="priceOffer">

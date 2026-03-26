@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table'
 import { ArrowLeft } from 'lucide-react'
 import { RfqResponseStatusActions } from '@/components/dashboard/marketplace/RfqResponseStatusActions'
+import { formatCurrencyIDR } from '@/lib/utils'
 
 export default async function MarketplaceRfqPage() {
   const session = await requireSession()
@@ -107,7 +108,7 @@ export default async function MarketplaceRfqPage() {
                       {supplier?.name ?? '—'}
                     </TableCell>
                     <TableCell className="px-3 whitespace-normal">
-                      {row.price_offer}
+                      {formatCurrencyIDR(row.price_offer)}
                       {row.quantity_offer != null ? (
                         <span className="text-muted-foreground">
                           {' '}

@@ -40,7 +40,7 @@ export default async function DemandListingEditPage({
   const { data: listing, error: listingError } = await supabase
     .from('demand_listings')
     .select(
-      'id, product_id, required_quantity, required_by, price_range_from, price_range_to, specifications, certifications_required, target_location, incoterms, is_open_for_bidding, status'
+      'id, product_id, required_quantity, required_by, price_range_from, price_range_to, specifications, certifications_required, target_location, incoterms, image_url, is_open_for_bidding, status'
     )
     .eq('id', id)
     .maybeSingle()
@@ -88,6 +88,7 @@ export default async function DemandListingEditPage({
         certifications_required: certs,
         target_location: listing.target_location,
         incoterms: listing.incoterms,
+        image_url: listing.image_url,
         is_open_for_bidding: listing.is_open_for_bidding,
         status: listing.status,
       }}

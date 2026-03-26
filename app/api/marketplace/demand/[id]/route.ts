@@ -92,6 +92,7 @@ export async function PATCH(
     target_location,
     incoterms,
     is_open_for_bidding,
+    image_url,
     status,
   } = body as Record<string, unknown>
 
@@ -138,6 +139,10 @@ export async function PATCH(
   if (certsRequired) update.certifications_required = certsRequired
   if (targetLocationStr !== undefined) update.target_location = targetLocationStr
   if (incotermsStr !== undefined) update.incoterms = incotermsStr
+  if ('image_url' in (body as Record<string, unknown>)) {
+    update.image_url =
+      typeof image_url === 'string' && image_url.trim() !== '' ? image_url.trim() : null
+  }
   if (openBidding != null) update.is_open_for_bidding = openBidding
   if (st) update.status = st
 

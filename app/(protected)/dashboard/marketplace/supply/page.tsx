@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { relationOne } from '@/lib/supabase/relation'
 import { Plus } from 'lucide-react'
@@ -11,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft } from 'lucide-react'
+import { formatCurrencyIDR } from '@/lib/utils'
 
 export default async function MarketplaceSupplyPage() {
   const supabase = await createClient()
@@ -26,6 +28,9 @@ export default async function MarketplaceSupplyPage() {
       export_capability,
       price_type,
       status,
+      image_url,
+      supplier_location,
+      expiration_date,
       created_at,
       products ( name, unit ),
       organizations ( name )
@@ -80,6 +85,8 @@ export default async function MarketplaceSupplyPage() {
                 <TableHead className="px-3">Price</TableHead>
                 <TableHead className="px-3">Lead (d)</TableHead>
                 <TableHead className="px-3">Export</TableHead>
+                <TableHead className="px-3">Location</TableHead>
+                <TableHead className="px-3">Expires</TableHead>
                 <TableHead className="px-3">Status</TableHead>
                 <TableHead className="px-3">Actions</TableHead>
               </TableRow>
@@ -95,6 +102,17 @@ export default async function MarketplaceSupplyPage() {
                 return (
                   <TableRow key={row.id}>
                     <TableCell className="px-3 whitespace-normal">
+                      <div className="mb-2">
+                        <div className="relative h-12 w-16 overflow-hidden rounded border">
+                          <Image
+                            src={row.image_url ?? '/dummy-cabe.png'}
+                            alt={product?.name ?? 'Supply product'}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        </div>
+                      </div>
                       {product?.name ?? '—'}
                       {product?.unit ? (
                         <span className="text-muted-foreground">
@@ -110,7 +128,7 @@ export default async function MarketplaceSupplyPage() {
                       {row.quantity ?? '—'}
                     </TableCell>
                     <TableCell className="px-3 whitespace-normal">
-                      {row.price_estimate != null ? row.price_estimate : '—'}
+                      {formatCurrencyIDR(row.price_estimate)}
                       {row.price_type ? (
                         <span className="text-muted-foreground">
                           {' '}
@@ -123,6 +141,12 @@ export default async function MarketplaceSupplyPage() {
                     </TableCell>
                     <TableCell className="px-3">
                       {row.export_capability ? 'Yes' : 'No'}
+                    </TableCell>
+                    <TableCell className="px-3 whitespace-normal">
+                      {row.supplier_location ?? '—'}
+                    </TableCell>
+                    <TableCell className="px-3">
+                      {row.expiration_date ?? '—'}
                     </TableCell>
                     <TableCell className="px-3 capitalize">
                       {row.status}

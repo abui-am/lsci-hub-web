@@ -13,6 +13,11 @@ export interface OrganizationRow {
   sector: OrgSector | null
   location_id: string | null
   description: string | null
+  brand_story: string | null
+  logo_image: string | null
+  operation_country: string | null
+  buyer_credit_score: number | null
+  supplier_credit_score: number | null
   created_at: string
   deleted_at: string | null
 }

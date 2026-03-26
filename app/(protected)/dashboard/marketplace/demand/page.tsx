@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { relationOne } from '@/lib/supabase/relation'
 import { requireSession } from '@/lib/rbac/guards'
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/table'
 import { ArrowLeft, Plus } from 'lucide-react'
 import { DemandListingActivateButton } from '@/components/dashboard/marketplace/DemandListingActivateButton'
+import { formatCurrencyIDR, formatCurrencyRangeIDR } from '@/lib/utils'
 
 export default async function MarketplaceDemandPage() {
   const session = await requireSession()
@@ -36,6 +38,7 @@ export default async function MarketplaceDemandPage() {
       incoterms,
       is_open_for_bidding,
       status,
+      image_url,
       created_at,
       products ( name, unit ),
       organizations ( name )
@@ -114,12 +117,21 @@ export default async function MarketplaceDemandPage() {
                   (row.rfq_responses as RfqRow[] | null) ?? []
                 ).filter((r) => r.status === 'accepted')
                 const band =
-                  row.price_range_from != null || row.price_range_to != null
-                    ? `${row.price_range_from ?? '…'} – ${row.price_range_to ?? '…'}`
-                    : '—'
+                  formatCurrencyRangeIDR(row.price_range_from, row.price_range_to)
                 return (
                   <TableRow key={row.id}>
                     <TableCell className="px-3 whitespace-normal">
+                      <div className="mb-2">
+                        <div className="relative h-12 w-16 overflow-hidden rounded border">
+                          <Image
+                            src={row.image_url ?? '/dummy-cabe.png'}
+                            alt={product?.name ?? 'Demand product'}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        </div>
+                      </div>
                       {product?.name ?? '—'}
                       {product?.unit ? (
                         <span className="text-muted-foreground">
@@ -163,7 +175,7 @@ export default async function MarketplaceDemandPage() {
                             return (
                               <p key={q.id} className="text-xs">
                                 {supplier?.name ?? 'Supplier'}: {q.quantity_offer ?? '—'}
-                                {q.price_offer != null ? ` @ ${q.price_offer}` : ''}
+                                {q.price_offer != null ? ` @ ${formatCurrencyIDR(q.price_offer)}` : ''}
                               </p>
                             )
                           })}

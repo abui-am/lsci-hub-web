@@ -1,7 +1,20 @@
-import { requireAuth } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { requireSession } from '@/lib/rbac/guards'
 
 export default async function DashboardOverviewPage() {
-  const user = await requireAuth()
+  const session = await requireSession()
+
+  if (!session.profile.is_platform_superadmin) {
+    if (session.profile.is_supplier && !session.profile.is_buyer) {
+      redirect('/supplier/marketplace')
+    }
+    if (session.profile.is_buyer && !session.profile.is_supplier) {
+      redirect('/buyer/marketplace')
+    }
+    if (session.profile.is_supplier || session.profile.is_buyer) {
+      redirect('/marketplace')
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -9,7 +22,7 @@ export default async function DashboardOverviewPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
         <p className="text-muted-foreground">
           Welcome back. Signed in as{' '}
-          <span className="font-medium text-foreground">{user.email}</span>
+          <span className="font-medium text-foreground">{session.email}</span>
         </p>
       </div>
       <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">

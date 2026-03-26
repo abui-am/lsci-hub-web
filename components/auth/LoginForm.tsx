@@ -46,7 +46,7 @@ export function LoginForm({ redirectTo, queryError }: LoginFormProps) {
       const safe =
         redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
           ? redirectTo
-          : '/'
+          : '/marketplace'
       router.push(safe)
     } finally {
       setLoading(false)

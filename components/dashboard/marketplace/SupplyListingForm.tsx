@@ -29,6 +29,9 @@ type SupplyListingEdit = {
   certifications: string[]
   available_from: string | null
   available_until: string | null
+  image_url: string | null
+  supplier_location: string | null
+  expiration_date: string | null
   status: 'active' | 'matched' | 'closed' | null
 }
 
@@ -37,6 +40,8 @@ type Props = {
   products: ProductRow[]
   canCreateProducts?: boolean
   initial?: SupplyListingEdit
+  backHref?: string
+  successRedirectPath?: string
 }
 
 function toCertText(certs: string[] | null | undefined): string {
@@ -45,7 +50,14 @@ function toCertText(certs: string[] | null | undefined): string {
 
 const ADD_NEW_PRODUCT_VALUE = '__add_new_product__'
 
-export function SupplyListingForm({ mode, products, initial, canCreateProducts }: Props) {
+export function SupplyListingForm({
+  mode,
+  products,
+  initial,
+  canCreateProducts,
+  backHref = '/dashboard/marketplace/supply',
+  successRedirectPath = '/dashboard/marketplace/supply',
+}: Props) {
   const router = useRouter()
 
   const [productOptions, setProductOptions] = useState<ProductRow[]>(products)
@@ -85,6 +97,13 @@ export function SupplyListingForm({ mode, products, initial, canCreateProducts }
   )
   const [availableUntil, setAvailableUntil] = useState<string>(
     initial?.available_until ?? ''
+  )
+  const [imageUrl, setImageUrl] = useState<string>(initial?.image_url ?? '')
+  const [supplierLocation, setSupplierLocation] = useState<string>(
+    initial?.supplier_location ?? ''
+  )
+  const [expirationDate, setExpirationDate] = useState<string>(
+    initial?.expiration_date ?? ''
   )
   const [status, setStatus] = useState<'active' | 'matched' | 'closed'>(
     initial?.status ?? 'active'
@@ -170,6 +189,9 @@ export function SupplyListingForm({ mode, products, initial, canCreateProducts }
       certifications: certificationsText,
       available_from: availableFrom.trim() ? availableFrom : null,
       available_until: availableUntil.trim() ? availableUntil : null,
+      image_url: imageUrl.trim() ? imageUrl.trim() : null,
+      supplier_location: supplierLocation.trim() ? supplierLocation.trim() : null,
+      expiration_date: expirationDate.trim() ? expirationDate.trim() : null,
       status,
     }
 
@@ -192,7 +214,7 @@ export function SupplyListingForm({ mode, products, initial, canCreateProducts }
       return
     }
 
-    router.push('/dashboard/marketplace/supply')
+    router.push(successRedirectPath)
     router.refresh()
   }
 
@@ -213,7 +235,7 @@ export function SupplyListingForm({ mode, products, initial, canCreateProducts }
       return
     }
 
-    router.push('/dashboard/marketplace/supply')
+    router.push(successRedirectPath)
     router.refresh()
   }
 
@@ -221,7 +243,7 @@ export function SupplyListingForm({ mode, products, initial, canCreateProducts }
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <Link
-          href="/dashboard/marketplace/supply"
+          href={backHref}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
           Back to supply listings
@@ -398,6 +420,33 @@ export function SupplyListingForm({ mode, products, initial, canCreateProducts }
           <div className="space-y-2">
             <label className="text-sm font-medium">Available until</label>
             <Input value={availableUntil} onChange={(e) => setAvailableUntil(e.target.value)} placeholder="YYYY-MM-DD" />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-medium">Photo URL</label>
+            <Input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/product.jpg"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Supplier location</label>
+            <Input
+              value={supplierLocation}
+              onChange={(e) => setSupplierLocation(e.target.value)}
+              placeholder="e.g. Surabaya, Indonesia"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Expiration date</label>
+            <Input
+              value={expirationDate}
+              onChange={(e) => setExpirationDate(e.target.value)}
+              placeholder="YYYY-MM-DD"
+            />
           </div>
         </div>
 

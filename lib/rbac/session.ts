@@ -9,7 +9,7 @@ async function fetchOrganization(
   const { data, error } = await supabase
     .from('organizations')
     .select(
-      'id, name, type, sector, location_id, description, created_at, deleted_at'
+      'id, name, type, sector, location_id, description, brand_story, logo_image, operation_country, buyer_credit_score, supplier_credit_score, created_at, deleted_at'
     )
     .eq('id', organizationId)
     .is('deleted_at', null)

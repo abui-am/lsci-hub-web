@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LSCI Hub",
-  description: "LSCI Hub application",
+  title: "Indosourcing",
+  description: "Indosourcing application",
 };
 
 export default function RootLayout({

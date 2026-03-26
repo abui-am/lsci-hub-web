@@ -5,6 +5,7 @@ import { relationOne } from '@/lib/supabase/relation'
 import { requireSession } from '@/lib/rbac/guards'
 import { ArrowLeft } from 'lucide-react'
 import { RfqRespondSheet } from '@/components/dashboard/marketplace/RfqRespondSheet'
+import { formatCurrencyRangeIDR } from '@/lib/utils'
 
 export default async function MarketplaceOpenRfqPage() {
   const session = await requireSession()
@@ -122,9 +123,7 @@ export default async function MarketplaceOpenRfqPage() {
               row.organizations as { name: string }[] | { name: string } | null
             )
             const priceBand =
-              row.price_range_from != null || row.price_range_to != null
-                ? `${row.price_range_from ?? '…'} – ${row.price_range_to ?? '…'}`
-                : '—'
+              formatCurrencyRangeIDR(row.price_range_from, row.price_range_to)
 
             return (
               <li
@@ -133,7 +132,7 @@ export default async function MarketplaceOpenRfqPage() {
               >
                 <div className="relative aspect-[4/3] w-full">
                   <Image
-                    src="/dummy-rfq-photo.svg"
+                    src="/dummy-cabe.png"
                     alt="RFQ product placeholder"
                     fill
                     className="object-cover"

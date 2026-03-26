@@ -44,7 +44,22 @@ export async function GET(request: NextRequest) {
 
   const { data: listings, error } = await supabase
     .from('supply_listings')
-    .select('id, quantity, price_estimate, available_from, available_until, products(name, unit)')
+    .select(
+      `
+      id,
+      quantity,
+      price_estimate,
+      min_order_quantity,
+      lead_time_days,
+      price_type,
+      supplier_location,
+      expiration_date,
+      available_from,
+      available_until,
+      status,
+      products(name, unit)
+    `
+    )
     .eq('organization_id', session.organization.id)
     .eq('product_id', demand.product_id)
     .is('deleted_at', null)

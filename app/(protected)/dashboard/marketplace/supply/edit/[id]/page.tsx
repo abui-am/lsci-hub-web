@@ -41,7 +41,7 @@ export default async function SupplyListingEditPage({
   const { data: listing, error: listingError } = await supabase
     .from('supply_listings')
     .select(
-      'id, product_id, quantity, price_estimate, min_order_quantity, lead_time_days, export_capability, price_type, certifications, available_from, available_until, status'
+      'id, product_id, quantity, price_estimate, min_order_quantity, lead_time_days, export_capability, price_type, certifications, available_from, available_until, image_url, supplier_location, expiration_date, status'
     )
     .eq('id', id)
     .maybeSingle()
@@ -85,6 +85,9 @@ export default async function SupplyListingEditPage({
         certifications: certs,
         available_from: listing.available_from,
         available_until: listing.available_until,
+        image_url: listing.image_url,
+        supplier_location: listing.supplier_location,
+        expiration_date: listing.expiration_date,
         status: listing.status,
       }}
     />
