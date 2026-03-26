@@ -1,4 +1,4 @@
-import { requireSession } from '@/lib/auth'
+import { requireSession } from '@/lib/rbac/guards'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 
 export default async function DashboardLayout({
@@ -6,12 +6,17 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  await requireSession()
+  const session = await requireSession()
 
   return (
-    
     <div className="min-h-svh w-full bg-background">
-      <DashboardShell>{children}</DashboardShell>
+      <DashboardShell
+        canViewOrganizations={
+          session.profile.is_platform_superadmin || session.profile.role === 'admin'
+        }
+      >
+        {children}
+      </DashboardShell>
     </div>
   )
 }

@@ -70,10 +70,16 @@ function AppBarUser() {
   )
 }
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({
+  children,
+  canViewOrganizations,
+}: {
+  children: React.ReactNode
+  canViewOrganizations: boolean
+}) {
   return (
     <SidebarProvider>
-      <DashboardSidebar />
+      <DashboardSidebar canViewOrganizations={canViewOrganizations} />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-4">
           <SidebarTrigger />

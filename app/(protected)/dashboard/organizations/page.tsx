@@ -20,6 +20,18 @@ type OrgRow = {
 
 export default async function OrganizationsPage() {
   const session = await requireSession()
+  const canAccess =
+    session.profile.is_platform_superadmin || session.profile.role === 'admin'
+  if (!canAccess) {
+    return (
+      <div className="rounded-lg border bg-card p-6 text-sm">
+        <h2 className="text-base font-semibold">Forbidden</h2>
+        <p className="mt-2 text-muted-foreground">
+          Only organization admins or platform superadmin can access this page.
+        </p>
+      </div>
+    )
+  }
   const supabase = await createClient()
 
   const base = supabase

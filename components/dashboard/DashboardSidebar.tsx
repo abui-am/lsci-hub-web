@@ -28,14 +28,25 @@ import { createClient } from '@/lib/supabase/client'
 const mainNav = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Marketplace', href: '/dashboard/marketplace', icon: Store },
-  { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ] as const
 
-export function DashboardSidebar() {
+export function DashboardSidebar({
+  canViewOrganizations,
+}: {
+  canViewOrganizations: boolean
+}) {
   const pathname = usePathname()
   const router = useRouter()
   const { toggleSidebar } = useSidebar()
+
+  const navItems = canViewOrganizations
+    ? [
+        ...mainNav.slice(0, 2),
+        { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
+        ...mainNav.slice(2),
+      ]
+    : mainNav
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -59,7 +70,7 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNav.map((item) => (
+              {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild

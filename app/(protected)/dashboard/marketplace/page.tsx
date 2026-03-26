@@ -7,34 +7,34 @@ const sections = [
     href: '/dashboard/marketplace/supply',
     title: 'Supply listings',
     description:
-      'Supplier offers: quantity, pricing, lead time, export and certifications (TRD block 5).',
+      'Create and manage your available products, stock, prices, and delivery timeline.',
     icon: Package,
   },
   {
     href: '/dashboard/marketplace/demand',
     title: 'Demand / RFQ',
     description:
-      'Buyer requirements, specs, Incoterms, and bidding workflow (TRD block 6).',
+      'Create purchase requests with quantity, target price, and delivery details.',
     icon: ClipboardList,
   },
   {
     href: '/dashboard/marketplace/matches',
     title: 'AI matches',
     description:
-      'Suggested supply–demand pairs with scores and explanations (TRD blocks 7–10).',
+      'View recommended supplier-buyer opportunities based on product and availability.',
     icon: GitMerge,
   },
   {
     href: '/dashboard/marketplace/rfq/open',
     title: 'Open RFQs',
     description:
-      'Supplier can send quotes to any open RFQ. AI is a recommender only (TRD block 8).',
+      'Browse open buyer requests and send a quote directly.',
     icon: MessagesSquare,
   },
   {
     href: '/dashboard/marketplace/rfq',
     title: 'RFQ responses',
-    description: 'Your submitted supplier quotes and their evaluation.',
+    description: 'Review quote activity and buyer decisions in one place.',
     icon: MessagesSquare,
   },
 ] as const
@@ -74,8 +74,8 @@ export default async function MarketplaceHubPage() {
           Procurement marketplace
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Prototype shell for the AI procurement & supply-chain platform (TRD
-          v2): listings, matching, RFQ, and negotiation.
+          Manage supplier offers, buyer requests, quotes, and matching in one
+          workflow.
         </p>
       </div>
       {!visibleSections.length ? (
