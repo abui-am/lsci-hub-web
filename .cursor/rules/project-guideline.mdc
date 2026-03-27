@@ -2,4 +2,3 @@
 alwaysApply: true
 ---
 
-This app is an Admin Dashboard, which mean you can't register new user normaly. Each use must be registered by the superadmin account.
