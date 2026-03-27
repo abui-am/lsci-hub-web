@@ -43,10 +43,34 @@ export function LoginForm({ redirectTo, queryError }: LoginFormProps) {
         return
       }
       router.refresh()
-      const safe =
+      const safeRedirect =
         redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
           ? redirectTo
-          : '/marketplace'
+          : null
+
+      let safe = safeRedirect ?? '/marketplace'
+      if (!safeRedirect) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
+        if (user?.id) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_supplier, is_buyer, is_platform_superadmin')
+            .eq('id', user.id)
+            .is('deleted_at', null)
+            .maybeSingle()
+
+          if (profile && !profile.is_platform_superadmin) {
+            if (profile.is_supplier && !profile.is_buyer) {
+              safe = '/supplier/marketplace'
+            } else if (profile.is_buyer && !profile.is_supplier) {
+              safe = '/buyer/marketplace'
+            }
+          }
+        }
+      }
       router.push(safe)
     } finally {
       setLoading(false)
