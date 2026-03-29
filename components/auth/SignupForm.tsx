@@ -48,7 +48,7 @@ export function SignupForm() {
   if (success) {
     return (
       <div className="rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
-        Check your email for a confirmation link to activate your account.
+        Periksa email Anda untuk tautan konfirmasi mengaktifkan akun.
       </div>
     )
   }
@@ -62,7 +62,7 @@ export function SignupForm() {
         <Input
           id="signup-email"
           type="email"
-          placeholder="you@example.com"
+          placeholder="anda@contoh.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -72,7 +72,7 @@ export function SignupForm() {
       </div>
       <div className="space-y-2">
         <label htmlFor="signup-password" className="text-sm font-medium">
-          Password
+          Kata sandi
         </label>
         <Input
           id="signup-password"
@@ -84,7 +84,7 @@ export function SignupForm() {
           autoComplete="new-password"
           disabled={loading}
         />
-        <p className="text-xs text-muted-foreground">At least 6 characters</p>
+        <p className="text-xs text-muted-foreground">Minimal 6 karakter</p>
       </div>
       {error && (
         <p className="text-sm text-destructive" role="alert">
@@ -92,7 +92,7 @@ export function SignupForm() {
         </p>
       )}
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Creating account…' : 'Create account'}
+        {loading ? 'Membuat akun…' : 'Buat akun'}
       </Button>
     </form>
   )

@@ -9,12 +9,12 @@ export default async function DemandListingNewPage() {
   if (!session.organization) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">No organization linked</h2>
+        <h2 className="text-base font-semibold">Belum ada organisasi</h2>
         <p className="mt-2 text-muted-foreground">
-          To create a demand listing, you must be linked to a buyer organization.
+          Untuk membuat listing permintaan, Anda harus ditautkan ke organisasi pembeli.
         </p>
         <p className="mt-3">
-          Go to <a className="underline" href="/dashboard/settings">Settings</a> and wait for admin approval.
+          Buka <a className="underline" href="/dashboard/settings">Pengaturan</a> dan tunggu persetujuan admin.
         </p>
       </div>
     )
@@ -23,9 +23,9 @@ export default async function DemandListingNewPage() {
   if (!session.profile.is_platform_superadmin && !session.profile.is_buyer) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account is not marked as <span className="font-medium">buyer</span>.
+          Akun Anda tidak ditandai sebagai <span className="font-medium">pembeli</span>.
         </p>
       </div>
     )
@@ -41,7 +41,7 @@ export default async function DemandListingNewPage() {
   if (error) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        Failed to load products: {error.message}
+        Gagal memuat produk: {error.message}
       </div>
     )
   }

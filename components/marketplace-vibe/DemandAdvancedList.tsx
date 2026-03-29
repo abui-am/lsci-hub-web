@@ -122,53 +122,53 @@ export function DemandAdvancedList({ items }: { items: DemandListItem[] }) {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search demand by product, buyer, or target"
+            placeholder="Cari permintaan menurut produk, pembeli, atau tujuan"
           />
           <select
             value={bidding}
             onChange={(e) => setBidding(e.target.value as 'all' | 'open' | 'closed')}
             className="h-9 rounded-md border bg-background px-3 text-sm"
           >
-            <option value="all">All bidding states</option>
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
+            <option value="all">Semua status lelang</option>
+            <option value="open">Terbuka</option>
+            <option value="closed">Ditutup</option>
           </select>
-          <Input value={minQty} onChange={(e) => setMinQty(e.target.value)} placeholder="Min qty" />
-          <Input value={maxQty} onChange={(e) => setMaxQty(e.target.value)} placeholder="Max qty" />
-          <Input value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Min price" />
-          <Input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Max price" />
+          <Input value={minQty} onChange={(e) => setMinQty(e.target.value)} placeholder="Jml min" />
+          <Input value={maxQty} onChange={(e) => setMaxQty(e.target.value)} placeholder="Jml maks" />
+          <Input value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Harga min" />
+          <Input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Harga maks" />
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                  Sort
+                  Urutkan
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSortBy('newest')}>Newest</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('newest')}>Terbaru</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortBy('qty_desc')}>
-                  Qty high to low
+                  Jumlah tinggi ke rendah
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortBy('qty_asc')}>
-                  Qty low to high
+                  Jumlah rendah ke tinggi
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortBy('required_by_asc')}>
-                  Required-by earliest
+                  Deadline paling dekat
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="ghost" size="sm" onClick={clearFilters}>
-              Clear
+              Hapus
             </Button>
           </div>
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground">{filtered.length} demand listing(s)</p>
+      <p className="text-sm text-muted-foreground">{filtered.length} listing permintaan</p>
 
       {filtered.length === 0 ? (
         <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-          No demand listings match your filters.
+          Tidak ada listing permintaan yang cocok dengan filter Anda.
         </p>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -191,7 +191,7 @@ export function DemandAdvancedList({ items }: { items: DemandListItem[] }) {
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-base">{item.productName}</CardTitle>
                       <Badge variant={item.isOpenForBidding ? 'success' : 'outline'}>
-                        {item.isOpenForBidding ? 'Open' : 'Closed'}
+                        {item.isOpenForBidding ? 'Terbuka' : 'Ditutup'}
                       </Badge>
                     </div>
                     <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
@@ -203,35 +203,35 @@ export function DemandAdvancedList({ items }: { items: DemandListItem[] }) {
                     <p>
                       <span className="inline-flex items-center gap-1 text-muted-foreground">
                         <Scale className="h-3.5 w-3.5" />
-                        Required qty:
+                        Jumlah yang dibutuhkan:
                       </span>{' '}
                       {item.requiredQuantity ?? '-'} {item.productUnit ?? ''}
                     </p>
                     <p>
                       <span className="inline-flex items-center gap-1 text-muted-foreground">
                         <CircleDollarSign className="h-3.5 w-3.5" />
-                        Price band:
+                        Rentang harga:
                       </span>{' '}
                       {band}
                     </p>
                     <p>
                       <span className="inline-flex items-center gap-1 text-muted-foreground">
                         <Globe2 className="h-3.5 w-3.5" />
-                        Target:
+                        Tujuan:
                       </span>{' '}
                       {item.targetLabel || '-'}
                     </p>
                     <p>
                       <span className="inline-flex items-center gap-1 text-muted-foreground">
                         <CalendarClock className="h-3.5 w-3.5" />
-                        Required by:
+                        Dibutuhkan pada:
                       </span>{' '}
                       {item.requiredBy ?? '-'}
                     </p>
                     <div>
                       <p className="inline-flex items-center gap-1 text-muted-foreground">
                         <BadgeCheck className="h-3.5 w-3.5" />
-                        Accepted quotes:
+                        Penawaran diterima:
                       </p>
                       {item.acceptedQuotes.length === 0 ? (
                         <p>-</p>

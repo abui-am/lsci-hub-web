@@ -63,11 +63,11 @@ export function MarketplaceOrganizationAccountForm({
         const error =
           json && typeof json === 'object' && 'error' in json
             ? String((json as { error?: unknown }).error)
-            : 'Request failed'
-        toast({ title: 'Failed to update account', description: error, variant: 'error' })
+            : 'Permintaan gagal'
+        toast({ title: 'Gagal memperbarui akun', description: error, variant: 'error' })
         return
       }
-      toast({ title: 'Organization account updated', variant: 'success' })
+      toast({ title: 'Akun organisasi diperbarui', variant: 'success' })
     } finally {
       setSaving(false)
     }
@@ -76,12 +76,12 @@ export function MarketplaceOrganizationAccountForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border bg-card p-6">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Organization name</label>
+        <label className="text-sm font-medium">Nama organisasi</label>
         <Input value={name} onChange={(e) => setName(e.target.value)} disabled={!canEdit} />
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Logo image URL</label>
+        <label className="text-sm font-medium">URL gambar logo</label>
         <Input
           value={logoImage}
           onChange={(e) => setLogoImage(e.target.value)}
@@ -91,7 +91,7 @@ export function MarketplaceOrganizationAccountForm({
         <div className="relative h-20 w-20 overflow-hidden rounded-md border">
           <Image
             src={logoImage.trim() || '/dummy-cabe.png'}
-            alt="Organization logo"
+            alt="Logo organisasi"
             fill
             className="object-cover"
             sizes="80px"
@@ -100,32 +100,32 @@ export function MarketplaceOrganizationAccountForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Operation location (country)</label>
+        <label className="text-sm font-medium">Lokasi operasi (negara)</label>
         <Input
           value={operationCountry}
           onChange={(e) => setOperationCountry(e.target.value)}
-          placeholder="e.g. Indonesia"
+          placeholder="mis. Indonesia"
           disabled={!canEdit}
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Buyer credit score (0-100)</label>
+          <label className="text-sm font-medium">Skor kredit pembeli (0-100)</label>
           <Input
             value={buyerCreditScore}
             onChange={(e) => setBuyerCreditScore(e.target.value)}
-            placeholder="e.g. 78.5"
+            placeholder="mis. 78,5"
             inputMode="decimal"
             disabled={!canEditScores}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">Supplier credit score (0-100)</label>
+          <label className="text-sm font-medium">Skor kredit pemasok (0-100)</label>
           <Input
             value={supplierCreditScore}
             onChange={(e) => setSupplierCreditScore(e.target.value)}
-            placeholder="e.g. 84"
+            placeholder="mis. 84"
             inputMode="decimal"
             disabled={!canEditScores}
           />
@@ -134,7 +134,7 @@ export function MarketplaceOrganizationAccountForm({
       {!canEditScores ? (
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-xs text-muted-foreground">
-            Credit score is managed by platform superadmin.
+            Skor kredit dikelola oleh superadmin platform.
           </p>
           <Button
             type="button"
@@ -142,44 +142,44 @@ export function MarketplaceOrganizationAccountForm({
             variant="outline"
             onClick={() =>
               toast({
-                title: 'Credit score review requested',
+                title: 'Permintaan tinjauan skor terkirim',
                 description:
-                  'Your request has been noted. Please follow up with the platform superadmin.',
+                  'Permintaan Anda telah dicatat. Silakan hubungi superadmin platform.',
               })
             }
           >
-            Request score review
+            Minta tinjauan skor
           </Button>
         </div>
       ) : null}
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Organization description</label>
+        <label className="text-sm font-medium">Deskripsi organisasi</label>
         <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Short profile"
+          placeholder="Profil singkat"
           disabled={!canEdit}
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Brand story</label>
+        <label className="text-sm font-medium">Cerita merek</label>
         <Textarea
           value={brandStory}
           onChange={(e) => setBrandStory(e.target.value)}
-          placeholder="Tell your brand story"
+          placeholder="Ceritakan merek Anda"
           disabled={!canEdit}
         />
       </div>
 
       {canEdit ? (
         <Button type="submit" disabled={saving}>
-          {saving ? 'Saving...' : 'Save changes'}
+          {saving ? 'Menyimpan...' : 'Simpan perubahan'}
         </Button>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Only organization admin/manager (or platform superadmin) can edit this section.
+          Hanya admin/manajer organisasi (atau superadmin platform) yang dapat mengedit bagian ini.
         </p>
       )}
     </form>

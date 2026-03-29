@@ -13,9 +13,9 @@ export default async function MarketplaceOpenRfqPage() {
   if (!session.profile.is_platform_superadmin && !session.profile.is_supplier) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account is not marked as <span className="font-medium">supplier</span>.
+          Akun Anda tidak ditandai sebagai <span className="font-medium">pemasok</span>.
         </p>
       </div>
     )
@@ -95,23 +95,23 @@ export default async function MarketplaceOpenRfqPage() {
           href="/dashboard/marketplace/rfq"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          Your RFQ responses
+          Respons RFQ Anda
         </Link>
       </div>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Open RFQs</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">RFQ terbuka</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          All demand listings that are open for bidding. Send a quote to respond.
+          Semua listing permintaan yang terbuka untuk penawaran. Kirim penawaran untuk merespons.
         </p>
       </div>
 
       {!openDemandRows?.length ? (
         <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-          No open RFQs right now.
+          Saat ini tidak ada RFQ terbuka.
         </p>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid gap-4 sm:grid-cols-4 xl:grid-cols-6">
           {openDemandRows.map((row) => {
             const product = relationOne(
               row.products as
@@ -133,14 +133,14 @@ export default async function MarketplaceOpenRfqPage() {
                 <div className="relative aspect-[4/3] w-full">
                   <Image
                     src="/dummy-cabe.png"
-                    alt="RFQ product placeholder"
+                    alt="Placeholder produk RFQ"
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                   />
                   {suggestedIds.has(row.id) ? (
                     <span className="absolute top-3 right-3 rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground">
-                      AI recommended
+                      Rekomendasi AI
                     </span>
                   ) : null}
                 </div>
@@ -149,19 +149,19 @@ export default async function MarketplaceOpenRfqPage() {
                   <div>
                     <p className="text-base font-semibold">{product?.name ?? '—'}</p>
                     <p className="text-sm text-muted-foreground">
-                      Buyer: {buyer?.name ?? '—'}
+                      Pembeli: {buyer?.name ?? '—'}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="rounded-md bg-muted/40 px-2 py-1.5">
-                      <p className="text-xs text-muted-foreground">Quantity</p>
+                      <p className="text-xs text-muted-foreground">Jumlah</p>
                       <p className="font-medium">
                         {row.required_quantity ?? '—'} {product?.unit ?? ''}
                       </p>
                     </div>
                     <div className="rounded-md bg-muted/40 px-2 py-1.5">
-                      <p className="text-xs text-muted-foreground">Price band</p>
+                      <p className="text-xs text-muted-foreground">Rentang harga</p>
                       <p className="font-medium">{priceBand}</p>
                     </div>
                     <div className="rounded-md bg-muted/40 px-2 py-1.5">
@@ -169,7 +169,7 @@ export default async function MarketplaceOpenRfqPage() {
                       <p className="font-medium capitalize">{row.status}</p>
                     </div>
                     <div className="rounded-md bg-muted/40 px-2 py-1.5">
-                      <p className="text-xs text-muted-foreground">Required by</p>
+                      <p className="text-xs text-muted-foreground">Dibutuhkan</p>
                       <p className="font-medium">{row.required_by ?? '—'}</p>
                     </div>
                   </div>
@@ -179,15 +179,15 @@ export default async function MarketplaceOpenRfqPage() {
                       <RfqRespondSheet
                         rfq={{
                           demandListingId: row.id,
-                          productName: product?.name ?? 'Product',
-                          buyerOrgName: buyer?.name ?? 'Buyer',
+                          productName: product?.name ?? 'Produk',
+                          buyerOrgName: buyer?.name ?? 'Pembeli',
                           requiredQuantity: row.required_quantity ?? null,
                           priceBandLabel: priceBand,
                         }}
                       />
                     ) : (
                       <span className="text-xs text-muted-foreground">
-                        Link supplier org first
+                        Tautkan organisasi pemasok terlebih dahulu
                       </span>
                     )}
                   </div>

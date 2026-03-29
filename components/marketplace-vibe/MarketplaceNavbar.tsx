@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Store } from 'lucide-react'
+import Image from 'next/image'
 
 interface MarketplaceNavbarProps {
   isSupplier: boolean
@@ -16,8 +16,14 @@ export function MarketplaceNavbar({
     <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4">
         <Link href="/marketplace" className="flex items-center gap-2 font-semibold">
-          <Store className="size-4" />
-          <span>Indosourcing Marketplace</span>
+          <Image
+            src="/indosourcing.png"
+            alt="Logo Indosourcing"
+            width={20}
+            height={20}
+            className="rounded-sm"
+          />
+          <span>Indosourcing</span>
         </Link>
         <nav className="flex items-center gap-2 text-sm">
           {(isSupplier || isSuperadmin) && (
@@ -25,7 +31,7 @@ export function MarketplaceNavbar({
               href="/supplier/marketplace"
               className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              Supplier
+              Pemasok
             </Link>
           )}
           {(isBuyer || isSuperadmin) && (
@@ -33,7 +39,7 @@ export function MarketplaceNavbar({
               href="/buyer/marketplace"
               className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              Buyer
+              Pembeli
             </Link>
           )}
           {(isSupplier || isSuperadmin) && (
@@ -41,7 +47,7 @@ export function MarketplaceNavbar({
               href="/marketplace/supply"
               className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              Supply list
+              Daftar pasokan
             </Link>
           )}
           {(isBuyer || isSuperadmin) && (
@@ -49,7 +55,7 @@ export function MarketplaceNavbar({
               href="/marketplace/demand"
               className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              Demand listing
+              Listing permintaan
             </Link>
           )}
           {(isSupplier || isBuyer || isSuperadmin) && (
@@ -57,11 +63,11 @@ export function MarketplaceNavbar({
               href="/marketplace/advisor"
               className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              AI Advisor
+              Penasihat AI
             </Link>
           )}
           <Link href="/marketplace/account" className="rounded-md border px-2.5 py-1 hover:bg-muted">
-            Account
+            Akun
           </Link>
         </nav>
       </div>

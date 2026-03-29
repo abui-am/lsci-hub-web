@@ -9,9 +9,9 @@ export default async function MarketplaceSupplyNewPage() {
   if (!session.organization) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">No organization linked</h2>
+        <h2 className="text-base font-semibold">Belum ada organisasi</h2>
         <p className="mt-2 text-muted-foreground">
-          To create a supply listing, your account must be linked to a supplier organization.
+          Untuk membuat listing pasokan, akun harus ditautkan ke organisasi pemasok.
         </p>
       </div>
     )
@@ -20,9 +20,9 @@ export default async function MarketplaceSupplyNewPage() {
   if (!session.profile.is_platform_superadmin && !session.profile.is_supplier) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account is not marked as supplier.
+          Akun Anda tidak ditandai sebagai pemasok.
         </p>
       </div>
     )
@@ -38,7 +38,7 @@ export default async function MarketplaceSupplyNewPage() {
   if (error) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        Failed to load products: {error.message}
+        Gagal memuat produk: {error.message}
       </div>
     )
   }

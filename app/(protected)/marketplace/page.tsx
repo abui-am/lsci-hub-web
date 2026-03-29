@@ -28,7 +28,7 @@ export default async function MarketplaceEntryPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Marketplace</h1>
         <p className="text-sm text-muted-foreground">
-          Separate experience from dashboard. Choose your role workspace.
+          Pengalaman terpisah dari dasbor. Pilih ruang kerja sesuai peran Anda.
         </p>
       </div>
 
@@ -36,14 +36,14 @@ export default async function MarketplaceEntryPage() {
         {(isSuper || isSupplier) && (
           <Card>
             <CardHeader>
-              <CardTitle>Supplier workspace</CardTitle>
+              <CardTitle>Ruang kerja pemasok</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Browse open RFQs, send quotes, and monitor response status.
+                Jelajahi RFQ terbuka, kirim penawaran, dan pantau status respons.
               </p>
               <Button asChild>
-                <Link href="/supplier/marketplace">Go to supplier marketplace</Link>
+                <Link href="/supplier/marketplace">Ke marketplace pemasok</Link>
               </Button>
             </CardContent>
           </Card>
@@ -52,14 +52,14 @@ export default async function MarketplaceEntryPage() {
         {(isSuper || isBuyer) && (
           <Card>
             <CardHeader>
-              <CardTitle>Buyer workspace</CardTitle>
+              <CardTitle>Ruang kerja pembeli</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Review incoming quotes and decide with accept/reject controls.
+                Tinjau penawaran masuk dan putuskan dengan terima/tolak.
               </p>
               <Button asChild>
-                <Link href="/buyer/marketplace">Go to buyer marketplace</Link>
+                <Link href="/buyer/marketplace">Ke marketplace pembeli</Link>
               </Button>
             </CardContent>
           </Card>
@@ -71,7 +71,7 @@ export default async function MarketplaceEntryPage() {
           href="/dashboard"
           className="text-sm text-muted-foreground underline-offset-4 hover:underline"
         >
-          Back to dashboard
+          Kembali ke dasbor
         </Link>
       </div>
     </div>

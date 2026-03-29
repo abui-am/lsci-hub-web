@@ -15,9 +15,9 @@ export default async function MarketplaceSupplyListPage() {
   if (!session.profile.is_platform_superadmin && !session.profile.is_supplier) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account is not marked as supplier.
+          Akun Anda tidak ditandai sebagai pemasok.
         </p>
       </div>
     )
@@ -55,27 +55,27 @@ export default async function MarketplaceSupplyListPage() {
           className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:bg-muted"
         >
           <Plus className="size-4" aria-hidden />
-          Add supply
+          Tambah pasokan
         </Link>
       </div>
 
       <MarketplaceHeader
-        title="Supply list"
-        description="Marketplace inventory from suppliers, with quantity, pricing, and readiness details."
+        title="Daftar pasokan"
+        description="Inventori marketplace dari pemasok, dengan jumlah, harga, dan kesiapan."
         stats={[
-          { label: 'Total listings', value: rows?.length ?? 0 },
+          { label: 'Total listing', value: rows?.length ?? 0 },
           {
-            label: 'Open listings',
+            label: 'Listing terbuka',
             value: (rows ?? []).filter((row) => row.status === 'active').length,
           },
           {
-            label: 'Export ready',
+            label: 'Siap ekspor',
             value: (rows ?? []).filter((row) => row.export_capability).length,
           },
         ]}
       />
 
-      <MarketplaceFilterBar searchPlaceholder="Search supply by product or supplier" />
+      <MarketplaceFilterBar searchPlaceholder="Cari pasokan menurut produk atau pemasok" />
 
       {error ? (
         <p className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -83,10 +83,10 @@ export default async function MarketplaceSupplyListPage() {
         </p>
       ) : !rows?.length ? (
         <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-          No supply listings available yet.
+          Belum ada listing pasokan.
         </p>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid gap-4 sm:grid-cols-3 xl:grid-cols-4">
           {rows.map((row) => {
             const product = relationOne(
               row.products as
@@ -107,7 +107,7 @@ export default async function MarketplaceSupplyListPage() {
                   <div className="relative aspect-[16/10] w-full overflow-hidden rounded-t-xl">
                     <Image
                       src={row.image_url ?? '/dummy-cabe.png'}
-                      alt={product?.name ?? 'Supply product'}
+                      alt={product?.name ?? 'Produk pasokan'}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 33vw"
@@ -115,7 +115,7 @@ export default async function MarketplaceSupplyListPage() {
                   </div>
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-base">{product?.name ?? 'Product'}</CardTitle>
+                      <CardTitle className="text-base">{product?.name ?? 'Produk'}</CardTitle>
                       <Badge variant={row.status === 'active' ? 'success' : 'outline'}>
                         {row.status}
                       </Badge>
@@ -124,7 +124,7 @@ export default async function MarketplaceSupplyListPage() {
                       <div className="relative h-6 w-6 overflow-hidden rounded-full border">
                         <Image
                           src={org?.logo_image ?? '/dummy-cabe.png'}
-                          alt={org?.name ?? 'Supplier logo'}
+                          alt={org?.name ?? 'Logo pemasok'}
                           fill
                           className="object-cover"
                           sizes="24px"
@@ -132,14 +132,14 @@ export default async function MarketplaceSupplyListPage() {
                       </div>
                       {org?.id ? (
                         <Link href={`/marketplace/account/${org.id}`} className="hover:underline">
-                          {org?.name ?? 'Supplier'}
+                          {org?.name ?? 'Pemasok'}
                         </Link>
                       ) : (
-                        <p>{org?.name ?? 'Supplier'}</p>
+                        <p>{org?.name ?? 'Pemasok'}</p>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Credit score:{' '}
+                      Skor kredit:{' '}
                       {formatCreditScore(
                         (org as { supplier_credit_score?: number | null } | null)
                           ?.supplier_credit_score
@@ -148,31 +148,31 @@ export default async function MarketplaceSupplyListPage() {
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
                     <p>
-                      <span className="text-muted-foreground">Quantity:</span>{' '}
+                      <span className="text-muted-foreground">Jumlah:</span>{' '}
                       {row.quantity ?? '-'} {product?.unit ?? ''}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">Price:</span>{' '}
+                      <span className="text-muted-foreground">Harga:</span>{' '}
                       {formatCurrencyIDR(row.price_estimate)} {row.price_type ? `(${row.price_type})` : ''}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">Min order:</span>{' '}
+                      <span className="text-muted-foreground">MOQ:</span>{' '}
                       {row.min_order_quantity ?? '-'}
                     </p>
                     <p>
                       <span className="text-muted-foreground">Lead time:</span>{' '}
-                      {row.lead_time_days ?? '-'} days
+                      {row.lead_time_days ?? '-'} hari
                     </p>
                     <p>
-                      <span className="text-muted-foreground">Export:</span>{' '}
-                      {row.export_capability ? 'Yes' : 'No'}
+                      <span className="text-muted-foreground">Ekspor:</span>{' '}
+                      {row.export_capability ? 'Ya' : 'Tidak'}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">Location:</span>{' '}
+                      <span className="text-muted-foreground">Lokasi:</span>{' '}
                       {row.supplier_location ?? '-'}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">Expires:</span>{' '}
+                      <span className="text-muted-foreground">Kedaluwarsa:</span>{' '}
                       {row.expiration_date ?? '-'}
                     </p>
                   </CardContent>

@@ -156,10 +156,10 @@ export function DemandListingForm({
     initial?.status ?? (mode === 'create' ? 'active' : 'draft')
   )
 
-  const specsPlaceholder = 'grade: A\npackaging: 10kg crates\norigin: Indonesia'
+  const specsPlaceholder = 'grade: A\nkemasan: peti 10kg\nasal: Indonesia'
 
   const submitLabel = useMemo(() => {
-    return mode === 'create' ? 'Create demand listing' : 'Update demand listing'
+    return mode === 'create' ? 'Buat listing permintaan' : 'Perbarui listing permintaan'
   }, [mode])
 
   useEffect(() => {
@@ -168,12 +168,12 @@ export function DemandListingForm({
 
   const handleCreateProduct = async () => {
     if (!canCreateProducts) {
-      alert('You do not have permission to create products.')
+      alert('Anda tidak memiliki izin untuk membuat produk.')
       return
     }
 
     const name = newProductName.trim()
-    if (!name) return alert('Product name is required')
+    if (!name) return alert('Nama produk wajib diisi')
 
     setIsCreatingProduct(true)
     try {
@@ -193,7 +193,7 @@ export function DemandListingForm({
         const msg =
           typeof data === 'object' && data && 'error' in data
             ? String((data as { error?: unknown }).error)
-            : 'Request failed'
+            : 'Permintaan gagal'
         alert(msg)
         return
       }
@@ -201,7 +201,7 @@ export function DemandListingForm({
       const created = (data as { product?: { id: string; name: string; unit: string } }).product
         ? (data as { product: { id: string; name: string; unit: string } }).product
         : (data as { id: string; name: string; unit: string })
-      if (!created?.id) return alert('Product created, but no id returned.')
+      if (!created?.id) return alert('Produk dibuat, tetapi ID tidak dikembalikan.')
 
       setProductOptions((prev) => {
         if (prev.some((p) => p.id === created.id)) return prev
@@ -222,9 +222,9 @@ export function DemandListingForm({
     e.preventDefault()
 
     const requiredQtyN = Number(requiredQuantity)
-    if (!productId || productId === ADD_NEW_PRODUCT_VALUE) return alert('Product is required')
+    if (!productId || productId === ADD_NEW_PRODUCT_VALUE) return alert('Produk wajib dipilih')
     if (!Number.isFinite(requiredQtyN) || requiredQtyN <= 0)
-      return alert('Required quantity must be > 0')
+      return alert('Jumlah yang dibutuhkan harus > 0')
 
     const specsObj = parseSpecificationsKeyValue(specificationsText)
 
@@ -262,7 +262,7 @@ export function DemandListingForm({
       const msg =
         typeof data === 'object' && data && 'error' in data
           ? String((data as { error?: unknown }).error)
-          : 'Request failed'
+          : 'Permintaan gagal'
       alert(msg)
       return
     }
@@ -273,7 +273,7 @@ export function DemandListingForm({
 
   const handleDelete = async () => {
     if (!initial?.id) return
-    if (!confirm('Delete this demand listing?')) return
+    if (!confirm('Hapus listing permintaan ini?')) return
 
     const res = await fetch(`/api/marketplace/demand/${initial.id}`, {
       method: 'DELETE',
@@ -283,7 +283,7 @@ export function DemandListingForm({
       const msg =
         typeof data === 'object' && data && 'error' in data
           ? String((data as { error?: unknown }).error)
-          : 'Request failed'
+          : 'Permintaan gagal'
       alert(msg)
       return
     }
@@ -299,20 +299,20 @@ export function DemandListingForm({
           href={backHref}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          Back to demand listings
+          Kembali ke daftar permintaan
         </Link>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border bg-card p-5">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Product</label>
+            <label className="text-sm font-medium">Produk</label>
             <Select
               key={productId}
               defaultValue={productId}
               onValueChange={(v) => {
                 if (v === ADD_NEW_PRODUCT_VALUE) {
-                  if (!canCreateProducts) return alert('You do not have permission to create products.')
+                  if (!canCreateProducts) return alert('Anda tidak memiliki izin untuk membuat produk.')
                   if (productId !== ADD_NEW_PRODUCT_VALUE) {
                     setPreviousProductId(productId)
                   }
@@ -326,11 +326,11 @@ export function DemandListingForm({
               }}
             >
               <SelectTrigger className="w-full min-w-0" size="default">
-                <SelectValue placeholder="Select product" />
+                <SelectValue placeholder="Pilih produk" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={ADD_NEW_PRODUCT_VALUE} disabled={!canCreateProducts}>
-                  {canCreateProducts ? '+ Add new product...' : 'Products managed by platform'}
+                  {canCreateProducts ? '+ Tambah produk baru...' : 'Produk dikelola platform'}
                 </SelectItem>
                 {productOptions.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
@@ -343,16 +343,16 @@ export function DemandListingForm({
             {showAddProduct && (
               <div className="mt-3 space-y-3 rounded-md border bg-background p-3">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">New product name</label>
+                  <label className="text-sm font-medium">Nama produk baru</label>
                   <Input
                     value={newProductName}
                     onChange={(e) => setNewProductName(e.target.value)}
-                    placeholder="e.g. Organic coffee"
+                    placeholder="mis. Kopi organik"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Unit</label>
+                  <label className="text-sm font-medium">Satuan</label>
                   <select
                     className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                     value={newProductUnit}
@@ -371,10 +371,10 @@ export function DemandListingForm({
                     type="checkbox"
                     checked={newProductIsRawMaterial}
                     onChange={(e) => setNewProductIsRawMaterial(e.target.checked)}
-                    aria-label="Raw material"
+                    aria-label="Bahan baku"
                   />
                   <span className="text-sm text-muted-foreground">
-                    {newProductIsRawMaterial ? 'Raw material' : 'Finished product'}
+                    {newProductIsRawMaterial ? 'Bahan baku' : 'Produk jadi'}
                   </span>
                 </div>
 
@@ -387,10 +387,10 @@ export function DemandListingForm({
                       setProductId(previousProductId)
                     }}
                   >
-                    Cancel
+                    Batal
                   </Button>
                   <Button type="button" onClick={handleCreateProduct} disabled={isCreatingProduct}>
-                    {isCreatingProduct ? 'Creating...' : 'Create product'}
+                    {isCreatingProduct ? 'Membuat...' : 'Buat produk'}
                   </Button>
                 </div>
               </div>
@@ -415,48 +415,58 @@ export function DemandListingForm({
                 ] as const
               ).map((s) => (
                 <option key={s} value={s}>
-                  {s}
+                  {s === 'draft'
+                    ? 'Draf'
+                    : s === 'active'
+                      ? 'Aktif'
+                      : s === 'receiving_quotes'
+                        ? 'Menerima penawaran'
+                        : s === 'negotiating'
+                          ? 'Negosiasi'
+                          : s === 'finalized'
+                            ? 'Final'
+                            : 'Ditutup'}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Required quantity</label>
+            <label className="text-sm font-medium">Jumlah yang dibutuhkan</label>
             <Input
               value={requiredQuantity}
               onChange={(e) => setRequiredQuantity(e.target.value)}
-              placeholder="e.g. 200"
+              placeholder="mis. 200"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Required by</label>
+            <label className="text-sm font-medium">Dibutuhkan pada</label>
             <Input value={requiredBy} onChange={(e) => setRequiredBy(e.target.value)} placeholder="YYYY-MM-DD" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Price range from</label>
-            <Input value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} placeholder="optional" />
+            <label className="text-sm font-medium">Rentang harga dari</label>
+            <Input value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} placeholder="opsional" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Price range to</label>
-            <Input value={priceTo} onChange={(e) => setPriceTo(e.target.value)} placeholder="optional" />
+            <label className="text-sm font-medium">Rentang harga sampai</label>
+            <Input value={priceTo} onChange={(e) => setPriceTo(e.target.value)} placeholder="opsional" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Certifications required (comma separated)</label>
+            <label className="text-sm font-medium">Sertifikasi wajib (pisahkan koma)</label>
             <Input
               value={certificationsRequiredText}
               onChange={(e) => setCertificationsRequiredText(e.target.value)}
-              placeholder="e.g. ISO, Halal"
+              placeholder="mis. ISO, Halal"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Target location</label>
-            <Input value={targetLocation} onChange={(e) => setTargetLocation(e.target.value)} placeholder="e.g. Mandalika" />
+            <label className="text-sm font-medium">Lokasi tujuan</label>
+            <Input value={targetLocation} onChange={(e) => setTargetLocation(e.target.value)} placeholder="mis. Mandalika" />
           </div>
 
           <div className="space-y-2">
@@ -465,7 +475,7 @@ export function DemandListingForm({
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium">Photo URL</label>
+            <label className="text-sm font-medium">URL foto</label>
             <Input
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
@@ -474,22 +484,22 @@ export function DemandListingForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Open for bidding</label>
+            <label className="text-sm font-medium">Terbuka untuk penawaran</label>
             <div className="flex items-center gap-3 rounded-lg border px-3 py-2">
               <input
                 type="checkbox"
                 checked={openForBidding}
                 onChange={(e) => setOpenForBidding(e.target.checked)}
-                aria-label="Open for bidding"
+                aria-label="Terbuka untuk penawaran"
               />
               <span className="text-sm text-muted-foreground">
-                {openForBidding ? 'Open' : 'Closed'}
+                {openForBidding ? 'Terbuka' : 'Ditutup'}
               </span>
             </div>
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium">Specifications JSON</label>
+            <label className="text-sm font-medium">Spesifikasi (kunci:nilai per baris)</label>
             <textarea
               className="min-h-[96px] w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               value={specificationsText}
@@ -508,7 +518,7 @@ export function DemandListingForm({
               className="border-destructive text-destructive"
               onClick={handleDelete}
             >
-              Delete
+              Hapus
             </Button>
           ) : null}
         </div>

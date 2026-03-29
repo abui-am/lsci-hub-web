@@ -13,7 +13,7 @@ const idrFormatter = new Intl.NumberFormat('id-ID', {
 
 export function formatCurrencyIDR(
   value: number | null | undefined,
-  fallback = '—'
+  fallback = 'Tidak tersedia'
 ) {
   if (value == null || !Number.isFinite(value)) return fallback
   return idrFormatter.format(value)
@@ -22,7 +22,7 @@ export function formatCurrencyIDR(
 export function formatCurrencyRangeIDR(
   min: number | null | undefined,
   max: number | null | undefined,
-  fallback = '—'
+  fallback = 'Tidak tersedia'
 ) {
   if (min == null && max == null) return fallback
   const minLabel = min == null ? '...' : formatCurrencyIDR(min)

@@ -25,9 +25,9 @@ export default async function OrganizationsPage() {
   if (!canAccess) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Forbidden</h2>
+        <h2 className="text-base font-semibold">Dilarang</h2>
         <p className="mt-2 text-muted-foreground">
-          Only organization admins or platform superadmin can access this page.
+          Hanya admin organisasi atau superadmin platform yang dapat mengakses halaman ini.
         </p>
       </div>
     )
@@ -50,7 +50,7 @@ export default async function OrganizationsPage() {
   if (error) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        Failed to load organizations: {error.message}
+        Gagal memuat organisasi: {error.message}
       </div>
     )
   }
@@ -60,11 +60,11 @@ export default async function OrganizationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Organizations</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Organisasi</h1>
         <p className="text-muted-foreground">
           {session.profile.is_platform_superadmin
-            ? 'All organizations in the platform.'
-            : 'Your organization.'}
+            ? 'Semua organisasi di platform.'
+            : 'Organisasi Anda.'}
         </p>
       </div>
 
@@ -72,11 +72,11 @@ export default async function OrganizationsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Sector</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>Nama</TableHead>
+              <TableHead>Jenis</TableHead>
+              <TableHead>Sektor</TableHead>
+              <TableHead>Dibuat</TableHead>
+              <TableHead>Aksi</TableHead>
               <TableHead>ID</TableHead>
             </TableRow>
           </TableHeader>
@@ -95,7 +95,7 @@ export default async function OrganizationsPage() {
                         href={`/dashboard/organizations/edit/${o.id}`}
                         className="text-sm underline underline-offset-4"
                       >
-                        Edit
+                        Ubah
                       </Link>
                     ) : (
                       <span className="text-sm text-muted-foreground">—</span>
@@ -109,7 +109,7 @@ export default async function OrganizationsPage() {
             ) : (
               <TableRow>
                 <TableCell colSpan={6} className="text-muted-foreground">
-                  No organizations found.
+                  Tidak ada organisasi.
                 </TableCell>
               </TableRow>
             )}

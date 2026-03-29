@@ -35,21 +35,21 @@ export default async function BuyerProfilePage({ params }: BuyerProfilePageProps
         <Button asChild variant="ghost" size="sm" className="gap-1">
           <Link href="/supplier/marketplace">
             <ArrowLeft className="h-4 w-4" />
-            Back to supplier marketplace
+            Kembali ke marketplace pemasok
           </Link>
         </Button>
       </div>
 
       <MarketplaceHeader
-        title={org.name ?? 'Buyer organization'}
-        description={org.description ?? 'Organization profile'}
+        title={org.name ?? 'Organisasi pembeli'}
+        description={org.description ?? 'Profil organisasi'}
         stats={[
-          { label: 'Country', value: org.operation_country ?? 'Not specified' },
+          { label: 'Negara', value: org.operation_country ?? 'Tidak ditentukan' },
           {
-            label: 'Buyer credit score',
+            label: 'Skor kredit pembeli',
             value: formatCreditScore(org.buyer_credit_score),
           },
-          { label: 'Type', value: 'Buyer profile' },
+          { label: 'Jenis', value: 'Profil pembeli' },
         ]}
       />
 
@@ -59,7 +59,7 @@ export default async function BuyerProfilePage({ params }: BuyerProfilePageProps
           <div className="relative mt-3 aspect-square w-full overflow-hidden rounded-md border bg-muted/30">
             <Image
               src={org.logo_image || '/dummy-cabe.png'}
-              alt={org.name ?? 'Buyer logo'}
+              alt={org.name ?? 'Logo pembeli'}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 33vw"
@@ -68,9 +68,9 @@ export default async function BuyerProfilePage({ params }: BuyerProfilePageProps
         </div>
 
         <div className="rounded-lg border bg-card p-4 md:col-span-2">
-          <p className="text-sm font-medium">Brand story</p>
+          <p className="text-sm font-medium">Cerita merek</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            {org.brand_story?.trim() || 'No brand story provided.'}
+            {org.brand_story?.trim() || 'Belum ada cerita merek.'}
           </p>
         </div>
       </div>

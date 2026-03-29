@@ -27,12 +27,12 @@ export function RfqResponseDecisionActions({ responseId }: { responseId: string 
   const handleAccept = async () => {
     try {
       await patchStatus(responseId, 'accepted')
-      toast({ title: 'Quote accepted', variant: 'success' })
+      toast({ title: 'Penawaran diterima', variant: 'success' })
       router.refresh()
     } catch (error) {
       toast({
-        title: 'Unable to accept quote',
-        description: error instanceof Error ? error.message : 'Please try again.',
+        title: 'Tidak dapat menerima penawaran',
+        description: error instanceof Error ? error.message : 'Silakan coba lagi.',
         variant: 'error',
       })
     }
@@ -41,12 +41,12 @@ export function RfqResponseDecisionActions({ responseId }: { responseId: string 
   const handleReject = async () => {
     try {
       await patchStatus(responseId, 'rejected')
-      toast({ title: 'Quote rejected', variant: 'success' })
+      toast({ title: 'Penawaran ditolak', variant: 'success' })
       router.refresh()
     } catch (error) {
       toast({
-        title: 'Unable to reject quote',
-        description: error instanceof Error ? error.message : 'Please try again.',
+        title: 'Tidak dapat menolak penawaran',
+        description: error instanceof Error ? error.message : 'Silakan coba lagi.',
         variant: 'error',
       })
     }
@@ -55,17 +55,17 @@ export function RfqResponseDecisionActions({ responseId }: { responseId: string 
   return (
     <div className="flex items-center gap-2">
       <ActionConfirmDialog
-        triggerLabel="Accept"
-        title="Accept this quote?"
-        description="This will decrement demand quantity and the linked supply quantity."
-        confirmLabel="Accept quote"
+        triggerLabel="Terima"
+        title="Terima penawaran ini?"
+        description="Ini akan mengurangi jumlah permintaan dan jumlah pasokan yang tertaut."
+        confirmLabel="Terima penawaran"
         onConfirm={handleAccept}
       />
       <ActionConfirmDialog
-        triggerLabel="Reject"
-        title="Reject this quote?"
-        description="You can still review other supplier quotes after rejecting this one."
-        confirmLabel="Reject quote"
+        triggerLabel="Tolak"
+        title="Tolak penawaran ini?"
+        description="Anda masih dapat meninjau penawaran pemasok lain setelah menolak yang ini."
+        confirmLabel="Tolak penawaran"
         onConfirm={handleReject}
         variant="outline"
       />

@@ -38,30 +38,30 @@ export default async function MarketplaceAccountByIdPage({
         <Button asChild variant="ghost" size="sm" className="gap-1">
           <Link href="/marketplace">
             <ArrowLeft className="h-4 w-4" />
-            Back to marketplace
+            Kembali ke marketplace
           </Link>
         </Button>
       </div>
 
       <MarketplaceHeader
-        title={org.name ?? 'Organization account'}
-        description={org.description ?? 'Organization profile information'}
+        title={org.name ?? 'Akun organisasi'}
+        description={org.description ?? 'Informasi profil organisasi'}
         stats={[
-          { label: 'Country', value: org.operation_country ?? 'Not specified' },
-          { label: 'Type', value: org.type ?? 'Not specified' },
-          { label: 'Sector', value: org.sector ?? 'Not specified' },
-          { label: 'Buyer score', value: formatCreditScore(org.buyer_credit_score) },
-          { label: 'Supplier score', value: formatCreditScore(org.supplier_credit_score) },
+          { label: 'Negara', value: org.operation_country ?? 'Tidak ditentukan' },
+          { label: 'Jenis', value: org.type ?? 'Tidak ditentukan' },
+          { label: 'Sektor', value: org.sector ?? 'Tidak ditentukan' },
+          { label: 'Skor pembeli', value: formatCreditScore(org.buyer_credit_score) },
+          { label: 'Skor pemasok', value: formatCreditScore(org.supplier_credit_score) },
         ]}
       />
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border bg-card p-4">
-          <p className="text-sm font-medium">Organization photo</p>
+          <p className="text-sm font-medium">Foto organisasi</p>
           <div className="relative mt-3 aspect-square w-full overflow-hidden rounded-md border bg-muted/30">
             <Image
               src={org.logo_image || '/dummy-cabe.png'}
-              alt={org.name ?? 'Organization logo'}
+              alt={org.name ?? 'Logo organisasi'}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 33vw"
@@ -70,9 +70,9 @@ export default async function MarketplaceAccountByIdPage({
         </div>
 
         <div className="rounded-lg border bg-card p-4 md:col-span-2">
-          <p className="text-sm font-medium">Brand story</p>
+          <p className="text-sm font-medium">Cerita merek</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            {org.brand_story?.trim() || 'No brand story provided.'}
+            {org.brand_story?.trim() || 'Belum ada cerita merek.'}
           </p>
         </div>
       </div>

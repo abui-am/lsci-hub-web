@@ -19,9 +19,9 @@ export default async function MarketplaceDemandListPage() {
   if (!session.profile.is_platform_superadmin && !session.profile.is_buyer) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account is not marked as buyer.
+          Akun Anda tidak ditandai sebagai pembeli.
         </p>
       </div>
     )
@@ -66,26 +66,26 @@ export default async function MarketplaceDemandListPage() {
           className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:bg-muted"
         >
           <Plus className="size-4" aria-hidden />
-          Add demand
+          Tambah permintaan
         </Link>
       </div>
 
       <MarketplaceHeader
-        title="Demand listing"
-        description="Buyer demand requests with bidding status and accepted quote insights."
+        title="Listing permintaan"
+        description="Permintaan pembeli dengan status lelang dan ringkasan penawaran diterima."
         stats={[
           {
-            label: 'Total RFQs',
+            label: 'Total RFQ',
             value: rows?.length ?? 0,
             icon: <ClipboardList className="h-3.5 w-3.5" />,
           },
           {
-            label: 'Open RFQs',
+            label: 'RFQ terbuka',
             value: (rows ?? []).filter((row) => row.is_open_for_bidding).length,
             icon: <ShoppingCart className="h-3.5 w-3.5" />,
           },
           {
-            label: 'Closed RFQs',
+            label: 'RFQ ditutup',
             value: (rows ?? []).filter((row) => row.status === 'closed').length,
             icon: <CircleCheckBig className="h-3.5 w-3.5" />,
           },
@@ -98,7 +98,7 @@ export default async function MarketplaceDemandListPage() {
         </p>
       ) : !rows?.length ? (
         <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-          No demand listings available yet.
+          Belum ada listing permintaan.
         </p>
       ) : (
         <DemandAdvancedList
@@ -117,9 +117,9 @@ export default async function MarketplaceDemandListPage() {
             )
             return {
               id: row.id,
-              productName: product?.name ?? 'Product',
+              productName: product?.name ?? 'Produk',
               productUnit: product?.unit ?? null,
-              buyerName: org?.name ?? 'Buyer',
+              buyerName: org?.name ?? 'Pembeli',
               requiredQuantity: row.required_quantity ?? null,
               priceFrom: row.price_range_from ?? null,
               priceTo: row.price_range_to ?? null,
@@ -137,7 +137,7 @@ export default async function MarketplaceDemandListPage() {
                 )
                 return {
                   id: quote.id,
-                  supplierName: supplier?.name ?? 'Supplier',
+                  supplierName: supplier?.name ?? 'Pemasok',
                   quantityOffer: quote.quantity_offer ?? null,
                   priceOffer: quote.price_offer ?? null,
                 }

@@ -27,9 +27,9 @@ export default async function SupplierMarketplacePage() {
   if (!session.profile.is_platform_superadmin && !session.profile.is_supplier) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account is not marked as supplier.
+          Akun Anda tidak ditandai sebagai pemasok.
         </p>
       </div>
     )
@@ -50,10 +50,12 @@ export default async function SupplierMarketplacePage() {
       target_location,
       incoterms,
       certifications_required,
+      payment_terms,
+      rfq_expires_at,
       status,
       created_at,
       products ( name, unit, category ),
-      organizations ( id, name, logo_image, buyer_credit_score )
+      organizations ( id, name, logo_image, buyer_credit_score, is_verified_business, completed_deals_count, type, sector )
     `
     )
     .is('deleted_at', null)
@@ -73,6 +75,23 @@ export default async function SupplierMarketplacePage() {
     : { data: null }
   const suggestedIds = new Set(
     (suggestedMatches ?? []).map((match: { demand_listing_id: string }) => match.demand_listing_id)
+  )
+  const { data: intelligenceRows } = openDemandIds.length
+    ? await supabase
+        .from('rfq_supplier_intelligence_v1')
+        .select('demand_listing_id, quotes_count, estimated_deal_value, market_gap_percent, win_probability')
+        .in('demand_listing_id', openDemandIds)
+    : { data: null }
+  const intelligenceMap = new Map(
+    (intelligenceRows ?? []).map(
+      (row: {
+        demand_listing_id: string
+        quotes_count: number | null
+        estimated_deal_value: number | null
+        market_gap_percent: number | null
+        win_probability: number | null
+      }) => [row.demand_listing_id, row]
+    )
   )
 
   const { data: responseRows } = await supabase
@@ -110,18 +129,37 @@ export default async function SupplierMarketplacePage() {
     )
     const buyer = relationOne(
       row.organizations as
-        | { name: string; buyer_credit_score?: number | null }[]
-        | { name: string; buyer_credit_score?: number | null }
+        | {
+            id?: string
+            name: string
+            logo_image?: string | null
+            buyer_credit_score?: number | null
+            is_verified_business?: boolean | null
+            completed_deals_count?: number | null
+            type?: string | null
+            sector?: string | null
+          }[]
+        | {
+            id?: string
+            name: string
+            logo_image?: string | null
+            buyer_credit_score?: number | null
+            is_verified_business?: boolean | null
+            completed_deals_count?: number | null
+            type?: string | null
+            sector?: string | null
+          }
         | null
     )
+    const intelligence = intelligenceMap.get(row.id)
 
     return {
       id: row.id,
-      productName: product?.name ?? 'Product',
+      productName: product?.name ?? 'Produk',
       productUnit: product?.unit ?? null,
       productCategory:
         (product as { category?: string } | null)?.category ?? null,
-      buyerName: buyer?.name ?? 'Buyer',
+      buyerName: buyer?.name ?? 'Pembeli',
       buyerOrganizationId: (buyer as { id?: string } | null)?.id ?? null,
       buyerLogoUrl:
         (buyer as { logo_image?: string | null } | null)?.logo_image ?? null,
@@ -140,33 +178,44 @@ export default async function SupplierMarketplacePage() {
           : null,
       targetLocation: row.target_location ?? null,
       incoterms: row.incoterms ?? null,
+      paymentTerms: row.payment_terms ?? null,
+      rfqExpiresAt: row.rfq_expires_at ?? null,
       certifications: Array.isArray(row.certifications_required)
         ? (row.certifications_required as string[])
         : [],
       status: row.status,
       createdAt: row.created_at ?? null,
       recommended: suggestedIds.has(row.id),
+      buyerIsVerified: (buyer as { is_verified_business?: boolean | null } | null)?.is_verified_business ?? false,
+      buyerCompletedDeals: (buyer as { completed_deals_count?: number | null } | null)?.completed_deals_count ?? null,
+      buyerOrgType: (buyer as { type?: string | null } | null)?.type ?? null,
+      buyerSector: (buyer as { sector?: string | null } | null)?.sector ?? null,
+      quotesCount: intelligence?.quotes_count ?? 0,
+      estimatedDealValue: intelligence?.estimated_deal_value ?? null,
+      marketGapPercent: intelligence?.market_gap_percent ?? null,
+      winProbability: intelligence?.win_probability ?? null,
     }
   })
 
   return (
     <div className="space-y-6">
       <MarketplaceHeader
-        title="Supplier marketplace"
-        description="Find buyer requests, send quotes faster, and track outcomes in one place."
+        title="Marketplace pemasok"
+        description="Temukan permintaan pembeli, kirim penawaran lebih cepat, dan pantau hasil di satu tempat."
+        statsColumns={2}
         stats={[
           {
-            label: 'Open RFQs',
+            label: 'RFQ terbuka',
             value: openDemandRows?.length ?? 0,
             icon: <ShoppingCart className="h-3.5 w-3.5" />,
           },
           {
-            label: 'Pending quotes',
+            label: 'Penawaran menunggu',
             value: pendingCount,
             icon: <CalendarClock className="h-3.5 w-3.5" />,
           },
           {
-            label: 'Accepted quotes',
+            label: 'Penawaran diterima',
             value: acceptedCount,
             icon: <CircleDollarSign className="h-3.5 w-3.5" />,
           },
@@ -175,8 +224,8 @@ export default async function SupplierMarketplacePage() {
 
       <Tabs defaultValue="open-rfq">
         <TabsList>
-          <TabsTrigger value="open-rfq">Open RFQs</TabsTrigger>
-          <TabsTrigger value="my-responses">My responses</TabsTrigger>
+          <TabsTrigger value="open-rfq">RFQ terbuka</TabsTrigger>
+          <TabsTrigger value="my-responses">Respons saya</TabsTrigger>
         </TabsList>
 
         <TabsContent value="open-rfq" className="space-y-4">
@@ -186,30 +235,30 @@ export default async function SupplierMarketplacePage() {
         <TabsContent value="my-responses">
           {!responseRows?.length ? (
             <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-              You have not submitted quotes yet.
+              Anda belum mengirim penawaran.
             </p>
           ) : (
             <div className="space-y-4">
               <div className="grid gap-2 rounded-lg border bg-card p-3 md:grid-cols-5 md:items-center">
                 <div className="rounded-md bg-muted/40 p-3">
-                  <p className="text-xs text-muted-foreground">Open RFQs</p>
+                  <p className="text-xs text-muted-foreground">RFQ terbuka</p>
                   <p className="text-xl font-semibold">{openDemandRows?.length ?? 0}</p>
                 </div>
                 <div className="hidden justify-center md:flex">
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="rounded-md bg-muted/40 p-3">
-                  <p className="text-xs text-muted-foreground">Quotes sent</p>
+                  <p className="text-xs text-muted-foreground">Penawaran terkirim</p>
                   <p className="text-xl font-semibold">{pendingCount + acceptedCount + rejectedCount}</p>
                   <p className="text-xs text-muted-foreground">
-                    {pendingCount} pending, {rejectedCount} rejected
+                    {pendingCount} menunggu, {rejectedCount} ditolak
                   </p>
                 </div>
                 <div className="hidden justify-center md:flex">
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-900/60 dark:bg-emerald-950/20">
-                  <p className="text-xs text-emerald-700 dark:text-emerald-300">Accepted (won)</p>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-300">Diterima (menang)</p>
                   <p className="text-xl font-semibold text-emerald-700 dark:text-emerald-200">
                     {acceptedCount}
                   </p>
@@ -265,14 +314,14 @@ export default async function SupplierMarketplacePage() {
                               <div className="relative h-12 w-14 overflow-hidden rounded-md border">
                                 <Image
                                   src={demandImageSrc}
-                                  alt={product?.name ?? 'Demand product'}
+                                  alt={product?.name ?? 'Produk permintaan'}
                                   fill
                                   className="object-cover"
                                   sizes="56px"
                                 />
                               </div>
                               <div>
-                                <p className="font-semibold">{product?.name ?? 'Unnamed product'}</p>
+                                <p className="font-semibold">{product?.name ?? 'Produk tanpa nama'}</p>
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                   <div className="relative h-5 w-5 overflow-hidden rounded-full border">
                                     <Image
@@ -280,30 +329,30 @@ export default async function SupplierMarketplacePage() {
                                         (buyer as { logo_image?: string | null } | null)?.logo_image ??
                                         '/dummy-cabe.png'
                                       }
-                                      alt={buyer?.name ?? 'Buyer logo'}
+                                      alt={buyer?.name ?? 'Logo pembeli'}
                                       fill
                                       className="object-cover"
                                       sizes="20px"
                                     />
                                   </div>
                                   <span>
-                                    Buyer:{' '}
+                                    Pembeli:{' '}
                                     {(buyer as { id?: string; name?: string } | null)?.id ? (
                                       <Link
                                         href={`/marketplace/account/${(buyer as { id: string }).id}`}
                                         className="hover:underline"
                                       >
-                                        {buyer?.name ?? 'Not specified'}
+                                        {buyer?.name ?? 'Tidak ditentukan'}
                                       </Link>
                                     ) : (
-                                      (buyer?.name ?? 'Not specified')
+                                      (buyer?.name ?? 'Tidak ditentukan')
                                     )}
                                   </span>
                                 </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              {isAccepted ? <Badge variant="success">Money won</Badge> : null}
+                              {isAccepted ? <Badge variant="success">Deal menang</Badge> : null}
                               <QuoteStatusBadge
                                 status={row.status as 'pending' | 'accepted' | 'rejected'}
                               />
@@ -314,7 +363,7 @@ export default async function SupplierMarketplacePage() {
                             <div className="rounded-md bg-muted/40 p-2">
                               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                                 <CircleDollarSign className="h-3.5 w-3.5" />
-                                Offer
+                                Penawaran
                               </p>
                               <p className="text-sm font-medium">
                                 {formatCurrencyIDR(row.price_offer)}
@@ -324,12 +373,12 @@ export default async function SupplierMarketplacePage() {
                             <div className="rounded-md bg-muted/40 p-2">
                               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                                 <CircleDollarSign className="h-3.5 w-3.5" />
-                                Deal value
+                                Nilai deal
                               </p>
                               <p className="text-sm font-medium">
                                 {totalValue != null
                                   ? formatCurrencyIDR(totalValue)
-                                  : 'Not enough data'}
+                                  : 'Data kurang'}
                               </p>
                             </div>
                             <div className="rounded-md bg-muted/40 p-2">
@@ -338,15 +387,15 @@ export default async function SupplierMarketplacePage() {
                                 Lead time
                               </p>
                               <p className="text-sm font-medium">
-                                {row.lead_time_days != null ? `${row.lead_time_days} days` : 'Not specified'}
+                                {row.lead_time_days != null ? `${row.lead_time_days} hari` : 'Tidak ditentukan'}
                               </p>
                             </div>
                             <div className="rounded-md bg-muted/40 p-2">
                               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                                 <CalendarClock className="h-3.5 w-3.5" />
-                                Buyer deadline
+                                Tenggat pembeli
                               </p>
-                              <p className="text-sm font-medium">{demand?.required_by ?? 'Not specified'}</p>
+                              <p className="text-sm font-medium">{demand?.required_by ?? 'Tidak ditentukan'}</p>
                             </div>
                           </div>
 
@@ -363,7 +412,7 @@ export default async function SupplierMarketplacePage() {
                           </div>
 
                           {row.message ? (
-                            <p className="text-xs text-muted-foreground">Note: {row.message}</p>
+                            <p className="text-xs text-muted-foreground">Catatan: {row.message}</p>
                           ) : null}
                         </CardContent>
                       </Card>

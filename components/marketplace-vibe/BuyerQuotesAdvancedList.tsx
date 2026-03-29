@@ -167,19 +167,19 @@ export function BuyerQuotesAdvancedList({
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search supplier, buyer, or product"
+              placeholder="Cari pemasok, pembeli, atau produk"
               className="h-11 text-base"
             />
             <Button type="submit" size="default" className="h-11 px-4">
               <Search className="mr-2 h-4 w-4" />
-              Search
+              Cari
             </Button>
             <Button
               type="button"
               size="icon"
               variant="outline"
               className="h-11 w-11"
-              aria-label="AI Search"
+              aria-label="Pencarian AI"
               onClick={() => setIsAiModalOpen(true)}
             >
               <Sparkles className="h-4 w-4" />
@@ -187,41 +187,41 @@ export function BuyerQuotesAdvancedList({
           </form>
         </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <Input value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Min price (IDR)" />
-          <Input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Max price (IDR)" />
-          <Input value={minQty} onChange={(e) => setMinQty(e.target.value)} placeholder="Min qty" />
-          <Input value={maxQty} onChange={(e) => setMaxQty(e.target.value)} placeholder="Max qty" />
-          <Input value={maxLeadTime} onChange={(e) => setMaxLeadTime(e.target.value)} placeholder="Max lead time (days)" />
-          <Input value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)} placeholder="Supplier location" />
+          <Input value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Harga min (IDR)" />
+          <Input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Harga maks (IDR)" />
+          <Input value={minQty} onChange={(e) => setMinQty(e.target.value)} placeholder="Jml min" />
+          <Input value={maxQty} onChange={(e) => setMaxQty(e.target.value)} placeholder="Jml maks" />
+          <Input value={maxLeadTime} onChange={(e) => setMaxLeadTime(e.target.value)} placeholder="Lead time maks (hari)" />
+          <Input value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)} placeholder="Lokasi pemasok" />
           <Input
             value={minSupplierScore}
             onChange={(e) => setMinSupplierScore(e.target.value)}
-            placeholder="Min supplier score"
+            placeholder="Skor pemasok min"
           />
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                  Sort
+                  Urutkan
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSortBy('latest')}>Latest</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('price_desc')}>Price high to low</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('price_asc')}>Price low to high</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('qty_desc')}>Qty high to low</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('lead_time_asc')}>Lead time fastest</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('score_desc')}>Supplier score high to low</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('latest')}>Terbaru</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('price_desc')}>Harga tinggi ke rendah</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('price_asc')}>Harga rendah ke tinggi</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('qty_desc')}>Jumlah tinggi ke rendah</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('lead_time_asc')}>Lead time tercepat</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('score_desc')}>Skor pemasok tinggi ke rendah</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="ghost" size="sm" onClick={clearFilters}>
-              Clear
+              Hapus
             </Button>
           </div>
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground">{filtered.length} quote(s)</p>
+      <p className="text-sm text-muted-foreground">{filtered.length} penawaran</p>
 
       <ul className="grid gap-3">
         {filtered.map((item) => (
@@ -232,16 +232,16 @@ export function BuyerQuotesAdvancedList({
                   <div className="relative h-16 w-20 overflow-hidden rounded-md border">
                     <Image
                       src={item.imageUrl ?? '/dummy-cabe.png'}
-                      alt={item.productName || 'Supply product'}
+                      alt={item.productName || 'Produk pasokan'}
                       fill
                       className="object-cover"
                       sizes="80px"
                     />
                   </div>
                   <div className="space-y-1">
-                    <p className="font-medium">{item.productName || 'Product'}</p>
+                    <p className="font-medium">{item.productName || 'Produk'}</p>
                     <p className="text-sm text-muted-foreground">
-                      Buyer:{' '}
+                      Pembeli:{' '}
                       {item.buyerOrganizationId ? (
                         <Link href={`/marketplace/account/${item.buyerOrganizationId}`} className="hover:underline">
                           {item.buyerName}
@@ -249,7 +249,7 @@ export function BuyerQuotesAdvancedList({
                       ) : (
                         item.buyerName
                       )}{' '}
-                      | Supplier:{' '}
+                      | Pemasok:{' '}
                       {item.supplierOrganizationId ? (
                         <Link href={`/marketplace/account/${item.supplierOrganizationId}`} className="hover:underline">
                           {item.supplierName}
@@ -259,15 +259,15 @@ export function BuyerQuotesAdvancedList({
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Supplier credit score: {formatCreditScore(item.supplierCreditScore)}
+                      Skor kredit pemasok: {formatCreditScore(item.supplierCreditScore)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Offer: {formatCurrencyIDR(item.priceOffer)}
+                      Penawaran: {formatCurrencyIDR(item.priceOffer)}
                       {item.quantityOffer != null ? ` x ${item.quantityOffer}` : ''}
-                      {item.leadTimeDays != null ? ` | Lead time: ${item.leadTimeDays} days` : ''}
+                      {item.leadTimeDays != null ? ` | Lead time: ${item.leadTimeDays} hari` : ''}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Location: {item.supplierLocation ?? '-'} | Expires: {item.expirationDate ?? '-'}
+                      Lokasi: {item.supplierLocation ?? '-'} | Kedaluwarsa: {item.expirationDate ?? '-'}
                     </p>
                   </div>
                 </div>
@@ -276,7 +276,7 @@ export function BuyerQuotesAdvancedList({
                   <QuoteStatusBadge status={item.status} />
                   {item.supplyListingId ? (
                     <Button asChild size="sm" variant="outline">
-                      <Link href={`/marketplace/supply/${item.supplyListingId}`}>View supply details</Link>
+                      <Link href={`/marketplace/supply/${item.supplyListingId}`}>Lihat detail pasokan</Link>
                     </Button>
                   ) : null}
                   {canDecide ? <RfqResponseDecisionActions responseId={item.id} /> : null}
@@ -289,30 +289,30 @@ export function BuyerQuotesAdvancedList({
 
       {filtered.length === 0 ? (
         <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-          No quotes match your filters.
+          Tidak ada penawaran yang cocok dengan filter Anda.
         </p>
       ) : null}
 
       <Dialog open={isAiModalOpen} onOpenChange={setIsAiModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>AI Search</DialogTitle>
+            <DialogTitle>Pencarian AI</DialogTitle>
             <DialogDescription>
-              Describe what you want to search.
+              Jelaskan apa yang ingin Anda cari.
             </DialogDescription>
           </DialogHeader>
           <Textarea
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
-            placeholder="Example: Find reliable suppliers with fast lead time under 7 days and score above 90."
+            placeholder="Contoh: Cari pemasok terpercaya dengan lead time di bawah 7 hari dan skor di atas 90."
             rows={5}
           />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setIsAiModalOpen(false)}>
-              Close
+              Tutup
             </Button>
             <Button type="button" onClick={() => setIsAiModalOpen(false)}>
-              Search with AI
+              Cari dengan AI
             </Button>
           </DialogFooter>
         </DialogContent>

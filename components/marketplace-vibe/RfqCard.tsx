@@ -1,18 +1,43 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import {
+  Building2,
   CalendarClock,
-  CheckCircle2,
+  CircleDollarSign,
   Globe2,
+  HandCoins,
   Package2,
+  Shield,
   Scale,
   ShieldCheck,
+  Timer,
   Tag,
   Truck,
 } from 'lucide-react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { formatCreditScore } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { formatCreditScore, formatCurrencyIDR } from '@/lib/utils'
+
+function demandStatusVariant(status: string): 'success' | 'outline' | 'warning' {
+  if (status === 'active') return 'success'
+  if (status === 'receiving_quotes') return 'warning'
+  return 'outline'
+}
+
+function demandStatusLabel(status: string): string {
+  if (status === 'active') return 'Aktif'
+  if (status === 'receiving_quotes') return 'Menerima penawaran'
+  return status
+}
+
+function getSpecItems(specSummary?: string | null): string[] {
+  if (!specSummary) return []
+  return specSummary
+    .split('|')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
 
 interface RfqCardProps {
   productName: string
@@ -26,11 +51,21 @@ interface RfqCardProps {
   targetCountry?: string | null
   incoterms?: string | null
   requiredBy?: string | null
+  paymentTerms?: string | null
+  rfqExpiresAt?: string | null
   specSummary?: string | null
   certifications?: string[]
   productCategory?: string | null
   opportunityTags?: string[]
   recommended?: boolean
+  buyerIsVerified?: boolean
+  buyerCompletedDeals?: number | null
+  buyerOrgType?: string | null
+  buyerSector?: string | null
+  quotesCount?: number
+  estimatedDealValue?: number | null
+  marketGapPercent?: number | null
+  winProbability?: number | null
   action: React.ReactNode
 }
 
@@ -46,118 +81,291 @@ export function RfqCard({
   targetCountry,
   incoterms,
   requiredBy,
+  paymentTerms,
+  rfqExpiresAt,
   specSummary,
   certifications = [],
   productCategory,
   opportunityTags = [],
   recommended = false,
+  buyerIsVerified = false,
+  buyerCompletedDeals = null,
+  buyerOrgType,
+  buyerSector,
+  quotesCount = 0,
+  estimatedDealValue = null,
+  marketGapPercent = null,
+  winProbability = null,
   action,
 }: RfqCardProps) {
+  const specItems = getSpecItems(specSummary)
+  const urgencyDate = rfqExpiresAt ?? requiredBy
+  const urgencyDays = urgencyDate
+    ? Math.ceil((new Date(urgencyDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null
+  const isUrgent = urgencyDays != null && urgencyDays <= 2
+  const isHighValue = (estimatedDealValue ?? 0) >= 100000000
+  const emphasisClass = isUrgent
+    ? 'border-amber-300 bg-amber-50/30 dark:border-amber-900/60 dark:bg-amber-950/10'
+    : isHighValue
+      ? 'border-emerald-300 bg-emerald-50/20 dark:border-emerald-900/60 dark:bg-emerald-950/10'
+      : undefined
+
   return (
-    <Card className="overflow-hidden">
-      <div className="relative aspect-[16/6] w-full">
+    <Card className={`overflow-hidden ${emphasisClass ?? ''}`}>
+      <div className="relative aspect-video w-full">
         <Image
           src="/dummy-cabe.png"
-          alt="RFQ product"
+          alt="Produk RFQ"
           fill
           className="object-cover"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
         <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          <Badge variant={statusLabel === 'active' ? 'success' : 'outline'}>
-            {statusLabel}
+          <Badge variant={demandStatusVariant(statusLabel)}>
+            {demandStatusLabel(statusLabel)}
           </Badge>
-          {recommended ? <Badge variant="default">AI Recommended</Badge> : null}
+          {recommended ? <Badge variant="default">Rekomendasi AI</Badge> : null}
         </div>
       </div>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base leading-tight">{productName}</CardTitle>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <div className="relative h-6 w-6 overflow-hidden rounded-full border">
-            <Image
-              src={buyerLogoUrl ?? '/dummy-cabe.png'}
-              alt={buyerName}
-              fill
-              className="object-cover"
-              sizes="24px"
-            />
+      <CardHeader className="pb-1.5">
+        <CardTitle className="mb-1.5 text-base leading-tight">{productName}</CardTitle>
+        <div className="rounded-lg bg-muted/40 p-1.5">
+          <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+            <div className="relative h-6 w-6 shrink-0 overflow-hidden rounded-full border">
+              <Image
+                src={buyerLogoUrl ?? '/dummy-cabe.png'}
+                alt={buyerName}
+                fill
+                className="object-cover"
+                sizes="24px"
+              />
+            </div>
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5 leading-none">
+              {buyerAccountHref ? (
+                <Link href={buyerAccountHref} className="truncate text-[11px] font-semibold text-foreground hover:underline">
+                  {buyerName}
+                </Link>
+              ) : (
+                <span className="truncate text-[11px] font-semibold text-foreground">{buyerName}</span>
+              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                    <Shield className="h-3 w-3" />
+                    {formatCreditScore(buyerCreditScore)}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent sideOffset={6}>
+                  Skor kredit : {formatCreditScore(buyerCreditScore)}
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
-          <p>
-            Buyer:{' '}
-            {buyerAccountHref ? (
-              <Link href={buyerAccountHref} className="hover:underline">
-                {buyerName}
-              </Link>
-            ) : (
-              buyerName
-            )}
-            {` | Credit: ${formatCreditScore(buyerCreditScore)}`}
-          </p>
         </div>
         {opportunityTags.length ? (
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <div className="flex flex-wrap items-center gap-1 pt-0.5">
+            {isUrgent ? <Badge variant="warning" className="px-1.5 py-0 text-[10px]">Mendesak</Badge> : null}
+            {isHighValue ? <Badge variant="success" className="px-1.5 py-0 text-[10px]">Nilai tinggi</Badge> : null}
+            {buyerIsVerified ? <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">Terverifikasi</Badge> : null}
             {opportunityTags.map((tag) => (
-              <Badge key={tag} variant="secondary">
+              <Badge key={tag} variant="secondary" className="px-1.5 py-0 text-[10px]">
                 {tag}
               </Badge>
             ))}
           </div>
         ) : null}
       </CardHeader>
-      <CardContent className="space-y-2.5">
-        <div className="grid grid-cols-2 gap-1.5">
-          <div className="rounded-md bg-muted/40 p-2">
-            <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              <Scale className="h-3.5 w-3.5" />
-              Required quantity
+      <CardContent className="space-y-1.5">
+        <div className="grid grid-cols-2 gap-1">
+          <div className="rounded-md bg-muted/40 p-1.5">
+            <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+              <CircleDollarSign className="h-3.5 w-3.5" />
+              Est. nilai
             </p>
-            <p className="text-base font-semibold">{quantityLabel}</p>
+            <p className="text-xs font-semibold">{formatCurrencyIDR(estimatedDealValue, '-')}</p>
           </div>
-          <div className="rounded-md bg-muted/40 p-2">
-            <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              <Tag className="h-3.5 w-3.5" />
-              Price band
+          <div className="rounded-md bg-muted/40 p-1.5">
+            <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Package2 className="h-3.5 w-3.5" />
+              Kompetisi
             </p>
-            <p className="font-medium">{priceBandLabel}</p>
+            <p className="text-xs font-semibold">{quotesCount} penawar</p>
+          </div>
+          <div className="rounded-md bg-muted/40 p-1.5">
+            <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Timer className="h-3.5 w-3.5" />
+              Peluang menang
+            </p>
+            <p className="text-xs font-semibold">{winProbability != null ? `${winProbability}%` : '-'}</p>
           </div>
         </div>
-        <div className="rounded-md bg-muted/40 p-2">
-          <p className="text-xs text-muted-foreground">Logistics and compliance</p>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            <Badge variant="secondary" className="inline-flex items-center gap-1">
-              <Globe2 className="h-3 w-3" />
-              Country: {targetCountry ?? 'Not specified'}
-            </Badge>
-            <Badge variant="secondary" className="inline-flex items-center gap-1">
-              <Truck className="h-3 w-3" />
-              Incoterm: {incoterms ?? 'Not specified'}
-            </Badge>
-            <Badge variant="secondary" className="inline-flex items-center gap-1">
-              <CalendarClock className="h-3 w-3" />
-              Required by: {requiredBy ?? 'Not specified'}
-            </Badge>
-            <Badge variant="secondary" className="inline-flex items-center gap-1">
-              <Package2 className="h-3 w-3" />
-              Category: {productCategory ?? 'Not specified'}
-            </Badge>
+        <div className="grid grid-cols-2 gap-1">
+          <div className="rounded-md bg-muted/40 p-1.5">
+            <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Scale className="h-3.5 w-3.5" />
+              Jml dibutuhkan
+            </p>
+            <p className="text-sm font-semibold leading-tight">{quantityLabel}</p>
           </div>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            <Badge variant="outline" className="inline-flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3" />
-              Specs: {specSummary ?? 'Not specified'}
-            </Badge>
+          <div className="rounded-md bg-muted/40 p-1.5">
+            <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Tag className="h-3.5 w-3.5" />
+              Rentang harga
+            </p>
+            <p className="text-sm font-medium leading-tight">{priceBandLabel}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="h-5 justify-center px-1.5 text-[11px]">
+                <Package2 className="mr-1 h-3 w-3" />
+                {buyerCompletedDeals ?? 0}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent sideOffset={6}>
+              Deal selesai : {buyerCompletedDeals ?? 0}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="h-5 justify-center px-1.5 text-[11px]">
+                <HandCoins className="mr-1 h-3 w-3" />
+                {paymentTerms?.trim() || '-'}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent sideOffset={6}>
+              Pembayaran : {paymentTerms?.trim() || 'Tidak ditentukan'}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="h-5 justify-center px-1.5 text-[11px]">
+                <Building2 className="mr-1 h-3 w-3" />
+                {buyerOrgType?.trim() || '-'}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent sideOffset={6}>
+              Tipe buyer : {buyerOrgType?.trim() || 'Tidak ditentukan'}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="h-5 justify-center px-1.5 text-[11px]">
+                <Tag className="mr-1 h-3 w-3" />
+                {buyerSector?.trim() || '-'}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent sideOffset={6}>
+              Sektor : {buyerSector?.trim() || 'Tidak ditentukan'}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="col-span-2 h-5 justify-center px-1.5 text-[11px]">
+                <Scale className="mr-1 h-3 w-3" />
+                {marketGapPercent != null ? `${Math.round(marketGapPercent)}%` : '-'}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent sideOffset={6}>
+              Gap pasar : {marketGapPercent != null ? `${Math.round(marketGapPercent)}%` : 'Tidak ditentukan'}
+            </TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="rounded-md bg-muted/40 p-1.5">
+          <p className="text-[10px] text-muted-foreground">Logistik dan kepatuhan</p>
+          <div className="mt-1 flex flex-wrap gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="secondary" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                  <Globe2 className="h-3 w-3" />
+                  {targetCountry?.trim() || '-'}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                Negara tujuan : {targetCountry?.trim() || 'Tidak ditentukan'}
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="secondary" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                  <Truck className="h-3 w-3" />
+                  {incoterms?.trim() || '-'}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                Incoterm : {incoterms?.trim() || 'Tidak ditentukan'}
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="secondary" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                  <CalendarClock className="h-3 w-3" />
+                  {requiredBy?.trim() || '-'}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                Dibutuhkan pada : {requiredBy?.trim() || 'Tidak ditentukan'}
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="secondary" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                  <Package2 className="h-3 w-3" />
+                  {productCategory?.trim() || '-'}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                Kategori produk : {productCategory?.trim() || 'Tidak ditentukan'}
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <div className="mt-1 flex flex-wrap gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="outline" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                  Spek: {specItems.length ? '' : '-'}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                <div className="space-y-1">
+                  <p>Spek : {specItems.length ? '' : 'Tidak ditentukan'}</p>
+                  {specItems.length ? (
+                    <ul className="list-disc pl-3">
+                      {specItems.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              </TooltipContent>
+            </Tooltip>
             {certifications.length ? (
               certifications.map((cert) => (
-                <Badge key={cert} variant="outline" className="inline-flex items-center gap-1">
-                  <ShieldCheck className="h-3 w-3" />
-                  Cert: {cert}
-                </Badge>
+                <Tooltip key={cert}>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                      <ShieldCheck className="h-3 w-3" />
+                      {cert}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6}>
+                    Sertifikasi : {cert}
+                  </TooltipContent>
+                </Tooltip>
               ))
             ) : (
-              <Badge variant="outline" className="inline-flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3" />
-                Cert: Not specified
-              </Badge>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                    <ShieldCheck className="h-3 w-3" />-
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent sideOffset={6}>
+                  Sertifikasi : Tidak ditentukan
+                </TooltipContent>
+              </Tooltip>
             )}
           </div>
         </div>

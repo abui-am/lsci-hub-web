@@ -10,18 +10,18 @@ export default async function MarketplaceAccountPage() {
   return (
     <div className="space-y-6">
       <MarketplaceHeader
-        title="Organization account"
-        description="Manage your marketplace brand profile and operation details."
+        title="Akun organisasi"
+        description="Kelola profil merek marketplace dan detail operasi Anda."
         stats={[
-          { label: 'Role', value: session.profile.role },
-          { label: 'Supplier', value: session.profile.is_supplier ? 'Enabled' : 'Disabled' },
-          { label: 'Buyer', value: session.profile.is_buyer ? 'Enabled' : 'Disabled' },
+          { label: 'Peran', value: session.profile.role },
+          { label: 'Pemasok', value: session.profile.is_supplier ? 'Aktif' : 'Nonaktif' },
+          { label: 'Pembeli', value: session.profile.is_buyer ? 'Aktif' : 'Nonaktif' },
           {
-            label: 'Buyer score',
+            label: 'Skor pembeli',
             value: formatCreditScore(organization?.buyer_credit_score),
           },
           {
-            label: 'Supplier score',
+            label: 'Skor pemasok',
             value: formatCreditScore(organization?.supplier_credit_score),
           },
         ]}
@@ -29,9 +29,9 @@ export default async function MarketplaceAccountPage() {
 
       {!organization ? (
         <div className="rounded-lg border bg-card p-6 text-sm">
-          <h2 className="text-base font-semibold">No organization linked</h2>
+          <h2 className="text-base font-semibold">Belum ada organisasi</h2>
           <p className="mt-2 text-muted-foreground">
-            Your account is not linked to an organization yet.
+            Akun Anda belum ditautkan ke organisasi.
           </p>
         </div>
       ) : (

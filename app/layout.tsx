@@ -12,7 +12,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Indosourcing",
-  description: "Indosourcing application",
+  description: "Platform pasokan B2B Indosourcing",
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="id">
       <body className={`${inter.variable} antialiased font-sans`}>
         <TooltipProvider>
           <ToastProvider>

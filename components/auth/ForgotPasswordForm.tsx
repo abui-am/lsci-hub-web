@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
   if (sent) {
     return (
       <p className="text-center text-sm text-muted-foreground">
-        Check your email for a link to reset your password.
+        Periksa email Anda untuk tautan mengatur ulang kata sandi.
       </p>
     )
   }
@@ -55,7 +55,7 @@ export function ForgotPasswordForm() {
         <Input
           id="forgot-email"
           type="email"
-          placeholder="you@example.com"
+          placeholder="anda@contoh.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -69,7 +69,7 @@ export function ForgotPasswordForm() {
         </p>
       )}
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Sending…' : 'Send reset link'}
+        {loading ? 'Mengirim…' : 'Kirim tautan reset'}
       </Button>
     </form>
   )

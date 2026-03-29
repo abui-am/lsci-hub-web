@@ -2,7 +2,15 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Search, Sparkles } from 'lucide-react'
+import {
+  ArrowDownUp,
+  MapPin,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -24,6 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 type OpenRfqItem = {
   id: string
@@ -41,13 +50,29 @@ type OpenRfqItem = {
   specSummary: string | null
   targetLocation: string | null
   incoterms: string | null
+  paymentTerms: string | null
+  rfqExpiresAt: string | null
   certifications: string[]
   status: string
   createdAt: string | null
   recommended: boolean
+  buyerIsVerified: boolean
+  buyerCompletedDeals: number | null
+  buyerOrgType: string | null
+  buyerSector: string | null
+  quotesCount: number
+  estimatedDealValue: number | null
+  marketGapPercent: number | null
+  winProbability: number | null
 }
 
-type SortMode = 'newest' | 'qty_desc' | 'qty_asc' | 'price_desc' | 'price_asc'
+type SortMode =
+  | 'urgency'
+  | 'newest'
+  | 'value_desc'
+  | 'win_desc'
+  | 'competition_asc'
+  | 'competition_desc'
 
 function getDaysLeft(requiredBy: string | null): number | null {
   if (!requiredBy) return null
@@ -62,6 +87,10 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<'all' | 'active' | 'receiving_quotes'>('all')
   const [recommendedOnly, setRecommendedOnly] = useState(false)
+  const [verifiedOnly, setVerifiedOnly] = useState(false)
+  const [highMarginOnly, setHighMarginOnly] = useState(false)
+  const [lowCompetitionOnly, setLowCompetitionOnly] = useState(false)
+  const [nearbyOnly, setNearbyOnly] = useState(false)
   const [countryFilter, setCountryFilter] = useState('')
   const [incotermFilter, setIncotermFilter] = useState('')
   const [certificationFilter, setCertificationFilter] = useState('')
@@ -69,7 +98,8 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
   const [maxQty, setMaxQty] = useState('')
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
-  const [sortBy, setSortBy] = useState<SortMode>('newest')
+  const [minWinChance, setMinWinChance] = useState('')
+  const [sortBy, setSortBy] = useState<SortMode>('urgency')
   const [isAiModalOpen, setIsAiModalOpen] = useState(false)
   const [aiPrompt, setAiPrompt] = useState('')
 
@@ -80,6 +110,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
     const maxQtyN = maxQty.trim() ? Number(maxQty) : null
     const minPriceN = minPrice.trim() ? Number(minPrice) : null
     const maxPriceN = maxPrice.trim() ? Number(maxPrice) : null
+    const minWinChanceN = minWinChance.trim() ? Number(minWinChance) : null
 
     if (q) {
       out = out.filter((item) => {
@@ -98,8 +129,21 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
     if (recommendedOnly) {
       out = out.filter((item) => item.recommended)
     }
+    if (verifiedOnly) {
+      out = out.filter((item) => item.buyerIsVerified)
+    }
+    if (highMarginOnly) {
+      out = out.filter((item) => (item.marketGapPercent ?? 0) >= 10)
+    }
+    if (lowCompetitionOnly) {
+      out = out.filter((item) => item.quotesCount <= 3)
+    }
 
     if (countryFilter.trim()) {
+      const country = countryFilter.trim().toLowerCase()
+      out = out.filter((item) => (item.targetLocation ?? '').toLowerCase().includes(country))
+    }
+    if (nearbyOnly && countryFilter.trim()) {
       const country = countryFilter.trim().toLowerCase()
       out = out.filter((item) => (item.targetLocation ?? '').toLowerCase().includes(country))
     }
@@ -127,17 +171,25 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
     if (maxPriceN != null && Number.isFinite(maxPriceN)) {
       out = out.filter((item) => (item.priceTo ?? 0) <= maxPriceN)
     }
+    if (minWinChanceN != null && Number.isFinite(minWinChanceN)) {
+      out = out.filter((item) => (item.winProbability ?? 0) >= minWinChanceN)
+    }
 
     out.sort((a, b) => {
+      if (sortBy === 'urgency') {
+        const aDays = getDaysLeft(a.rfqExpiresAt ?? a.requiredBy)
+        const bDays = getDaysLeft(b.rfqExpiresAt ?? b.requiredBy)
+        return (aDays ?? Number.POSITIVE_INFINITY) - (bDays ?? Number.POSITIVE_INFINITY)
+      }
       if (sortBy === 'newest') {
         return (
           new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
         )
       }
-      if (sortBy === 'qty_desc') return (b.requiredQuantity ?? 0) - (a.requiredQuantity ?? 0)
-      if (sortBy === 'qty_asc') return (a.requiredQuantity ?? 0) - (b.requiredQuantity ?? 0)
-      if (sortBy === 'price_desc') return (b.priceTo ?? 0) - (a.priceTo ?? 0)
-      return (a.priceFrom ?? 0) - (b.priceFrom ?? 0)
+      if (sortBy === 'value_desc') return (b.estimatedDealValue ?? 0) - (a.estimatedDealValue ?? 0)
+      if (sortBy === 'win_desc') return (b.winProbability ?? 0) - (a.winProbability ?? 0)
+      if (sortBy === 'competition_desc') return b.quotesCount - a.quotesCount
+      return a.quotesCount - b.quotesCount
     })
 
     return out
@@ -146,6 +198,10 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
     query,
     status,
     recommendedOnly,
+    verifiedOnly,
+    highMarginOnly,
+    lowCompetitionOnly,
+    nearbyOnly,
     countryFilter,
     incotermFilter,
     certificationFilter,
@@ -153,6 +209,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
     maxQty,
     minPrice,
     maxPrice,
+    minWinChance,
     sortBy,
   ])
 
@@ -160,6 +217,10 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
     setQuery('')
     setStatus('all')
     setRecommendedOnly(false)
+    setVerifiedOnly(false)
+    setHighMarginOnly(false)
+    setLowCompetitionOnly(false)
+    setNearbyOnly(false)
     setCountryFilter('')
     setIncotermFilter('')
     setCertificationFilter('')
@@ -167,121 +228,212 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
     setMaxQty('')
     setMinPrice('')
     setMaxPrice('')
-    setSortBy('newest')
+    setMinWinChance('')
+    setSortBy('urgency')
   }
+
+  const filterInputClass = 'h-8 text-xs'
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border bg-card p-4">
-        <div className="mb-3">
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex w-full items-center gap-2"
-            role="search"
-          >
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search product, buyer, or target location"
-              className="h-11 text-base"
-            />
-            <Button type="submit" size="default" className="h-11 px-4">
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              className="h-11 w-11"
-              aria-label="AI Search"
-              onClick={() => setIsAiModalOpen(true)}
-            >
-              <Sparkles className="h-4 w-4" />
-            </Button>
-          </form>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="rounded-lg border bg-card p-3">
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="flex w-full flex-wrap items-center gap-2"
+          role="search"
+        >
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Cari produk, pembeli, atau lokasi tujuan"
+            className={`min-w-48 flex-1 ${filterInputClass}`}
+          />
+          <Button type="submit" size="sm" className="h-8 shrink-0 gap-1.5 px-3 text-xs">
+            <Search className="h-3.5 w-3.5" />
+            Cari
+          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className="h-8 w-8 shrink-0"
+                aria-label="Pencarian AI"
+                onClick={() => setIsAiModalOpen(true)}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Pencarian AI</TooltipContent>
+          </Tooltip>
+        </form>
+
+        <p className="mt-3 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          Filter lanjutan
+        </p>
+        <div className="mt-1.5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <select
             value={status}
             onChange={(e) =>
               setStatus(e.target.value as 'all' | 'active' | 'receiving_quotes')
             }
-            className="h-9 rounded-md border bg-background px-3 text-sm"
+            className={`rounded-md border bg-background px-2 ${filterInputClass}`}
           >
-            <option value="all">All statuses</option>
-            <option value="active">Active</option>
-            <option value="receiving_quotes">Receiving quotes</option>
+            <option value="all">Semua status</option>
+            <option value="active">Aktif</option>
+            <option value="receiving_quotes">Menerima penawaran</option>
           </select>
           <Input
             value={minQty}
             onChange={(e) => setMinQty(e.target.value)}
-            placeholder="Min qty"
+            placeholder="Jml min"
+            className={filterInputClass}
           />
           <Input
             value={maxQty}
             onChange={(e) => setMaxQty(e.target.value)}
-            placeholder="Max qty"
+            placeholder="Jml maks"
+            className={filterInputClass}
           />
           <Input
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            placeholder="Min price"
+            placeholder="Harga min (IDR)"
+            className={filterInputClass}
           />
           <Input
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
-            placeholder="Max price"
+            placeholder="Harga maks (IDR)"
+            className={filterInputClass}
           />
           <Input
             value={countryFilter}
             onChange={(e) => setCountryFilter(e.target.value)}
-            placeholder="Country / target location"
+            placeholder="Negara / lokasi tujuan"
+            className={filterInputClass}
+          />
+          <Input
+            value={minWinChance}
+            onChange={(e) => setMinWinChance(e.target.value)}
+            placeholder="Peluang menang min (%)"
+            className={filterInputClass}
           />
           <Input
             value={incotermFilter}
             onChange={(e) => setIncotermFilter(e.target.value)}
             placeholder="Incoterm (FOB/CIF)"
+            className={filterInputClass}
           />
           <Input
             value={certificationFilter}
             onChange={(e) => setCertificationFilter(e.target.value)}
-            placeholder="Certification"
+            placeholder="Sertifikasi"
+            className={filterInputClass}
           />
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
-              onClick={() => setRecommendedOnly((v) => !v)}
-            >
-              {recommendedOnly ? 'Recommended only: on' : 'Recommended only: off'}
-            </button>
+        </div>
+
+        <div className="mt-3 flex flex-col gap-2 border-t border-border/60 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-1">
+            <span className="mr-1 text-[10px] text-muted-foreground">Cepat</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={recommendedOnly ? 'default' : 'outline'}
+                  className="h-8 w-8"
+                  aria-pressed={recommendedOnly}
+                  onClick={() => setRecommendedOnly((v) => !v)}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Direkomendasikan</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={verifiedOnly ? 'default' : 'outline'}
+                  className="h-8 w-8"
+                  aria-pressed={verifiedOnly}
+                  onClick={() => setVerifiedOnly((v) => !v)}
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Pembeli terverifikasi</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={highMarginOnly ? 'default' : 'outline'}
+                  className="h-8 w-8"
+                  aria-pressed={highMarginOnly}
+                  onClick={() => setHighMarginOnly((v) => !v)}
+                >
+                  <TrendingUp className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Margin tinggi</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={lowCompetitionOnly ? 'default' : 'outline'}
+                  className="h-8 w-8"
+                  aria-pressed={lowCompetitionOnly}
+                  onClick={() => setLowCompetitionOnly((v) => !v)}
+                >
+                  <Users className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Kompetisi rendah</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={nearbyOnly ? 'default' : 'outline'}
+                  className="h-8 w-8"
+                  aria-pressed={nearbyOnly}
+                  onClick={() => setNearbyOnly((v) => !v)}
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Pengiriman terdekat (pakai filter lokasi tujuan)
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  Sort
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+                  <ArrowDownUp className="h-3.5 w-3.5" />
+                  Urutkan
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSortBy('newest')}>Newest</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('qty_desc')}>
-                  Qty high to low
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('qty_asc')}>
-                  Qty low to high
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('price_desc')}>
-                  Price high to low
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('price_asc')}>
-                  Price low to high
-                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('urgency')}>Paling mendesak</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('newest')}>Terbaru</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('value_desc')}>Nilai deal tertinggi</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('win_desc')}>Peluang menang tertinggi</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('competition_asc')}>Kompetisi terendah</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('competition_desc')}>Kompetisi tertinggi</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-          <div className="flex items-center justify-end">
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
-              Clear filters
+            <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={clearFilters}>
+              Hapus filter
             </Button>
           </div>
         </div>
@@ -289,29 +441,41 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
 
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <span>{filtered.length} RFQ</span>
-        {recommendedOnly ? <Badge variant="secondary">Recommended</Badge> : null}
+        {recommendedOnly ? <Badge variant="secondary">Direkomendasikan</Badge> : null}
       </div>
 
       {filtered.length === 0 ? (
         <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-          No RFQs match your filters.
+          Tidak ada RFQ yang cocok dengan filter Anda.
         </p>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {filtered.map((item) => {
             const priceBand =
-              formatCurrencyRangeIDR(item.priceFrom, item.priceTo, 'Not specified')
+              formatCurrencyRangeIDR(item.priceFrom, item.priceTo, 'Tidak ditentukan')
             const daysLeft = getDaysLeft(item.requiredBy)
             const tags: string[] = []
             if (daysLeft != null && daysLeft <= 3 && daysLeft >= 0) {
-              tags.push(`Urgent (${daysLeft}d left)`)
+              tags.push(`Mendesak (tersisa ${daysLeft} hr)`)
             }
             if (item.recommended) {
-              tags.push('High demand')
+              tags.push('Permintaan tinggi')
             }
             if ((item.priceTo ?? 0) > 0 && (item.priceTo ?? 0) >= 1000) {
-              tags.push('Above market price')
+              tags.push('Di atas harga pasar')
             }
+            if ((item.estimatedDealValue ?? 0) >= 100000000) {
+              tags.push('Nilai tinggi')
+            }
+            if (item.quotesCount <= 2) {
+              tags.push('Kompetisi rendah')
+            }
+            const ctaLabel =
+              daysLeft != null && daysLeft <= 1
+                ? `Ajukan (tutup ${Math.max(daysLeft, 0)} hr)`
+                : item.quotesCount <= 2
+                  ? 'Ajukan (kompetisi rendah)'
+                  : `Ajukan (${item.quotesCount} bidding)`
 
             return (
               <li key={item.id}>
@@ -325,17 +489,27 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                   }
                   buyerLogoUrl={item.buyerLogoUrl}
                   buyerCreditScore={item.buyerCreditScore}
-                  quantityLabel={`${item.requiredQuantity && item.requiredQuantity > 0 ? item.requiredQuantity : 'TBD'} ${item.productUnit ?? ''}`}
+                  quantityLabel={`${item.requiredQuantity && item.requiredQuantity > 0 ? item.requiredQuantity : 'Belum ditentukan'} ${item.productUnit ?? ''}`}
                   priceBandLabel={priceBand}
                   statusLabel={item.status}
                   targetCountry={item.targetLocation}
                   incoterms={item.incoterms}
                   requiredBy={item.requiredBy}
+                  paymentTerms={item.paymentTerms}
+                  rfqExpiresAt={item.rfqExpiresAt}
                   specSummary={item.specSummary}
                   certifications={item.certifications}
                   productCategory={item.productCategory}
                   opportunityTags={tags}
                   recommended={item.recommended}
+                  buyerIsVerified={item.buyerIsVerified}
+                  buyerCompletedDeals={item.buyerCompletedDeals}
+                  buyerOrgType={item.buyerOrgType}
+                  buyerSector={item.buyerSector}
+                  quotesCount={item.quotesCount}
+                  estimatedDealValue={item.estimatedDealValue}
+                  marketGapPercent={item.marketGapPercent}
+                  winProbability={item.winProbability}
                   action={
                     <div className="grid w-full gap-2">
                       <RfqRespondSheet
@@ -346,11 +520,11 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                           requiredQuantity: item.requiredQuantity,
                           priceBandLabel: priceBand,
                         }}
-                        triggerLabel="Quote now"
-                        triggerClassName="w-full h-10 text-sm font-semibold"
+                        triggerLabel={ctaLabel}
+                        triggerClassName="h-10 w-full text-sm font-semibold"
                       />
                       <Button asChild variant="outline" size="sm" className="w-full">
-                        <Link href={`/marketplace/demand/${item.id}`}>View detail</Link>
+                        <Link href={`/marketplace/demand/${item.id}`}>Lihat detail</Link>
                       </Button>
                     </div>
                   }
@@ -364,23 +538,23 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
       <Dialog open={isAiModalOpen} onOpenChange={setIsAiModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>AI Search</DialogTitle>
+            <DialogTitle>Pencarian AI</DialogTitle>
             <DialogDescription>
-              Describe what you want to search.
+              Jelaskan apa yang ingin Anda cari.
             </DialogDescription>
           </DialogHeader>
           <Textarea
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
-            placeholder="Example: Find urgent RFQs with high buyer score and lead time under 7 days."
+            placeholder="Contoh: Cari RFQ mendesak dengan skor pembeli tinggi dan lead time di bawah 7 hari."
             rows={5}
           />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setIsAiModalOpen(false)}>
-              Close
+              Tutup
             </Button>
             <Button type="button" onClick={() => setIsAiModalOpen(false)}>
-              Search with AI
+              Cari dengan AI
             </Button>
           </DialogFooter>
         </DialogContent>

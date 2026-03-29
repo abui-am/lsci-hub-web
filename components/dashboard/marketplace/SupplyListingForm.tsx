@@ -112,7 +112,7 @@ export function SupplyListingForm({
   const canDelete = mode === 'edit' && initial?.id
 
   const submitLabel = useMemo(() => {
-    return mode === 'create' ? 'Create supply listing' : 'Update supply listing'
+    return mode === 'create' ? 'Buat listing pasokan' : 'Perbarui listing pasokan'
   }, [mode])
 
   useEffect(() => {
@@ -121,12 +121,12 @@ export function SupplyListingForm({
 
   const handleCreateProduct = async () => {
     if (!canCreateProducts) {
-      alert('You do not have permission to create products.')
+      alert('Anda tidak memiliki izin untuk membuat produk.')
       return
     }
 
     const name = newProductName.trim()
-    if (!name) return alert('Product name is required')
+    if (!name) return alert('Nama produk wajib diisi')
 
     setIsCreatingProduct(true)
     try {
@@ -146,7 +146,7 @@ export function SupplyListingForm({
         const msg =
           typeof data === 'object' && data && 'error' in data
             ? String((data as { error?: unknown }).error)
-            : 'Request failed'
+            : 'Permintaan gagal'
         alert(msg)
         return
       }
@@ -154,7 +154,7 @@ export function SupplyListingForm({
       const created = (data as { product?: { id: string; name: string; unit: string } }).product
         ? (data as { product: { id: string; name: string; unit: string } }).product
         : (data as { id: string; name: string; unit: string })
-      if (!created?.id) return alert('Product created, but no id returned.')
+      if (!created?.id) return alert('Produk dibuat, tetapi ID tidak dikembalikan.')
 
       setProductOptions((prev) => {
         if (prev.some((p) => p.id === created.id)) return prev
@@ -175,8 +175,8 @@ export function SupplyListingForm({
     e.preventDefault()
 
     const quantityN = Number(quantity)
-    if (!productId || productId === ADD_NEW_PRODUCT_VALUE) return alert('Product is required')
-    if (!Number.isFinite(quantityN) || quantityN <= 0) return alert('Quantity must be > 0')
+    if (!productId || productId === ADD_NEW_PRODUCT_VALUE) return alert('Produk wajib dipilih')
+    if (!Number.isFinite(quantityN) || quantityN <= 0) return alert('Jumlah harus > 0')
 
     const payload: Record<string, unknown> = {
       product_id: productId,
@@ -209,7 +209,7 @@ export function SupplyListingForm({
       const msg =
         typeof data === 'object' && data && 'error' in data
           ? String((data as { error?: unknown }).error)
-          : 'Request failed'
+          : 'Permintaan gagal'
       alert(msg)
       return
     }
@@ -220,7 +220,7 @@ export function SupplyListingForm({
 
   const handleDelete = async () => {
     if (!initial?.id) return
-    if (!confirm('Delete this supply listing?')) return
+    if (!confirm('Hapus listing pasokan ini?')) return
 
     const res = await fetch(`/api/marketplace/supply/${initial.id}`, {
       method: 'DELETE',
@@ -230,7 +230,7 @@ export function SupplyListingForm({
       const msg =
         typeof data === 'object' && data && 'error' in data
           ? String((data as { error?: unknown }).error)
-          : 'Request failed'
+          : 'Permintaan gagal'
       alert(msg)
       return
     }
@@ -246,20 +246,20 @@ export function SupplyListingForm({
           href={backHref}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          Back to supply listings
+          Kembali ke daftar pasokan
         </Link>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border bg-card p-5">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Product</label>
+            <label className="text-sm font-medium">Produk</label>
             <Select
               key={productId}
               defaultValue={productId}
               onValueChange={(v) => {
                 if (v === ADD_NEW_PRODUCT_VALUE) {
-                  if (!canCreateProducts) return alert('You do not have permission to create products.')
+                  if (!canCreateProducts) return alert('Anda tidak memiliki izin untuk membuat produk.')
                   if (productId !== ADD_NEW_PRODUCT_VALUE) {
                     setPreviousProductId(productId)
                   }
@@ -273,11 +273,11 @@ export function SupplyListingForm({
               }}
             >
               <SelectTrigger className="w-full min-w-0" size="default">
-                <SelectValue placeholder="Select product" />
+                <SelectValue placeholder="Pilih produk" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={ADD_NEW_PRODUCT_VALUE} disabled={!canCreateProducts}>
-                  {canCreateProducts ? '+ Add new product...' : 'Products managed by platform'}
+                  {canCreateProducts ? '+ Tambah produk baru...' : 'Produk dikelola platform'}
                 </SelectItem>
                 {productOptions.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
@@ -290,16 +290,16 @@ export function SupplyListingForm({
             {showAddProduct && (
               <div className="mt-3 space-y-3 rounded-md border bg-background p-3">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">New product name</label>
+                  <label className="text-sm font-medium">Nama produk baru</label>
                   <Input
                     value={newProductName}
                     onChange={(e) => setNewProductName(e.target.value)}
-                    placeholder="e.g. Organic coffee"
+                    placeholder="mis. Kopi organik"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Unit</label>
+                  <label className="text-sm font-medium">Satuan</label>
                   <select
                     className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                     value={newProductUnit}
@@ -318,10 +318,10 @@ export function SupplyListingForm({
                     type="checkbox"
                     checked={newProductIsRawMaterial}
                     onChange={(e) => setNewProductIsRawMaterial(e.target.checked)}
-                    aria-label="Raw material"
+                    aria-label="Bahan baku"
                   />
                   <span className="text-sm text-muted-foreground">
-                    {newProductIsRawMaterial ? 'Raw material' : 'Finished product'}
+                    {newProductIsRawMaterial ? 'Bahan baku' : 'Produk jadi'}
                   </span>
                 </div>
 
@@ -334,10 +334,10 @@ export function SupplyListingForm({
                       setProductId(previousProductId)
                     }}
                   >
-                    Cancel
+                    Batal
                   </Button>
                   <Button type="button" onClick={handleCreateProduct} disabled={isCreatingProduct}>
-                    {isCreatingProduct ? 'Creating...' : 'Create product'}
+                    {isCreatingProduct ? 'Membuat...' : 'Buat produk'}
                   </Button>
                 </div>
               </div>
@@ -353,19 +353,19 @@ export function SupplyListingForm({
             >
               {(['active', 'matched', 'closed'] as const).map((s) => (
                 <option key={s} value={s}>
-                  {s}
+                  {s === 'active' ? 'Aktif' : s === 'matched' ? 'Sepadan' : 'Ditutup'}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Quantity</label>
-            <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="e.g. 500" />
+            <label className="text-sm font-medium">Jumlah</label>
+            <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="mis. 500" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Price type</label>
+            <label className="text-sm font-medium">Jenis harga</label>
             <select
               className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               value={priceType}
@@ -373,57 +373,57 @@ export function SupplyListingForm({
             >
               {(['negotiable', 'fixed'] as const).map((s) => (
                 <option key={s} value={s}>
-                  {s}
+                  {s === 'fixed' ? 'Tetap' : 'Dapat dinegosiasikan'}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Price estimate</label>
-            <Input value={priceEstimate} onChange={(e) => setPriceEstimate(e.target.value)} placeholder="optional" />
+            <label className="text-sm font-medium">Perkiraan harga</label>
+            <Input value={priceEstimate} onChange={(e) => setPriceEstimate(e.target.value)} placeholder="opsional" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Min order quantity</label>
-            <Input value={minOrderQty} onChange={(e) => setMinOrderQty(e.target.value)} placeholder="optional" />
+            <label className="text-sm font-medium">Jumlah pesanan minimum (MOQ)</label>
+            <Input value={minOrderQty} onChange={(e) => setMinOrderQty(e.target.value)} placeholder="opsional" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Lead time (days)</label>
-            <Input value={leadTimeDays} onChange={(e) => setLeadTimeDays(e.target.value)} placeholder="optional" />
+            <label className="text-sm font-medium">Lead time (hari)</label>
+            <Input value={leadTimeDays} onChange={(e) => setLeadTimeDays(e.target.value)} placeholder="opsional" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Export capability</label>
+            <label className="text-sm font-medium">Kemampuan ekspor</label>
             <div className="flex items-center gap-3 rounded-lg border px-3 py-2">
               <input
                 type="checkbox"
                 checked={exportCapability}
                 onChange={(e) => setExportCapability(e.target.checked)}
-                aria-label="Export capability"
+                aria-label="Kemampuan ekspor"
               />
-              <span className="text-sm text-muted-foreground">{exportCapability ? 'Yes' : 'No'}</span>
+              <span className="text-sm text-muted-foreground">{exportCapability ? 'Ya' : 'Tidak'}</span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Certifications (comma separated)</label>
+            <label className="text-sm font-medium">Sertifikasi (pisahkan koma)</label>
             <Input value={certificationsText} onChange={(e) => setCertificationsText(e.target.value)} placeholder="ISO, Halal" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Available from</label>
+            <label className="text-sm font-medium">Tersedia dari</label>
             <Input value={availableFrom} onChange={(e) => setAvailableFrom(e.target.value)} placeholder="YYYY-MM-DD" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Available until</label>
+            <label className="text-sm font-medium">Tersedia hingga</label>
             <Input value={availableUntil} onChange={(e) => setAvailableUntil(e.target.value)} placeholder="YYYY-MM-DD" />
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium">Photo URL</label>
+            <label className="text-sm font-medium">URL foto</label>
             <Input
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
@@ -432,16 +432,16 @@ export function SupplyListingForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Supplier location</label>
+            <label className="text-sm font-medium">Lokasi pemasok</label>
             <Input
               value={supplierLocation}
               onChange={(e) => setSupplierLocation(e.target.value)}
-              placeholder="e.g. Surabaya, Indonesia"
+              placeholder="mis. Surabaya, Indonesia"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Expiration date</label>
+            <label className="text-sm font-medium">Tanggal kedaluwarsa</label>
             <Input
               value={expirationDate}
               onChange={(e) => setExpirationDate(e.target.value)}
@@ -454,7 +454,7 @@ export function SupplyListingForm({
           <Button type="submit">{submitLabel}</Button>
           {canDelete ? (
             <Button type="button" variant="outline" className="border-destructive text-destructive" onClick={handleDelete}>
-              Delete
+              Hapus
             </Button>
           ) : null}
         </div>

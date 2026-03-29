@@ -1,10 +1,32 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 
 export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (user?.id) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_supplier, is_buyer, is_platform_superadmin')
+      .eq('id', user.id)
+      .is('deleted_at', null)
+      .maybeSingle()
+
+    if (profile && !profile.is_platform_superadmin) {
+      if (profile.is_supplier && !profile.is_buyer) {
+        redirect('/supplier/marketplace')
+      }
+      if (profile.is_buyer && !profile.is_supplier) {
+        redirect('/buyer/marketplace')
+      }
+      if (profile.is_supplier || profile.is_buyer) {
+        redirect('/marketplace')
+      }
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-4">
@@ -14,22 +36,22 @@ export default async function Home() {
         </h1>
         <p className="text-muted-foreground">
           {user
-            ? 'Signed in. Open the dashboard to continue.'
-            : 'Admin dashboard. Supplier and buyer accounts can sign up publicly. Organizations are linked by your platform administrator.'}
+            ? 'Anda sudah masuk. Buka dasbor untuk melanjutkan.'
+            : 'Dasbor admin. Akun pemasok dan pembeli dapat mendaftar secara publik. Organisasi ditautkan oleh administrator platform Anda.'}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
           {user ? (
             <>
               <Button asChild>
-                <Link href="/dashboard">Dashboard</Link>
+                <Link href="/dashboard">Dasbor</Link>
               </Button>
               <span className="text-sm text-muted-foreground">
-                Signed in as {user.email}
+                Masuk sebagai {user.email}
               </span>
             </>
           ) : (
             <Button asChild>
-              <Link href="/login">Sign in</Link>
+              <Link href="/login">Masuk</Link>
             </Button>
           )}
         </div>

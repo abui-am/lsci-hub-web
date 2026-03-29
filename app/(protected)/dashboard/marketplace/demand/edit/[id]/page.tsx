@@ -16,9 +16,9 @@ export default async function DemandListingEditPage({
   if (!session.organization && !session.profile.is_platform_superadmin) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">No organization linked</h2>
+        <h2 className="text-base font-semibold">Belum ada organisasi</h2>
         <p className="mt-2 text-muted-foreground">
-          Ask a platform admin to register your account into a buyer organization before editing demand listings.
+          Minta admin platform mendaftarkan akun Anda ke organisasi pembeli sebelum mengedit listing permintaan.
         </p>
       </div>
     )
@@ -27,9 +27,9 @@ export default async function DemandListingEditPage({
   if (!session.profile.is_platform_superadmin && !session.profile.is_buyer) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account is not marked as <span className="font-medium">buyer</span>.
+          Akun Anda tidak ditandai sebagai <span className="font-medium">pembeli</span>.
         </p>
       </div>
     )
@@ -58,7 +58,7 @@ export default async function DemandListingEditPage({
   if (productsError) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        Failed to load products: {productsError.message}
+        Gagal memuat produk: {productsError.message}
       </div>
     )
   }

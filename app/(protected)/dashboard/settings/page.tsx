@@ -7,61 +7,61 @@ export default async function DashboardSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Pengaturan</h1>
         <p className="text-muted-foreground">
-          Manage your account and application preferences.
+          Kelola akun dan preferensi aplikasi Anda.
         </p>
       </div>
       <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
-        <h2 className="text-lg font-medium">Account settings</h2>
+        <h2 className="text-lg font-medium">Pengaturan akun</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          View your account information and marketplace access.
+          Lihat informasi akun dan akses marketplace.
         </p>
         <div className="mt-4 grid gap-2 text-sm">
           <div>
-            Name: <span className="font-medium">{session.profile.name}</span>
+            Nama: <span className="font-medium">{session.profile.name}</span>
           </div>
           <div>
             Email: <span className="font-medium">{session.email ?? '—'}</span>
           </div>
           <div>
-            Organization role:{' '}
+            Peran di organisasi:{' '}
             <span className="font-medium">{session.profile.role}</span>
           </div>
           <div>
-            Linked organization:{' '}
+            Organisasi tertaut:{' '}
             <span className="font-medium">
-              {session.organization ? session.organization.name : 'none'}
+              {session.organization ? session.organization.name : 'tidak ada'}
             </span>
           </div>
           <div>
-            Organization type:{' '}
+            Jenis organisasi:{' '}
             <span className="font-medium">
               {session.organization ? session.organization.type : '—'}
             </span>
           </div>
           <div>
-            Organization sector:{' '}
+            Sektor organisasi:{' '}
             <span className="font-medium">
               {session.organization?.sector ?? '—'}
             </span>
           </div>
           <div>
-            Organization description:{' '}
+            Deskripsi organisasi:{' '}
             <span className="font-medium">
               {session.organization?.description ?? '—'}
             </span>
           </div>
           <div>
-            Supplier access:{' '}
+            Akses pemasok:{' '}
             <span className="font-medium">
-              {session.profile.is_supplier ? 'enabled' : 'disabled'}
+              {session.profile.is_supplier ? 'aktif' : 'nonaktif'}
             </span>
           </div>
           <div>
-            Buyer access:{' '}
+            Akses pembeli:{' '}
             <span className="font-medium">
-              {session.profile.is_buyer ? 'enabled' : 'disabled'}
+              {session.profile.is_buyer ? 'aktif' : 'nonaktif'}
             </span>
           </div>
         </div>

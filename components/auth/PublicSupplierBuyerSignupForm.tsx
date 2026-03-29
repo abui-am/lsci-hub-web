@@ -14,6 +14,14 @@ import {
 } from '@/components/ui/select'
 import type { OrgType } from '@/lib/rbac/types'
 
+const ORG_TYPE_LABELS: Record<OrgType, string> = {
+  farmer: 'Petani',
+  umkm: 'UMKM',
+  industry: 'Industri',
+  hotel: 'Hotel',
+  government: 'Pemerintahan',
+}
+
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
@@ -60,29 +68,29 @@ export function PublicSupplierBuyerSignupForm() {
     setSuccess(null)
 
     if (fullName.trim().length < 2) {
-      setError('Full name must be at least 2 characters.')
+      setError('Nama lengkap minimal 2 karakter.')
       return
     }
     if (!isValidEmail(email)) {
-      setError('Please enter a valid email.')
+      setError('Masukkan email yang valid.')
       return
     }
     if (password.trim().length < 8) {
-      setError('Password must be at least 8 characters.')
+      setError('Kata sandi minimal 8 karakter.')
       return
     }
 
     if (!isSupplier && !isBuyer) {
-      setError('Please select at least one: Supplier or Buyer.')
+      setError('Pilih minimal satu: Pemasok atau Pembeli.')
       return
     }
 
     if (orgName.trim().length < 3) {
-      setError('Organization name must be at least 3 characters.')
+      setError('Nama organisasi minimal 3 karakter.')
       return
     }
     if (!allowedOrgTypes.includes(orgType)) {
-      setError('Invalid organization type for your account selection.')
+      setError('Jenis organisasi tidak valid untuk pilihan akun Anda.')
       return
     }
 
@@ -120,7 +128,7 @@ export function PublicSupplierBuyerSignupForm() {
         return
       }
 
-      setSuccess('Signup successful. Please confirm your email (if required).')
+      setSuccess('Pendaftaran berhasil. Konfirmasi email Anda jika diperlukan.')
     } finally {
       setLoading(false)
     }
@@ -137,20 +145,20 @@ export function PublicSupplierBuyerSignupForm() {
           variant={isSupplier ? 'default' : 'outline'}
           onClick={() => setIsSupplier((v) => !v)}
         >
-          Supplier
+          Pemasok
         </Button>
         <Button
           type="button"
           variant={isBuyer ? 'default' : 'outline'}
           onClick={() => setIsBuyer((v) => !v)}
         >
-          Buyer
+          Pembeli
         </Button>
       </div>
 
       <div className="space-y-2">
         <label htmlFor="fullName" className="text-sm font-medium">
-          Full name
+          Nama lengkap
         </label>
         <Input
           id="fullName"
@@ -163,7 +171,7 @@ export function PublicSupplierBuyerSignupForm() {
 
       <div className="space-y-2">
         <label htmlFor="orgName" className="text-sm font-medium">
-          Organization name
+          Nama organisasi
         </label>
         <Input
           id="orgName"
@@ -176,19 +184,19 @@ export function PublicSupplierBuyerSignupForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Organization type</label>
+        <label className="text-sm font-medium">Jenis organisasi</label>
         <Select
           value={orgType}
           disabled={loading}
           onValueChange={(v) => setOrgType(v as OrgType)}
         >
           <SelectTrigger className="w-full min-w-0" size="default">
-            <SelectValue placeholder="Select organization type" />
+            <SelectValue placeholder="Pilih jenis organisasi" />
           </SelectTrigger>
           <SelectContent>
             {allowedOrgTypes.map((t) => (
               <SelectItem key={t} value={t}>
-                {t}
+                {ORG_TYPE_LABELS[t]}
               </SelectItem>
             ))}
           </SelectContent>
@@ -197,14 +205,14 @@ export function PublicSupplierBuyerSignupForm() {
 
       <div className="space-y-2">
         <label htmlFor="orgDescription" className="text-sm font-medium">
-          Organization description (optional)
+          Deskripsi organisasi (opsional)
         </label>
         <Input
           id="orgDescription"
           value={orgDescription}
           onChange={(e) => setOrgDescription(e.target.value)}
           disabled={loading}
-          placeholder="Short description"
+          placeholder="Deskripsi singkat"
         />
       </div>
 
@@ -225,7 +233,7 @@ export function PublicSupplierBuyerSignupForm() {
 
       <div className="space-y-2">
         <label htmlFor="password" className="text-sm font-medium">
-          Password
+          Kata sandi
         </label>
         <Input
           id="password"
@@ -250,7 +258,7 @@ export function PublicSupplierBuyerSignupForm() {
       ) : null}
 
       <Button type="submit" disabled={loading} className="w-full">
-        {loading ? 'Creating account…' : 'Sign up'}
+        {loading ? 'Membuat akun…' : 'Daftar'}
       </Button>
     </form>
   )

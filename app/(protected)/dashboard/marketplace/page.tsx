@@ -5,36 +5,36 @@ import { requireSession } from '@/lib/rbac/guards'
 const sections = [
   {
     href: '/dashboard/marketplace/supply',
-    title: 'Supply listings',
+    title: 'Listing pasokan',
     description:
-      'Create and manage your available products, stock, prices, and delivery timeline.',
+      'Buat dan kelola produk, stok, harga, dan timeline pengiriman Anda.',
     icon: Package,
   },
   {
     href: '/dashboard/marketplace/demand',
-    title: 'Demand / RFQ',
+    title: 'Permintaan / RFQ',
     description:
-      'Create purchase requests with quantity, target price, and delivery details.',
+      'Buat permintaan pembelian dengan jumlah, harga target, dan detail pengiriman.',
     icon: ClipboardList,
   },
   {
     href: '/dashboard/marketplace/matches',
-    title: 'AI matches',
+    title: 'Kecocokan AI',
     description:
-      'View recommended supplier-buyer opportunities based on product and availability.',
+      'Lihat peluang pemasok-pembeli yang direkomendasikan berdasarkan produk dan ketersediaan.',
     icon: GitMerge,
   },
   {
     href: '/dashboard/marketplace/rfq/open',
-    title: 'Open RFQs',
+    title: 'RFQ terbuka',
     description:
-      'Browse open buyer requests and send a quote directly.',
+      'Jelajahi permintaan pembeli terbuka dan kirim penawaran langsung.',
     icon: MessagesSquare,
   },
   {
     href: '/dashboard/marketplace/rfq',
-    title: 'RFQ responses',
-    description: 'Review quote activity and buyer decisions in one place.',
+    title: 'Respons RFQ',
+    description: 'Tinjau aktivitas penawaran dan keputusan pembeli di satu tempat.',
     icon: MessagesSquare,
   },
 ] as const
@@ -71,16 +71,16 @@ export default async function MarketplaceHubPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Procurement marketplace
+          Marketplace pengadaan
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Manage supplier offers, buyer requests, quotes, and matching in one
-          workflow.
+          Kelola penawaran pemasok, permintaan pembeli, penawaran, dan pencocokan dalam
+          satu alur.
         </p>
       </div>
       {!visibleSections.length ? (
         <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-          No marketplace sections available for your current role.
+          Tidak ada bagian marketplace untuk peran Anda saat ini.
         </p>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">

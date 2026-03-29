@@ -28,13 +28,13 @@ export function MarketplaceFilterBar({
         <DropdownMenuTrigger asChild>
           <Button type="button" variant="outline" size="sm" className="gap-1.5">
             <SlidersHorizontal className="size-4" />
-            Sort
+            Urutkan
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem>Newest</DropdownMenuItem>
-          <DropdownMenuItem>Price: low to high</DropdownMenuItem>
-          <DropdownMenuItem>Price: high to low</DropdownMenuItem>
+          <DropdownMenuItem>Terbaru</DropdownMenuItem>
+          <DropdownMenuItem>Harga: rendah ke tinggi</DropdownMenuItem>
+          <DropdownMenuItem>Harga: tinggi ke rendah</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

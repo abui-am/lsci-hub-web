@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input'
 
 const QUERY_ERRORS: Record<string, string> = {
   no_profile:
-    'Your account has no profile in this app’s database, or the app is using a different Supabase project than the one where you were invited. Confirm NEXT_PUBLIC_SUPABASE_URL and keys match your project. If this persists, ask a platform administrator to add your profile.',
+    'Akun Anda tidak memiliki profil di basis data aplikasi ini, atau aplikasi memakai proyek Supabase lain dari yang Anda undang. Pastikan NEXT_PUBLIC_SUPABASE_URL dan kunci cocok dengan proyek Anda. Jika tetap terjadi, minta administrator platform menambahkan profil Anda.',
   no_organization:
-    'Your profile is not linked to an organization yet. Ask a platform administrator to assign your account.',
+    'Profil Anda belum terhubung ke organisasi. Minta administrator platform untuk menautkan akun Anda.',
 }
 
 type LoginFormProps = {
@@ -86,7 +86,7 @@ export function LoginForm({ redirectTo, queryError }: LoginFormProps) {
         <Input
           id="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder="anda@contoh.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -97,13 +97,13 @@ export function LoginForm({ redirectTo, queryError }: LoginFormProps) {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label htmlFor="password" className="text-sm font-medium">
-            Password
+            Kata sandi
           </label>
           <Link
             href="/auth/forgot-password"
             className="text-xs text-muted-foreground hover:text-primary"
           >
-            Forgot password?
+            Lupa kata sandi?
           </Link>
         </div>
         <Input
@@ -122,7 +122,7 @@ export function LoginForm({ redirectTo, queryError }: LoginFormProps) {
         </p>
       )}
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Signing in…' : 'Sign in'}
+        {loading ? 'Masuk…' : 'Masuk'}
       </Button>
     </form>
   )

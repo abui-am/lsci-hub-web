@@ -23,7 +23,7 @@ export function SupplierResponseActions({
       <Button asChild size="sm" variant="outline">
         <Link href={`/marketplace/demand/${demandId}`}>
           <FileText className="mr-1.5 h-4 w-4" />
-          View RFQ detail
+          Lihat detail RFQ
         </Link>
       </Button>
 
@@ -31,7 +31,7 @@ export function SupplierResponseActions({
         <Button asChild size="sm" variant="outline">
           <Link href={`/marketplace/account/${buyerOrganizationId}`}>
             <MessageSquare className="mr-1.5 h-4 w-4" />
-            View buyer detail
+            Lihat detail pembeli
           </Link>
         </Button>
       ) : null}
@@ -42,13 +42,13 @@ export function SupplierResponseActions({
           size="sm"
           onClick={() =>
             toast({
-              title: 'Track shipment is WIP',
-              description: 'Shipment tracking module is under development.',
+              title: 'Pelacakan pengiriman (akan datang)',
+              description: 'Modul pelacakan pengiriman sedang dikembangkan.',
             })
           }
         >
           <Truck className="mr-1.5 h-4 w-4" />
-          Track shipment
+          Lacak pengiriman
         </Button>
       ) : null}
     </div>

@@ -61,10 +61,10 @@ export function ActionConfirmDialog({
             onClick={() => setOpen(false)}
             disabled={submitting}
           >
-            Cancel
+            Batal
           </Button>
           <Button type="button" onClick={handleConfirm} disabled={submitting}>
-            {submitting ? 'Processing...' : confirmLabel}
+            {submitting ? 'Memproses...' : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

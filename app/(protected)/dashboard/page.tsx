@@ -19,17 +19,17 @@ export default async function DashboardOverviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Ringkasan</h1>
         <p className="text-muted-foreground">
-          Welcome back. Signed in as{' '}
+          Selamat datang kembali. Masuk sebagai{' '}
           <span className="font-medium text-foreground">{session.email}</span>
         </p>
       </div>
       <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
-        <h2 className="text-lg font-medium">Getting started</h2>
+        <h2 className="text-lg font-medium">Memulai</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Use the sidebar to navigate between Overview and Settings. This area
-          can be used for dashboard widgets, recent activity, or key metrics.
+          Gunakan bilah sisi untuk navigasi antara Ringkasan dan Pengaturan. Area ini
+          dapat dipakai untuk widget dasbor, aktivitas terkini, atau metrik utama.
         </p>
       </div>
     </div>

@@ -4,10 +4,10 @@ type QuoteStatus = 'pending' | 'accepted' | 'rejected'
 
 export function QuoteStatusBadge({ status }: { status: QuoteStatus }) {
   if (status === 'accepted') {
-    return <Badge variant="success">Accepted</Badge>
+    return <Badge variant="success">Diterima</Badge>
   }
   if (status === 'rejected') {
-    return <Badge variant="outline">Rejected</Badge>
+    return <Badge variant="outline">Ditolak</Badge>
   }
-  return <Badge variant="warning">Pending</Badge>
+  return <Badge variant="warning">Menunggu</Badge>
 }

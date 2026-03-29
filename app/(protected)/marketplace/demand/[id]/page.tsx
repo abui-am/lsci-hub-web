@@ -41,9 +41,9 @@ export default async function MarketplaceDemandDetailPage({
   ) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account cannot access demand listing details.
+          Akun Anda tidak dapat mengakses detail listing permintaan.
         </p>
       </div>
     )
@@ -131,14 +131,14 @@ export default async function MarketplaceDemandDetailPage({
         href="/supplier/marketplace"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
       >
-        Back to supplier marketplace
+        Kembali ke marketplace pemasok
       </Link>
 
       <Card>
         <div className="relative aspect-[16/6] max-h-[360px] w-full overflow-hidden rounded-t-xl">
           <Image
             src={row.image_url ?? '/dummy-cabe.png'}
-            alt={product?.name ?? 'Demand product'}
+            alt={product?.name ?? 'Produk permintaan'}
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 70vw"
@@ -146,16 +146,16 @@ export default async function MarketplaceDemandDetailPage({
         </div>
         <CardHeader>
           <div className="flex items-center justify-between gap-2">
-            <CardTitle>{product?.name ?? 'Demand listing'}</CardTitle>
+            <CardTitle>{product?.name ?? 'Listing permintaan'}</CardTitle>
             <Badge variant={row.is_open_for_bidding ? 'success' : 'outline'}>
-              {row.is_open_for_bidding ? 'Open for bidding' : 'Closed'}
+              {row.is_open_for_bidding ? 'Terbuka untuk penawaran' : 'Ditutup'}
             </Badge>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <div className="relative h-6 w-6 overflow-hidden rounded-full border">
               <Image
                 src={buyer?.logo_image ?? '/dummy-cabe.png'}
-                alt={buyer?.name ?? 'Buyer logo'}
+                alt={buyer?.name ?? 'Logo pembeli'}
                 fill
                 className="object-cover"
                 sizes="24px"
@@ -163,7 +163,7 @@ export default async function MarketplaceDemandDetailPage({
             </div>
             <p className="inline-flex items-center gap-1">
               <Users className="h-3.5 w-3.5" />
-              Buyer:{' '}
+              Pembeli:{' '}
               {buyer?.id ? (
                 <Link href={`/marketplace/account/${buyer.id}`} className="hover:underline">
                   {buyer?.name ?? '-'}
@@ -174,7 +174,7 @@ export default async function MarketplaceDemandDetailPage({
             </p>
           </div>
           <p className="text-xs text-muted-foreground">
-            Buyer credit score:{' '}
+            Skor kredit pembeli:{' '}
             {formatCreditScore(buyer?.buyer_credit_score)}
           </p>
         </CardHeader>
@@ -183,35 +183,35 @@ export default async function MarketplaceDemandDetailPage({
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
                 <ScanSearch className="h-3.5 w-3.5" />
-                Demand ID:
+                ID permintaan:
               </span>{' '}
               {row.id}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
                 <CalendarClock className="h-3.5 w-3.5" />
-                Created:
+                Dibuat:
               </span>{' '}
               {row.created_at ? new Date(row.created_at).toLocaleString() : '-'}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
                 <Scale className="h-3.5 w-3.5" />
-                Required qty:
+                Jumlah yang dibutuhkan:
               </span>{' '}
               {row.required_quantity ?? '-'} {product?.unit ?? ''}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
                 <CalendarClock className="h-3.5 w-3.5" />
-                Required by:
+                Dibutuhkan pada:
               </span>{' '}
               {row.required_by ?? '-'}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
                 <CircleDollarSign className="h-3.5 w-3.5" />
-                Price band:
+                Rentang harga:
               </span>{' '}
               {priceBand}
             </p>
@@ -225,14 +225,14 @@ export default async function MarketplaceDemandDetailPage({
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
                 <Globe2 className="h-3.5 w-3.5" />
-                Target:
+                Tujuan:
               </span>{' '}
               {[row.target_location, row.incoterms].filter(Boolean).join(' / ') || '-'}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
                 <Factory className="h-3.5 w-3.5" />
-                Buyer type:
+                Jenis pembeli:
               </span>{' '}
               {buyer?.type ?? '-'}{' '}
               {buyer?.sector ? `(${buyer.sector})` : ''}
@@ -242,7 +242,7 @@ export default async function MarketplaceDemandDetailPage({
           <div>
             <h3 className="mb-2 inline-flex items-center gap-1 font-medium">
               <BadgeCheck className="h-4 w-4" />
-              Certifications required
+              Sertifikasi wajib
             </h3>
             <p>{certs.length ? certs.join(', ') : '-'}</p>
           </div>
@@ -250,7 +250,7 @@ export default async function MarketplaceDemandDetailPage({
           <div>
             <h3 className="mb-2 inline-flex items-center gap-1 font-medium">
               <ListChecks className="h-4 w-4" />
-              Specifications
+              Spesifikasi
             </h3>
             {Object.keys(specs).length === 0 ? (
               <p>-</p>
@@ -268,7 +268,7 @@ export default async function MarketplaceDemandDetailPage({
           <div>
             <h3 className="mb-2 inline-flex items-center gap-1 font-medium">
               <Package2 className="h-4 w-4" />
-              Accepted quotes
+              Penawaran diterima
             </h3>
             {accepted.length === 0 ? (
               <p>-</p>
@@ -283,7 +283,7 @@ export default async function MarketplaceDemandDetailPage({
                   )
                   return (
                     <li key={quote.id}>
-                      {supplier?.name ?? 'Supplier'}: {quote.quantity_offer ?? '-'}
+                      {supplier?.name ?? 'Pemasok'}: {quote.quantity_offer ?? '-'}
                       {quote.price_offer != null ? ` @ ${formatCurrencyIDR(quote.price_offer)}` : ''}
                     </li>
                   )

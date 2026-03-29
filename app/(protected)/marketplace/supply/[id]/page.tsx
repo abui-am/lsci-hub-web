@@ -21,9 +21,9 @@ export default async function MarketplaceSupplyDetailPage({
   ) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account cannot access supply listing details.
+          Akun Anda tidak dapat mengakses detail listing pasokan.
         </p>
       </div>
     )
@@ -116,14 +116,14 @@ export default async function MarketplaceSupplyDetailPage({
         href="/buyer/marketplace"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
       >
-        Back to buyer marketplace
+        Kembali ke marketplace pembeli
       </Link>
 
       <Card>
         <div className="relative aspect-[16/6] max-h-[360px] w-full overflow-hidden rounded-t-xl">
           <Image
             src={row.image_url ?? '/dummy-cabe.png'}
-            alt={product?.name ?? 'Supply product'}
+            alt={product?.name ?? 'Produk pasokan'}
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 70vw"
@@ -131,21 +131,21 @@ export default async function MarketplaceSupplyDetailPage({
         </div>
         <CardHeader>
           <div className="flex items-center justify-between gap-2">
-            <CardTitle>{product?.name ?? 'Product'}</CardTitle>
+            <CardTitle>{product?.name ?? 'Produk'}</CardTitle>
             <Badge variant={row.status === 'active' ? 'success' : 'outline'}>{row.status}</Badge>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <div className="relative h-6 w-6 overflow-hidden rounded-full border">
               <Image
                 src={supplier?.logo_image ?? '/dummy-cabe.png'}
-                alt={supplier?.name ?? 'Supplier logo'}
+                alt={supplier?.name ?? 'Logo pemasok'}
                 fill
                 className="object-cover"
                 sizes="24px"
               />
             </div>
             <p>
-              Supplier:{' '}
+              Pemasok:{' '}
               {supplier?.id ? (
                 <Link href={`/marketplace/account/${supplier.id}`} className="hover:underline">
                   {supplier?.name ?? '-'}
@@ -156,50 +156,50 @@ export default async function MarketplaceSupplyDetailPage({
             </p>
           </div>
           <p className="text-xs text-muted-foreground">
-            Supplier credit score:{' '}
+            Skor kredit pemasok:{' '}
             {formatCreditScore(supplier?.supplier_credit_score)}
           </p>
         </CardHeader>
         <CardContent className="space-y-6 text-sm">
           <div className="grid gap-2 md:grid-cols-2">
             <p>
-              <span className="text-muted-foreground">Listing ID:</span> {row.id}
+              <span className="text-muted-foreground">ID listing:</span> {row.id}
             </p>
             <p>
-              <span className="text-muted-foreground">Created at:</span>{' '}
+              <span className="text-muted-foreground">Dibuat pada:</span>{' '}
               {row.created_at ? new Date(row.created_at).toLocaleString() : '-'}
             </p>
             <p>
-              <span className="text-muted-foreground">Organization ID:</span>{' '}
+              <span className="text-muted-foreground">ID organisasi:</span>{' '}
               {row.organization_id ?? '-'}
             </p>
             <p>
-              <span className="text-muted-foreground">Created by:</span> {row.created_by ?? '-'}
+              <span className="text-muted-foreground">Dibuat oleh:</span> {row.created_by ?? '-'}
             </p>
           </div>
 
           <div>
-            <h3 className="mb-2 font-medium">Commercial details</h3>
+            <h3 className="mb-2 font-medium">Detail komersial</h3>
             <div className="grid gap-2 md:grid-cols-2">
               <p>
-                <span className="text-muted-foreground">Quantity:</span> {row.quantity ?? '-'}{' '}
+                <span className="text-muted-foreground">Jumlah:</span> {row.quantity ?? '-'}{' '}
                 {product?.unit ?? ''}
               </p>
               <p>
-                <span className="text-muted-foreground">Price estimate:</span>{' '}
+                <span className="text-muted-foreground">Perkiraan harga:</span>{' '}
                 {formatCurrencyIDR(row.price_estimate)} {row.price_type ? `(${row.price_type})` : ''}
               </p>
               <p>
-                <span className="text-muted-foreground">Min order:</span>{' '}
+                <span className="text-muted-foreground">MOQ:</span>{' '}
                 {row.min_order_quantity ?? '-'}
               </p>
               <p>
                 <span className="text-muted-foreground">Lead time:</span>{' '}
-                {row.lead_time_days ?? '-'} days
+                {row.lead_time_days ?? '-'} hari
               </p>
               <p>
-                <span className="text-muted-foreground">Export capability:</span>{' '}
-                {row.export_capability ? 'Yes' : 'No'}
+                <span className="text-muted-foreground">Kemampuan ekspor:</span>{' '}
+                {row.export_capability ? 'Ya' : 'Tidak'}
               </p>
               <p>
                 <span className="text-muted-foreground">Status:</span> {row.status ?? '-'}
@@ -208,62 +208,62 @@ export default async function MarketplaceSupplyDetailPage({
           </div>
 
           <div>
-            <h3 className="mb-2 font-medium">Availability and logistics</h3>
+            <h3 className="mb-2 font-medium">Ketersediaan dan logistik</h3>
             <div className="grid gap-2 md:grid-cols-2">
               <p>
-                <span className="text-muted-foreground">Available from:</span>{' '}
+                <span className="text-muted-foreground">Tersedia dari:</span>{' '}
                 {row.available_from ?? '-'}
               </p>
               <p>
-                <span className="text-muted-foreground">Available until:</span>{' '}
+                <span className="text-muted-foreground">Tersedia hingga:</span>{' '}
                 {row.available_until ?? '-'}
               </p>
               <p>
-                <span className="text-muted-foreground">Supplier location:</span>{' '}
+                <span className="text-muted-foreground">Lokasi pemasok:</span>{' '}
                 {row.supplier_location ?? '-'}
               </p>
               <p>
-                <span className="text-muted-foreground">Expiration date:</span>{' '}
+                <span className="text-muted-foreground">Tanggal kedaluwarsa:</span>{' '}
                 {row.expiration_date ?? '-'}
               </p>
             </div>
           </div>
 
           <div>
-            <h3 className="mb-2 font-medium">Product and supplier profile</h3>
+            <h3 className="mb-2 font-medium">Profil produk dan pemasok</h3>
             <div className="grid gap-2 md:grid-cols-2">
               <p>
-                <span className="text-muted-foreground">Product ID:</span> {row.product_id ?? '-'}
+                <span className="text-muted-foreground">ID produk:</span> {row.product_id ?? '-'}
               </p>
               <p>
-                <span className="text-muted-foreground">Product category:</span>{' '}
+                <span className="text-muted-foreground">Kategori produk:</span>{' '}
                 {product?.category ?? '-'}
               </p>
               <p>
-                <span className="text-muted-foreground">Product type:</span>{' '}
-                {product?.is_raw_material ? 'Raw material' : 'Finished product'}
+                <span className="text-muted-foreground">Jenis produk:</span>{' '}
+                {product?.is_raw_material ? 'Bahan baku' : 'Produk jadi'}
               </p>
               <p>
-                <span className="text-muted-foreground">Organization type:</span>{' '}
+                <span className="text-muted-foreground">Jenis organisasi:</span>{' '}
                 {supplier?.type ?? '-'}
               </p>
               <p>
-                <span className="text-muted-foreground">Organization sector:</span>{' '}
+                <span className="text-muted-foreground">Sektor organisasi:</span>{' '}
                 {supplier?.sector ?? '-'}
               </p>
             </div>
             <p className="mt-2">
-              <span className="text-muted-foreground">Product description:</span>{' '}
+              <span className="text-muted-foreground">Deskripsi produk:</span>{' '}
               {product?.description ?? '-'}
             </p>
             <p className="mt-1">
-              <span className="text-muted-foreground">Organization description:</span>{' '}
+              <span className="text-muted-foreground">Deskripsi organisasi:</span>{' '}
               {supplier?.description ?? '-'}
             </p>
           </div>
 
           <p>
-            <span className="text-muted-foreground">Certifications:</span>{' '}
+            <span className="text-muted-foreground">Sertifikasi:</span>{' '}
             {certifications.length ? certifications.join(', ') : '-'}
           </p>
         </CardContent>

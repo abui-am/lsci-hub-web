@@ -26,9 +26,9 @@ import {
 import { createClient } from '@/lib/supabase/client'
 
 const mainNav = [
-  { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Ringkasan', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Marketplace', href: '/marketplace', icon: Store },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { label: 'Pengaturan', href: '/dashboard/settings', icon: Settings },
 ] as const
 
 export function DashboardSidebar({
@@ -43,7 +43,7 @@ export function DashboardSidebar({
   const navItems = canViewOrganizations
     ? [
         ...mainNav.slice(0, 2),
-        { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
+        { label: 'Organisasi', href: '/dashboard/organizations', icon: Building2 },
         ...mainNav.slice(2),
       ]
     : mainNav
@@ -66,7 +66,7 @@ export function DashboardSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+          <SidebarGroupLabel>Dasbor</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -92,17 +92,17 @@ export function DashboardSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={toggleSidebar}
-              tooltip="Hide sidebar"
-              aria-label="Hide sidebar"
+              tooltip="Sembunyikan bilah sisi"
+              aria-label="Sembunyikan bilah sisi"
             >
               <PanelLeftClose />
-              <span>Hide sidebar</span>
+              <span>Sembunyikan bilah sisi</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleSignOut} tooltip="Sign out">
+            <SidebarMenuButton onClick={handleSignOut} tooltip="Keluar">
               <LogOut />
-              <span>Sign out</span>
+              <span>Keluar</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

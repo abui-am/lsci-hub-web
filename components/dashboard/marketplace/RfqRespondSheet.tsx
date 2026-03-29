@@ -76,7 +76,7 @@ async function createRfqResponse(payload: SubmitPayload) {
     if (json && typeof json === 'object' && 'error' in json) {
       return { ok: false as const, error: (json as Record<string, unknown>).error }
     }
-    return { ok: false as const, error: 'Request failed' }
+    return { ok: false as const, error: 'Permintaan gagal' }
   }
 
   return { ok: true as const }
@@ -84,7 +84,7 @@ async function createRfqResponse(payload: SubmitPayload) {
 
 export function RfqRespondSheet({
   rfq,
-  triggerLabel = 'Send quote',
+  triggerLabel = 'Kirim penawaran',
   triggerClassName,
 }: {
   rfq: OpenRfqForResponse
@@ -198,7 +198,7 @@ export function RfqRespondSheet({
     e.preventDefault()
     if (!canSubmit) {
       setResultMessage(
-        'Please enter a valid price (> 0). Quantity must not exceed the RFQ demand quantity.'
+        'Masukkan harga yang valid (> 0). Jumlah tidak boleh melebihi permintaan RFQ.'
       )
       return
     }
@@ -219,21 +219,21 @@ export function RfqRespondSheet({
 
       const out = await createRfqResponse(payload)
       if (!out.ok) {
-        setResultMessage(String(out.error ?? 'Failed to submit'))
+        setResultMessage(String(out.error ?? 'Gagal mengirim'))
         toast({
-          title: 'Failed to send quote',
-          description: String(out.error ?? 'Please try again.'),
+          title: 'Gagal mengirim penawaran',
+          description: String(out.error ?? 'Silakan coba lagi.'),
           variant: 'error',
         })
         return
       }
 
       toast({
-        title: 'Quote sent',
-        description: 'Your RFQ response is now pending buyer evaluation.',
+        title: 'Penawaran terkirim',
+        description: 'Jawaban RFQ Anda menunggu evaluasi pembeli.',
         variant: 'success',
       })
-      setResultMessage('Quote sent. Your RFQ response is pending evaluation.')
+      setResultMessage('Penawaran terkirim. Jawaban RFQ Anda sedang dievaluasi.')
       setOpen(false)
       setPriceOffer('')
       setQuantityOffer('')
@@ -254,26 +254,26 @@ export function RfqRespondSheet({
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Send RFQ quote</SheetTitle>
+          <SheetTitle>Kirim penawaran RFQ</SheetTitle>
           <SheetDescription>
-            {rfq.productName} requested by {rfq.buyerOrgName}
+            {rfq.productName} diminta oleh {rfq.buyerOrgName}
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-4 rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground mx-4">
           <p>
-            <span className="font-medium text-foreground">Qty:</span>{' '}
+            <span className="font-medium text-foreground">Jml:</span>{' '}
             {rfq.requiredQuantity ?? '—'}
           </p>
           <p>
-            <span className="font-medium text-foreground">Price band:</span>{' '}
+            <span className="font-medium text-foreground">Rentang harga:</span>{' '}
             {rfq.priceBandLabel}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4 mx-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Supply listing</label>
+            <label className="text-sm font-medium">Listing pasokan</label>
             <Select
               value={selectedSupplyListingId}
               onValueChange={handleSupplyListingChange}
@@ -283,34 +283,34 @@ export function RfqRespondSheet({
                 <SelectValue
                   placeholder={
                     isLoadingOptions
-                      ? 'Loading supply options...'
-                      : 'Select supply listing'
+                      ? 'Memuat opsi pasokan...'
+                      : 'Pilih listing pasokan'
                   }
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="auto">Auto select best match</SelectItem>
+                <SelectItem value="auto">Pilih otomatis yang paling cocok</SelectItem>
                 {supplyOptions.map((opt, index) => (
                   <SelectItem key={opt.id} value={opt.id}>
-                    Listing #{index + 1} - qty {opt.quantity ?? '—'}
-                    {opt.price_estimate != null ? ` - price ${formatCurrencyIDR(opt.price_estimate)}` : ''}
+                    Listing #{index + 1} - jml {opt.quantity ?? '—'}
+                    {opt.price_estimate != null ? ` - harga ${formatCurrencyIDR(opt.price_estimate)}` : ''}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Auto mode picks your latest active listing for the same product.
+              Mode otomatis memilih listing aktif terbaru untuk produk yang sama.
             </p>
           </div>
 
           {activeSupplyDetail ? (
             <div className="rounded-lg border bg-muted/20 p-3 text-sm">
               <p className="font-medium text-foreground">
-                Supply detail {selectedSupplyListingId === 'auto' ? '(auto preview)' : ''}
+                Detail pasokan {selectedSupplyListingId === 'auto' ? '(pratinjau otomatis)' : ''}
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 text-muted-foreground">
                 <p>
-                  <span className="font-medium text-foreground">Product:</span>{' '}
+                  <span className="font-medium text-foreground">Produk:</span>{' '}
                   {activeSupplyProduct?.name ?? rfq.productName}
                 </p>
                 <p>
@@ -318,30 +318,30 @@ export function RfqRespondSheet({
                   {activeSupplyDetail.status ?? '—'}
                 </p>
                 <p>
-                  <span className="font-medium text-foreground">Qty:</span>{' '}
+                  <span className="font-medium text-foreground">Jml:</span>{' '}
                   {activeSupplyDetail.quantity ?? '—'} {activeSupplyProduct?.unit ?? ''}
                 </p>
                 <p>
-                  <span className="font-medium text-foreground">Min order:</span>{' '}
+                  <span className="font-medium text-foreground">MOQ:</span>{' '}
                   {activeSupplyDetail.min_order_quantity ?? '—'}
                 </p>
                 <p>
-                  <span className="font-medium text-foreground">Price:</span>{' '}
+                  <span className="font-medium text-foreground">Harga:</span>{' '}
                   {formatCurrencyIDR(activeSupplyDetail.price_estimate)}{' '}
                   {activeSupplyDetail.price_type ? `(${activeSupplyDetail.price_type})` : ''}
                 </p>
                 <p>
                   <span className="font-medium text-foreground">Lead time:</span>{' '}
                   {activeSupplyDetail.lead_time_days != null
-                    ? `${activeSupplyDetail.lead_time_days} days`
+                    ? `${activeSupplyDetail.lead_time_days} hari`
                     : '—'}
                 </p>
                 <p>
-                  <span className="font-medium text-foreground">Location:</span>{' '}
+                  <span className="font-medium text-foreground">Lokasi:</span>{' '}
                   {activeSupplyDetail.supplier_location ?? '—'}
                 </p>
                 <p>
-                  <span className="font-medium text-foreground">Expires:</span>{' '}
+                  <span className="font-medium text-foreground">Kedaluwarsa:</span>{' '}
                   {activeSupplyDetail.expiration_date ?? '—'}
                 </p>
               </div>
@@ -350,7 +350,7 @@ export function RfqRespondSheet({
 
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="priceOffer">
-              Price offer
+              Harga penawaran
             </label>
             <Input
               id="priceOffer"
@@ -364,7 +364,7 @@ export function RfqRespondSheet({
 
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="quantityOffer">
-              Quantity offer (optional)
+              Jumlah penawaran (opsional)
             </label>
             <Input
               id="quantityOffer"
@@ -373,21 +373,21 @@ export function RfqRespondSheet({
               placeholder={
                 rfq.requiredQuantity != null
                   ? `default: ${rfq.requiredQuantity}`
-                  : 'e.g. 1000'
+                  : 'mis. 1000'
               }
               value={quantityOffer}
               onChange={(e) => setQuantityOffer(e.target.value)}
             />
             {maxDemandQuantity != null ? (
               <p className="text-xs text-muted-foreground">
-                Max allowed: {maxDemandQuantity}
+                Maksimum: {maxDemandQuantity}
               </p>
             ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="leadTimeDays">
-              Lead time (days, optional)
+              Lead time (hari, opsional)
             </label>
             <Input
               id="leadTimeDays"
@@ -400,11 +400,11 @@ export function RfqRespondSheet({
 
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="message">
-              Message (optional)
+              Pesan (opsional)
             </label>
             <Textarea
               id="message"
-              placeholder="Add conditions, certifications, or delivery notes..."
+              placeholder="Tambahkan syarat, sertifikasi, atau catatan pengiriman..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={5}
@@ -419,10 +419,10 @@ export function RfqRespondSheet({
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <span className="inline-flex items-center gap-2">
-                  <Spinner /> Sending...
+                  <Spinner /> Mengirim...
                 </span>
               ) : (
-                'Send quote'
+                'Kirim penawaran'
               )}
             </Button>
           </div>

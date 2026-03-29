@@ -13,9 +13,9 @@ export default async function BuyerMarketplacePage() {
   if (!session.profile.is_platform_superadmin && !session.profile.is_buyer) {
     return (
       <div className="rounded-lg border bg-card p-6 text-sm">
-        <h2 className="text-base font-semibold">Not allowed</h2>
+        <h2 className="text-base font-semibold">Tidak diizinkan</h2>
         <p className="mt-2 text-muted-foreground">
-          Your account is not marked as buyer.
+          Akun Anda tidak ditandai sebagai pembeli.
         </p>
       </div>
     )
@@ -69,26 +69,26 @@ export default async function BuyerMarketplacePage() {
           className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:bg-muted"
         >
           <Plus className="size-4" aria-hidden />
-          Add demand
+          Tambah permintaan
         </Link>
       </div>
 
       <MarketplaceHeader
-        title="Buyer marketplace"
-        description="Review incoming supplier quotes and decide quickly with full context."
+        title="Marketplace pembeli"
+        description="Tinjau penawaran pemasok masuk dan putuskan cepat dengan konteks lengkap."
         stats={[
           {
-            label: 'Active demand',
+            label: 'Permintaan aktif',
             value: activeDemandCount,
             icon: <ShoppingCart className="h-3.5 w-3.5" />,
           },
           {
-            label: 'Incoming quotes',
+            label: 'Penawaran masuk',
             value: incomingCount,
             icon: <Clock3 className="h-3.5 w-3.5" />,
           },
           {
-            label: 'Accepted quotes',
+            label: 'Penawaran diterima',
             value: acceptedCount,
             icon: <CircleDollarSign className="h-3.5 w-3.5" />,
           },
@@ -97,9 +97,9 @@ export default async function BuyerMarketplacePage() {
 
       <Tabs defaultValue="pending">
         <TabsList>
-          <TabsTrigger value="pending">Pending ({incomingCount})</TabsTrigger>
-          <TabsTrigger value="accepted">Accepted ({acceptedCount})</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected ({rejectedCount})</TabsTrigger>
+          <TabsTrigger value="pending">Menunggu ({incomingCount})</TabsTrigger>
+          <TabsTrigger value="accepted">Diterima ({acceptedCount})</TabsTrigger>
+          <TabsTrigger value="rejected">Ditolak ({rejectedCount})</TabsTrigger>
         </TabsList>
 
         {(['pending', 'accepted', 'rejected'] as const).map((status) => (
@@ -172,13 +172,13 @@ export default async function BuyerMarketplacePage() {
                     priceOffer: row.price_offer ?? null,
                     quantityOffer: row.quantity_offer ?? null,
                     leadTimeDays: row.lead_time_days ?? null,
-                    supplierName: supplier?.name ?? 'Supplier',
+                    supplierName: supplier?.name ?? 'Pemasok',
                     supplierOrganizationId: supplyOrg?.id ?? null,
                     supplierLogoUrl: supplyOrg?.logo_image ?? null,
                     supplierCreditScore: supplyOrg?.supplier_credit_score ?? null,
-                    buyerName: buyer?.name ?? 'Buyer',
+                    buyerName: buyer?.name ?? 'Pembeli',
                     buyerOrganizationId: buyer?.id ?? null,
-                    productName: product?.name ?? 'Product',
+                    productName: product?.name ?? 'Produk',
                     imageUrl: supplyListing?.image_url ?? null,
                     supplierLocation: supplyListing?.supplier_location ?? null,
                     expirationDate: supplyListing?.expiration_date ?? null,

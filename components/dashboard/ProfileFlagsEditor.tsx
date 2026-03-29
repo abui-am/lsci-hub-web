@@ -47,7 +47,7 @@ export function ProfileFlagsEditor() {
         const msg =
           typeof data === 'object' && data && 'error' in data
             ? String((data as { error?: unknown }).error)
-            : 'Request failed'
+            : 'Permintaan gagal'
         setError(msg)
         return
       }
@@ -65,21 +65,21 @@ export function ProfileFlagsEditor() {
   return (
     <div className="space-y-4 rounded-lg border bg-card p-5">
       <div>
-        <h2 className="text-lg font-medium">User role flags</h2>
+        <h2 className="text-lg font-medium">Flag peran pengguna</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Update <span className="font-mono">profiles.is_supplier</span> and{' '}
-          <span className="font-mono">profiles.is_buyer</span> by email (superadmin only).
+          Perbarui <span className="font-mono">profiles.is_supplier</span> dan{' '}
+          <span className="font-mono">profiles.is_buyer</span> lewat email (hanya superadmin).
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium">User email</label>
-          <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@example.com" />
+          <label className="text-sm font-medium">Email pengguna</label>
+          <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="pengguna@contoh.com" />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Flags</label>
+          <label className="text-sm font-medium">Flag</label>
           <div className="flex flex-wrap gap-4 rounded-lg border px-3 py-2">
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -87,7 +87,7 @@ export function ProfileFlagsEditor() {
                 checked={isSupplier}
                 onChange={(e) => setIsSupplier(e.target.checked)}
               />
-              Supplier
+              Pemasok
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -95,11 +95,11 @@ export function ProfileFlagsEditor() {
                 checked={isBuyer}
                 onChange={(e) => setIsBuyer(e.target.checked)}
               />
-              Buyer
+              Pembeli
             </label>
           </div>
           <p className="text-xs text-muted-foreground">
-            Tip: you can enable both for “supplier + buyer” accounts.
+            Tips: Anda bisa mengaktifkan keduanya untuk akun “pemasok + pembeli”.
           </p>
         </div>
       </div>
@@ -112,12 +112,12 @@ export function ProfileFlagsEditor() {
 
       {result ? (
         <div className="rounded-md border bg-muted/30 px-4 py-3 text-sm">
-          <div className="font-medium">Updated profile</div>
+          <div className="font-medium">Profil diperbarui</div>
           <div className="mt-1 text-muted-foreground">
             id: <span className="font-mono">{result.id}</span>
           </div>
-          <div className="text-muted-foreground">name: {result.name}</div>
-          <div className="text-muted-foreground">org: {result.organization_id ?? 'none'}</div>
+          <div className="text-muted-foreground">nama: {result.name}</div>
+          <div className="text-muted-foreground">org: {result.organization_id ?? 'tidak ada'}</div>
           <div className="text-muted-foreground">
             flags: supplier={String(result.is_supplier)} buyer={String(result.is_buyer)} class={result.account_class}
           </div>
@@ -126,7 +126,7 @@ export function ProfileFlagsEditor() {
 
       <div className="flex gap-2">
         <Button type="button" onClick={handleSave} disabled={!canSubmit || submitting}>
-          {submitting ? 'Saving…' : 'Save flags'}
+          {submitting ? 'Menyimpan…' : 'Simpan flag'}
         </Button>
       </div>
     </div>
