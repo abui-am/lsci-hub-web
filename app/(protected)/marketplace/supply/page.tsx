@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { MarketplaceHeader } from '@/components/marketplace-vibe/MarketplaceHeader'
 import { MarketplaceFilterBar } from '@/components/marketplace-vibe/MarketplaceFilterBar'
-import { formatCreditScore, formatCurrencyIDR } from '@/lib/utils'
+import { OrganizationIdentityBadge } from '@/components/marketplace-vibe/OrganizationIdentityBadge'
+import { formatCurrencyIDR } from '@/lib/utils'
 
 export default async function MarketplaceSupplyListPage() {
   const session = await requireSession()
@@ -120,31 +121,17 @@ export default async function MarketplaceSupplyListPage() {
                         {row.status}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="relative h-6 w-6 overflow-hidden rounded-full border">
-                        <Image
-                          src={org?.logo_image ?? '/dummy-cabe.png'}
-                          alt={org?.name ?? 'Logo pemasok'}
-                          fill
-                          className="object-cover"
-                          sizes="24px"
-                        />
-                      </div>
-                      {org?.id ? (
-                        <Link href={`/marketplace/account/${org.id}`} className="hover:underline">
-                          {org?.name ?? 'Pemasok'}
-                        </Link>
-                      ) : (
-                        <p>{org?.name ?? 'Pemasok'}</p>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Skor kredit:{' '}
-                      {formatCreditScore(
+                    <OrganizationIdentityBadge
+                      name={org?.name ?? 'Pemasok'}
+                      logoUrl={org?.logo_image}
+                      accountHref={org?.id ? `/marketplace/account/${org.id}` : undefined}
+                      creditScore={
                         (org as { supplier_credit_score?: number | null } | null)
                           ?.supplier_credit_score
-                      )}
-                    </p>
+                      }
+                      roleLabel="Pemasok"
+                      containerClassName="rounded-none bg-transparent p-0"
+                    />
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
                     <p>

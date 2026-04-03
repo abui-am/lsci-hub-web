@@ -6,7 +6,8 @@ import { relationOne } from '@/lib/supabase/relation'
 import { requireSession } from '@/lib/rbac/guards'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { formatCreditScore, formatCurrencyIDR } from '@/lib/utils'
+import { OrganizationIdentityBadge } from '@/components/marketplace-vibe/OrganizationIdentityBadge'
+import { formatCurrencyIDR } from '@/lib/utils'
 
 export default async function MarketplaceSupplyDetailPage({
   params,
@@ -134,31 +135,14 @@ export default async function MarketplaceSupplyDetailPage({
             <CardTitle>{product?.name ?? 'Produk'}</CardTitle>
             <Badge variant={row.status === 'active' ? 'success' : 'outline'}>{row.status}</Badge>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <div className="relative h-6 w-6 overflow-hidden rounded-full border">
-              <Image
-                src={supplier?.logo_image ?? '/dummy-cabe.png'}
-                alt={supplier?.name ?? 'Logo pemasok'}
-                fill
-                className="object-cover"
-                sizes="24px"
-              />
-            </div>
-            <p>
-              Pemasok:{' '}
-              {supplier?.id ? (
-                <Link href={`/marketplace/account/${supplier.id}`} className="hover:underline">
-                  {supplier?.name ?? '-'}
-                </Link>
-              ) : (
-                (supplier?.name ?? '-')
-              )}
-            </p>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Skor kredit pemasok:{' '}
-            {formatCreditScore(supplier?.supplier_credit_score)}
-          </p>
+          <OrganizationIdentityBadge
+            name={supplier?.name ?? '-'}
+            logoUrl={supplier?.logo_image}
+            accountHref={supplier?.id ? `/marketplace/account/${supplier.id}` : undefined}
+            creditScore={supplier?.supplier_credit_score}
+            roleLabel="Pemasok"
+            containerClassName="rounded-none bg-transparent p-0"
+          />
         </CardHeader>
         <CardContent className="space-y-6 text-sm">
           <div className="grid gap-2 md:grid-cols-2">

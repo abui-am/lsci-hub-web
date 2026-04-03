@@ -252,7 +252,7 @@ export function RfqRespondSheet({
           {triggerLabel}
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto pb-4">
         <SheetHeader>
           <SheetTitle>Kirim penawaran RFQ</SheetTitle>
           <SheetDescription>

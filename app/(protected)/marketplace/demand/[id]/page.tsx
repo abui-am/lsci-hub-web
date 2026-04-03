@@ -11,14 +11,14 @@ import {
   Package2,
   Scale,
   ScanSearch,
-  Users,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { relationOne } from '@/lib/supabase/relation'
 import { requireSession } from '@/lib/rbac/guards'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { formatCreditScore, formatCurrencyIDR, formatCurrencyRangeIDR } from '@/lib/utils'
+import { OrganizationIdentityBadge } from '@/components/marketplace-vibe/OrganizationIdentityBadge'
+import { formatCurrencyIDR, formatCurrencyRangeIDR } from '@/lib/utils'
 
 type RfqRow = {
   id: string
@@ -151,32 +151,14 @@ export default async function MarketplaceDemandDetailPage({
               {row.is_open_for_bidding ? 'Terbuka untuk penawaran' : 'Ditutup'}
             </Badge>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <div className="relative h-6 w-6 overflow-hidden rounded-full border">
-              <Image
-                src={buyer?.logo_image ?? '/dummy-cabe.png'}
-                alt={buyer?.name ?? 'Logo pembeli'}
-                fill
-                className="object-cover"
-                sizes="24px"
-              />
-            </div>
-            <p className="inline-flex items-center gap-1">
-              <Users className="h-3.5 w-3.5" />
-              Pembeli:{' '}
-              {buyer?.id ? (
-                <Link href={`/marketplace/account/${buyer.id}`} className="hover:underline">
-                  {buyer?.name ?? '-'}
-                </Link>
-              ) : (
-                (buyer?.name ?? '-')
-              )}
-            </p>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Skor kredit pembeli:{' '}
-            {formatCreditScore(buyer?.buyer_credit_score)}
-          </p>
+          <OrganizationIdentityBadge
+            name={buyer?.name ?? '-'}
+            logoUrl={buyer?.logo_image}
+            accountHref={buyer?.id ? `/marketplace/account/${buyer.id}` : undefined}
+            creditScore={buyer?.buyer_credit_score}
+            roleLabel="Pembeli"
+            containerClassName="rounded-none bg-transparent p-0"
+          />
         </CardHeader>
         <CardContent className="space-y-6 text-sm">
           <div className="grid gap-2 md:grid-cols-2">

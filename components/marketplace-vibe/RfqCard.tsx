@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import {
   Building2,
   CalendarClock,
@@ -7,7 +6,6 @@ import {
   Globe2,
   HandCoins,
   Package2,
-  Shield,
   Scale,
   ShieldCheck,
   Timer,
@@ -17,7 +15,8 @@ import {
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { formatCreditScore, formatCurrencyIDR } from '@/lib/utils'
+import { formatCurrencyIDR } from '@/lib/utils'
+import { OrganizationIdentityBadge } from '@/components/marketplace-vibe/OrganizationIdentityBadge'
 
 function demandStatusVariant(status: string): 'success' | 'outline' | 'warning' {
   if (status === 'active') return 'success'
@@ -105,6 +104,8 @@ export function RfqCard({
     : null
   const isUrgent = urgencyDays != null && urgencyDays <= 2
   const isHighValue = (estimatedDealValue ?? 0) >= 100000000
+  const logisticsBadgeClass =
+    'rounded-full border bg-white py-0.5 font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border-border text-foreground inline-flex h-5 items-center gap-1 px-1.5 text-[11px]'
   const emphasisClass = isUrgent
     ? 'border-amber-300 bg-amber-50/30 dark:border-amber-900/60 dark:bg-amber-950/10'
     : isHighValue
@@ -130,39 +131,12 @@ export function RfqCard({
       </div>
       <CardHeader className="pb-1.5">
         <CardTitle className="mb-1.5 text-base leading-tight">{productName}</CardTitle>
-        <div className="rounded-lg bg-muted/40 p-1.5">
-          <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
-            <div className="relative h-6 w-6 shrink-0 overflow-hidden rounded-full border">
-              <Image
-                src={buyerLogoUrl ?? '/dummy-cabe.png'}
-                alt={buyerName}
-                fill
-                className="object-cover"
-                sizes="24px"
-              />
-            </div>
-            <div className="flex min-w-0 flex-wrap items-center gap-1.5 leading-none">
-              {buyerAccountHref ? (
-                <Link href={buyerAccountHref} className="truncate text-[11px] font-semibold text-foreground hover:underline">
-                  {buyerName}
-                </Link>
-              ) : (
-                <span className="truncate text-[11px] font-semibold text-foreground">{buyerName}</span>
-              )}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="outline" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
-                    <Shield className="h-3 w-3" />
-                    {formatCreditScore(buyerCreditScore)}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent sideOffset={6}>
-                  Skor kredit : {formatCreditScore(buyerCreditScore)}
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
-        </div>
+        <OrganizationIdentityBadge
+          name={buyerName}
+          logoUrl={buyerLogoUrl}
+          accountHref={buyerAccountHref}
+          creditScore={buyerCreditScore}
+        />
         {opportunityTags.length ? (
           <div className="flex flex-wrap items-center gap-1 pt-0.5">
             {isUrgent ? <Badge variant="warning" className="px-1.5 py-0 text-[10px]">Mendesak</Badge> : null}
@@ -278,7 +252,7 @@ export function RfqCard({
           <div className="mt-1 flex flex-wrap gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge variant="secondary" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                <Badge variant="secondary" className={logisticsBadgeClass}>
                   <Globe2 className="h-3 w-3" />
                   {targetCountry?.trim() || '-'}
                 </Badge>
@@ -289,7 +263,7 @@ export function RfqCard({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge variant="secondary" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                <Badge variant="secondary" className={logisticsBadgeClass}>
                   <Truck className="h-3 w-3" />
                   {incoterms?.trim() || '-'}
                 </Badge>
@@ -300,7 +274,7 @@ export function RfqCard({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge variant="secondary" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                <Badge variant="secondary" className={logisticsBadgeClass}>
                   <CalendarClock className="h-3 w-3" />
                   {requiredBy?.trim() || '-'}
                 </Badge>
@@ -311,7 +285,7 @@ export function RfqCard({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge variant="secondary" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
+                <Badge variant="secondary" className={logisticsBadgeClass}>
                   <Package2 className="h-3 w-3" />
                   {productCategory?.trim() || '-'}
                 </Badge>

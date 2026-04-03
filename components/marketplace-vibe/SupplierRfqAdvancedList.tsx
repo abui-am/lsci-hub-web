@@ -342,7 +342,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                 <Button
                   type="button"
                   size="icon"
-                  variant={recommendedOnly ? 'default' : 'outline'}
+                  variant={recommendedOnly ? 'secondary' : 'outline'}
                   className="h-8 w-8"
                   aria-pressed={recommendedOnly}
                   onClick={() => setRecommendedOnly((v) => !v)}
@@ -357,7 +357,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                 <Button
                   type="button"
                   size="icon"
-                  variant={verifiedOnly ? 'default' : 'outline'}
+                  variant={verifiedOnly ? 'secondary' : 'outline'}
                   className="h-8 w-8"
                   aria-pressed={verifiedOnly}
                   onClick={() => setVerifiedOnly((v) => !v)}
@@ -372,7 +372,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                 <Button
                   type="button"
                   size="icon"
-                  variant={highMarginOnly ? 'default' : 'outline'}
+                  variant={highMarginOnly ? 'secondary' : 'outline'}
                   className="h-8 w-8"
                   aria-pressed={highMarginOnly}
                   onClick={() => setHighMarginOnly((v) => !v)}
@@ -387,7 +387,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                 <Button
                   type="button"
                   size="icon"
-                  variant={lowCompetitionOnly ? 'default' : 'outline'}
+                  variant={lowCompetitionOnly ? 'secondary' : 'outline'}
                   className="h-8 w-8"
                   aria-pressed={lowCompetitionOnly}
                   onClick={() => setLowCompetitionOnly((v) => !v)}
@@ -402,7 +402,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                 <Button
                   type="button"
                   size="icon"
-                  variant={nearbyOnly ? 'default' : 'outline'}
+                  variant={nearbyOnly ? 'secondary' : 'outline'}
                   className="h-8 w-8"
                   aria-pressed={nearbyOnly}
                   onClick={() => setNearbyOnly((v) => !v)}
