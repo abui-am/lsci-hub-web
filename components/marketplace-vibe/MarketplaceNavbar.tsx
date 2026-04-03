@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { SignOutButton } from '@/components/auth/SignOutButton'
 
 interface MarketplaceNavbarProps {
   isSupplier: boolean
@@ -51,12 +52,20 @@ export function MarketplaceNavbar({
             </Link>
           )}
           {(isBuyer || isSuperadmin) && (
-            <Link
-              href="/marketplace/demand"
-              className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              Listing permintaan
-            </Link>
+            <>
+              <Link
+                href="/marketplace/demand"
+                className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                Listing permintaan
+              </Link>
+              <Link
+                href="/marketplace/supply-listing/offer"
+                className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                Offer Request
+              </Link>
+            </>
           )}
           {(isSupplier || isBuyer || isSuperadmin) && (
             <Link
@@ -66,9 +75,15 @@ export function MarketplaceNavbar({
               Penasihat AI
             </Link>
           )}
-          <Link href="/marketplace/account" className="rounded-md border px-2.5 py-1 hover:bg-muted">
+          <Link
+            href="/marketplace/account"
+            className="rounded-md border px-2.5 py-1 hover:bg-muted"
+          >
             Akun
           </Link>
+          <div className="ml-1">
+            <SignOutButton />
+          </div>
         </nav>
       </div>
     </header>

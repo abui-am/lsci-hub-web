@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export function MarketplaceFooter() {
   return (
-    <footer className="mt-12 border-t bg-slate-950 text-slate-200">
+    <footer className="mt-12 border-t bg-primary text-foreground">
       <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 md:grid-cols-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">

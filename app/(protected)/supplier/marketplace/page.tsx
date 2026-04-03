@@ -15,6 +15,7 @@ import {
 import { MarketplaceHeader } from '@/components/marketplace-vibe/MarketplaceHeader'
 import { SupplierResponseActions } from '@/components/marketplace-vibe/SupplierResponseActions'
 import { SupplierRfqAdvancedList } from '@/components/marketplace-vibe/SupplierRfqAdvancedList'
+import { SupplierOfferRequestActions } from '@/components/marketplace-vibe/SupplierOfferRequestActions'
 import { QuoteStatusBadge } from '@/components/marketplace-vibe/QuoteStatusBadge'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -117,9 +118,38 @@ export default async function SupplierMarketplacePage() {
     .order('created_at', { ascending: false })
     .limit(30)
 
+  const { data: offerRequestRows } = await supabase
+    .from('offer_requests')
+    .select(
+      `
+      id,
+      status,
+      price_offer,
+      quantity_offer,
+      lead_time_days,
+      message,
+      created_at,
+      demand_listings (
+        id,
+        required_by,
+        products ( name ),
+        organizations ( id, name, logo_image )
+      ),
+      supply_listings (
+        id,
+        image_url,
+        supplier_location,
+        products ( name, unit )
+      )
+    `
+    )
+    .order('created_at', { ascending: false })
+    .limit(50)
+
   const pendingCount = (responseRows ?? []).filter((item) => item.status === 'pending').length
   const acceptedCount = (responseRows ?? []).filter((item) => item.status === 'accepted').length
   const rejectedCount = (responseRows ?? []).filter((item) => item.status === 'rejected').length
+  const offerPendingCount = (offerRequestRows ?? []).filter((item) => item.status === 'pending').length
   const openRfqItems = (openDemandRows ?? []).map((row) => {
     const product = relationOne(
       row.products as
@@ -226,6 +256,7 @@ export default async function SupplierMarketplacePage() {
         <TabsList>
           <TabsTrigger value="open-rfq">RFQ terbuka</TabsTrigger>
           <TabsTrigger value="my-responses">Respons saya</TabsTrigger>
+          <TabsTrigger value="offer-requests">Offer pembeli ({offerPendingCount})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="open-rfq" className="space-y-4">
@@ -421,6 +452,158 @@ export default async function SupplierMarketplacePage() {
                 })}
               </ul>
             </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="offer-requests" className="space-y-4">
+          {!offerRequestRows?.length ? (
+            <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
+              Belum ada offer request dari buyer.
+            </p>
+          ) : (
+            <ul className="grid gap-3">
+              {offerRequestRows.map((row) => {
+                const demand = relationOne(
+                  row.demand_listings as
+                    | {
+                        id: string
+                        required_by: string | null
+                        products: { name: string } | { name: string }[] | null
+                        organizations:
+                          | { id?: string; name: string; logo_image?: string | null }
+                          | { id?: string; name: string; logo_image?: string | null }[]
+                          | null
+                      }
+                    | Array<{
+                        id: string
+                        required_by: string | null
+                        products: { name: string } | { name: string }[] | null
+                        organizations:
+                          | { id?: string; name: string; logo_image?: string | null }
+                          | { id?: string; name: string; logo_image?: string | null }[]
+                          | null
+                      }>
+                    | null
+                )
+                const product = relationOne(demand?.products ?? null)
+                const buyer = relationOne(demand?.organizations ?? null)
+                const supply = relationOne(
+                  row.supply_listings as
+                    | {
+                        id: string
+                        image_url: string | null
+                        supplier_location: string | null
+                        products:
+                          | { name: string; unit: string | null }
+                          | { name: string; unit: string | null }[]
+                          | null
+                      }
+                    | Array<{
+                        id: string
+                        image_url: string | null
+                        supplier_location: string | null
+                        products:
+                          | { name: string; unit: string | null }
+                          | { name: string; unit: string | null }[]
+                          | null
+                      }>
+                    | null
+                )
+                const supplyProduct = relationOne(supply?.products ?? null)
+                const imageSrc =
+                  supply?.image_url &&
+                  (/^https?:\/\//.test(supply.image_url) ||
+                    supply.image_url.startsWith('/'))
+                    ? supply.image_url
+                    : '/dummy-cabe.png'
+
+                return (
+                  <li key={row.id}>
+                    <Card>
+                      <CardContent className="space-y-3 p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-12 w-14 overflow-hidden rounded-md border">
+                              <Image
+                                src={imageSrc}
+                                alt={supplyProduct?.name ?? 'Produk supply'}
+                                fill
+                                className="object-cover"
+                                sizes="56px"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-semibold">
+                                {product?.name ?? supplyProduct?.name ?? 'Produk'}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Buyer:{' '}
+                                {(buyer as { id?: string; name?: string } | null)?.id ? (
+                                  <Link
+                                    href={`/marketplace/account/${(buyer as { id: string }).id}`}
+                                    className="hover:underline"
+                                  >
+                                    {buyer?.name ?? 'Tidak ditentukan'}
+                                  </Link>
+                                ) : (
+                                  buyer?.name ?? 'Tidak ditentukan'
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          <QuoteStatusBadge
+                            status={row.status as 'pending' | 'accepted' | 'rejected'}
+                          />
+                        </div>
+
+                        <div className="grid gap-2 md:grid-cols-4">
+                          <div className="rounded-md bg-muted/40 p-2 text-sm">
+                            <p className="text-xs text-muted-foreground">Harga offer</p>
+                            <p className="font-medium">{formatCurrencyIDR(row.price_offer)}</p>
+                          </div>
+                          <div className="rounded-md bg-muted/40 p-2 text-sm">
+                            <p className="text-xs text-muted-foreground">Jumlah offer</p>
+                            <p className="font-medium">
+                              {row.quantity_offer ?? '-'} {supplyProduct?.unit ?? ''}
+                            </p>
+                          </div>
+                          <div className="rounded-md bg-muted/40 p-2 text-sm">
+                            <p className="text-xs text-muted-foreground">Lead time</p>
+                            <p className="font-medium">
+                              {row.lead_time_days != null
+                                ? `${row.lead_time_days} hari`
+                                : 'Tidak ditentukan'}
+                            </p>
+                          </div>
+                          <div className="rounded-md bg-muted/40 p-2 text-sm">
+                            <p className="text-xs text-muted-foreground">Tenggat RFQ</p>
+                            <p className="font-medium">
+                              {demand?.required_by ?? 'Tidak ditentukan'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          {demand?.id ? (
+                            <Button asChild variant="outline" size="sm">
+                              <Link href={`/marketplace/demand/${demand.id}`}>Lihat RFQ</Link>
+                            </Button>
+                          ) : null}
+                          <SupplierOfferRequestActions
+                            offerRequestId={row.id}
+                            disabled={row.status !== 'pending'}
+                          />
+                        </div>
+
+                        {row.message ? (
+                          <p className="text-xs text-muted-foreground">Catatan: {row.message}</p>
+                        ) : null}
+                      </CardContent>
+                    </Card>
+                  </li>
+                )
+              })}
+            </ul>
           )}
         </TabsContent>
       </Tabs>
