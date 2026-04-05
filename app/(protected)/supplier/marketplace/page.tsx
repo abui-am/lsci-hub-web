@@ -113,6 +113,11 @@ export default async function SupplierMarketplacePage() {
         image_url,
         products ( name ),
         organizations ( id, name, logo_image )
+      ),
+      supply_listings (
+        id,
+        image_url,
+        products ( name )
       )
     `
     )
@@ -336,6 +341,21 @@ export default async function SupplierMarketplacePage() {
                       | null
                   )
                   const product = relationOne(demand?.products ?? null)
+                  const supply = relationOne(
+                    row.supply_listings as
+                      | {
+                          id: string
+                          image_url: string | null
+                          products: { name: string } | { name: string }[] | null
+                        }
+                      | Array<{
+                          id: string
+                          image_url: string | null
+                          products: { name: string } | { name: string }[] | null
+                        }>
+                      | null
+                  )
+                  const supplyProduct = relationOne(supply?.products ?? null)
                   const buyer = relationOne(demand?.organizations ?? null)
                   const isAccepted = row.status === 'accepted'
                   const demandImageSrc =
@@ -343,6 +363,11 @@ export default async function SupplierMarketplacePage() {
                     (/^https?:\/\//.test(demand.image_url) || demand.image_url.startsWith('/')) &&
                     /\.(png|jpe?g|webp|gif|avif|svg)(\?.*)?$/i.test(demand.image_url)
                       ? demand.image_url
+                      : '/dummy-cabe.png'
+                  const supplyImageSrc =
+                    supply?.image_url &&
+                    (/^https?:\/\//.test(supply.image_url) || supply.image_url.startsWith('/'))
+                      ? supply.image_url
                       : '/dummy-cabe.png'
                   const totalValue =
                     row.price_offer != null && row.quantity_offer != null
@@ -361,14 +386,35 @@ export default async function SupplierMarketplacePage() {
                         <CardContent className="space-y-3 p-4">
                           <div className="flex flex-wrap items-start justify-between gap-2">
                             <div className="flex items-center gap-3">
-                              <div className="relative h-12 w-14 overflow-hidden rounded-md border">
-                                <Image
-                                  src={demandImageSrc}
-                                  alt={product?.name ?? 'Produk permintaan'}
-                                  fill
-                                  className="object-cover"
-                                  sizes="56px"
-                                />
+                              <div className="grid grid-cols-2 gap-1.5">
+                                <div className="space-y-1">
+                                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                                    RFQ
+                                  </p>
+                                  <div className="relative h-12 w-14 overflow-hidden rounded-md border">
+                                    <Image
+                                      src={demandImageSrc}
+                                      alt={product?.name ?? 'Produk permintaan'}
+                                      fill
+                                      className="object-cover"
+                                      sizes="56px"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                                    Pasokan
+                                  </p>
+                                  <div className="relative h-12 w-14 overflow-hidden rounded-md border">
+                                    <Image
+                                      src={supplyImageSrc}
+                                      alt={supplyProduct?.name ?? 'Produk pasokan'}
+                                      fill
+                                      className="object-cover"
+                                      sizes="56px"
+                                    />
+                                  </div>
+                                </div>
                               </div>
                               <div>
                                 <p className="font-semibold">{product?.name ?? 'Produk tanpa nama'}</p>
