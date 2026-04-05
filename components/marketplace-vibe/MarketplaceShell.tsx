@@ -12,6 +12,7 @@ export async function MarketplaceShell({
     session.profile.name?.trim() ||
     session.email?.trim() ||
     'Pengguna'
+  const accountImageUrl = session.organization?.logo_image ?? null
 
   return (
     <div className="relative min-h-svh overflow-x-hidden bg-background">
@@ -20,6 +21,7 @@ export async function MarketplaceShell({
         isBuyer={session.profile.is_buyer}
         isSuperadmin={session.profile.is_platform_superadmin}
         userLabel={userLabel}
+        accountImageUrl={accountImageUrl}
       />
       <div
         aria-hidden="true"

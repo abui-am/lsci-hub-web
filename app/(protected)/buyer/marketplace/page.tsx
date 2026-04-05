@@ -48,8 +48,9 @@ export default async function BuyerMarketplacePage() {
       ),
       demand_listings (
         id,
+        image_url,
         products ( name ),
-        organizations ( id, name )
+        organizations ( id, name, logo_image, buyer_credit_score )
       )
     `
     )
@@ -114,21 +115,59 @@ export default async function BuyerMarketplacePage() {
                     row.demand_listings as
                       | {
                           id: string
+                          image_url: string | null
                           products: { name: string } | { name: string }[] | null
-                          organizations: { id: string; name: string } | { id: string; name: string }[] | null
+                          organizations:
+                            | {
+                                id: string
+                                name: string
+                                logo_image?: string | null
+                                buyer_credit_score?: number | null
+                              }
+                            | {
+                                id: string
+                                name: string
+                                logo_image?: string | null
+                                buyer_credit_score?: number | null
+                              }[]
+                            | null
                         }
                       | Array<{
                           id: string
+                          image_url: string | null
                           products: { name: string } | { name: string }[] | null
-                          organizations: { id: string; name: string } | { id: string; name: string }[] | null
+                          organizations:
+                            | {
+                                id: string
+                                name: string
+                                logo_image?: string | null
+                                buyer_credit_score?: number | null
+                              }
+                            | {
+                                id: string
+                                name: string
+                                logo_image?: string | null
+                                buyer_credit_score?: number | null
+                              }[]
+                            | null
                         }>
                       | null
                   )
                   const product = relationOne(demand?.products ?? null)
                   const buyer = relationOne(
                     demand?.organizations as
-                      | { id: string; name: string }
-                      | { id: string; name: string }[]
+                      | {
+                          id: string
+                          name: string
+                          logo_image?: string | null
+                          buyer_credit_score?: number | null
+                        }
+                      | {
+                          id: string
+                          name: string
+                          logo_image?: string | null
+                          buyer_credit_score?: number | null
+                        }[]
                       | null
                   )
                   const supplier = relationOne(
@@ -182,8 +221,11 @@ export default async function BuyerMarketplacePage() {
                     supplierCreditScore: supplyOrg?.supplier_credit_score ?? null,
                     buyerName: buyer?.name ?? 'Pembeli',
                     buyerOrganizationId: buyer?.id ?? null,
+                    buyerLogoUrl: buyer?.logo_image ?? null,
+                    buyerCreditScore: buyer?.buyer_credit_score ?? null,
                     productName: product?.name ?? 'Produk',
                     imageUrl: supplyListing?.image_url ?? null,
+                    demandImageUrl: demand?.image_url ?? null,
                     supplierLocation: supplyListing?.supplier_location ?? null,
                     expirationDate: supplyListing?.expiration_date ?? null,
                   }

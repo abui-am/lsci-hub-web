@@ -77,17 +77,17 @@ export default async function MarketplaceDemandListPage() {
           {
             label: 'Total RFQ',
             value: rows?.length ?? 0,
-            icon: <ClipboardList className="h-3.5 w-3.5" />,
+            icon: <ClipboardList className="h-3.5 w-3.5 text-primary" />,
           },
           {
             label: 'RFQ terbuka',
             value: (rows ?? []).filter((row) => row.is_open_for_bidding).length,
-            icon: <ShoppingCart className="h-3.5 w-3.5" />,
+            icon: <ShoppingCart className="h-3.5 w-3.5 text-primary" />,
           },
           {
             label: 'RFQ ditutup',
             value: (rows ?? []).filter((row) => row.status === 'closed').length,
-            icon: <CircleCheckBig className="h-3.5 w-3.5" />,
+            icon: <CircleCheckBig className="h-3.5 w-3.5 text-primary" />,
           },
         ]}
       />

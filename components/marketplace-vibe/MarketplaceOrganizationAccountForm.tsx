@@ -39,6 +39,36 @@ export function MarketplaceOrganizationAccountForm({
     initial.supplier_credit_score != null ? String(initial.supplier_credit_score) : ''
   )
   const [saving, setSaving] = useState(false)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null)
+
+  const handleUploadImage = async (file: File) => {
+    setImageUploadError(null)
+    setIsUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'marketplace/account')
+
+      const res = await fetch('/api/cloudinary/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = (await res.json().catch(() => ({}))) as {
+        secure_url?: string
+      }
+
+      if (!res.ok || !data.secure_url) {
+        setImageUploadError('Gagal mengunggah gambar. Coba lagi.')
+        return
+      }
+
+      setLogoImage(data.secure_url)
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -81,13 +111,29 @@ export function MarketplaceOrganizationAccountForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">URL gambar logo</label>
-        <Input
-          value={logoImage}
-          onChange={(e) => setLogoImage(e.target.value)}
-          placeholder="https://..."
-          disabled={!canEdit}
-        />
+        <label className="text-sm font-medium">Logo organisasi</label>
+        <div className="space-y-2 rounded-md border border-dashed border-border px-3 py-3">
+          <label className="text-xs text-muted-foreground">Pilih gambar logo untuk diunggah</label>
+          <Input
+            type="file"
+            accept="image/*"
+            disabled={!canEdit || isUploadingImage}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              void handleUploadImage(file)
+            }}
+          />
+          {isUploadingImage ? (
+            <p className="text-xs text-muted-foreground">Mengunggah gambar...</p>
+          ) : null}
+          {imageUploadError ? (
+            <p className="text-xs text-destructive">{imageUploadError}</p>
+          ) : null}
+          {logoImage.trim() ? (
+            <p className="text-xs text-muted-foreground">Logo terunggah.</p>
+          ) : null}
+        </div>
         <div className="relative h-20 w-20 overflow-hidden rounded-md border">
           <Image
             src={logoImage.trim() || '/dummy-cabe.png'}

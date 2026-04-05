@@ -3,7 +3,7 @@ import { relationOne } from '@/lib/supabase/relation'
 import { requireSession } from '@/lib/rbac/guards'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Pencil, Plus } from 'lucide-react'
+import { Boxes, Pencil, Plus, Truck, Warehouse } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -65,14 +65,20 @@ export default async function MarketplaceSupplyListPage() {
         title="Daftar pasokan"
         description="Inventori marketplace dari pemasok, dengan jumlah, harga, dan kesiapan."
         stats={[
-          { label: 'Total listing', value: rows?.length ?? 0 },
+          {
+            label: 'Total listing',
+            value: rows?.length ?? 0,
+            icon: <Boxes className="h-3.5 w-3.5 text-primary" />,
+          },
           {
             label: 'Listing terbuka',
             value: (rows ?? []).filter((row) => row.status === 'active').length,
+            icon: <Warehouse className="h-3.5 w-3.5 text-primary" />,
           },
           {
             label: 'Siap ekspor',
             value: (rows ?? []).filter((row) => row.export_capability).length,
+            icon: <Truck className="h-3.5 w-3.5 text-primary" />,
           },
         ]}
       />

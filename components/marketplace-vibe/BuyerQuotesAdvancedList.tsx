@@ -3,7 +3,15 @@
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Search, Sparkles } from 'lucide-react'
+import {
+  CalendarClock,
+  CircleDollarSign,
+  MapPin,
+  Package2,
+  Search,
+  Sparkles,
+  Truck,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -25,6 +33,7 @@ import {
 import { QuoteStatusBadge } from '@/components/marketplace-vibe/QuoteStatusBadge'
 import { RfqResponseDecisionActions } from '@/components/marketplace-vibe/RfqResponseDecisionActions'
 import { TradeChatSheet } from '@/components/marketplace-vibe/TradeChatSheet'
+import { OrganizationIdentityBadge } from '@/components/marketplace-vibe/OrganizationIdentityBadge'
 import { formatCreditScore, formatCurrencyIDR } from '@/lib/utils'
 
 type QuoteItem = {
@@ -41,8 +50,11 @@ type QuoteItem = {
   supplierCreditScore: number | null
   buyerName: string
   buyerOrganizationId: string | null
+  buyerLogoUrl: string | null
+  buyerCreditScore: number | null
   productName: string
   imageUrl: string | null
+  demandImageUrl: string | null
   supplierLocation: string | null
   expirationDate: string | null
 }
@@ -228,50 +240,75 @@ export function BuyerQuotesAdvancedList({
       <p className="text-sm text-muted-foreground">{filtered.length} penawaran</p>
 
       <ul className="grid gap-3">
-        {filtered.map((item) => (
-          <li key={item.id}>
-            <Card>
-              <CardContent className="p-4 flex flex-wrap items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="relative h-16 w-20 overflow-hidden rounded-md border">
-                    <Image
-                      src={item.imageUrl ?? '/dummy-cabe.png'}
-                      alt={item.productName || 'Produk pasokan'}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  </div>
+        {filtered.map((item) => {
+          const imageSrc =
+            item.imageUrl && (/^https?:\/\//.test(item.imageUrl) || item.imageUrl.startsWith('/'))
+              ? item.imageUrl
+              : item.demandImageUrl &&
+                  (/^https?:\/\//.test(item.demandImageUrl) ||
+                    item.demandImageUrl.startsWith('/'))
+                ? item.demandImageUrl
+                : '/dummy-cabe.png'
+          return (
+            <li key={item.id}>
+              <Card>
+                <CardContent className="p-4 flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="relative h-16 w-20 overflow-hidden rounded-md border">
+                      <Image
+                        src={imageSrc}
+                        alt={item.productName || 'Produk pasokan'}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                      />
+                    </div>
                   <div className="space-y-1">
                     <p className="font-medium">{item.productName || 'Produk'}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Pembeli:{' '}
-                      {item.buyerOrganizationId ? (
-                        <Link href={`/marketplace/account/${item.buyerOrganizationId}`} className="hover:underline">
-                          {item.buyerName}
-                        </Link>
-                      ) : (
-                        item.buyerName
-                      )}{' '}
-                      | Pemasok:{' '}
-                      {item.supplierOrganizationId ? (
-                        <Link href={`/marketplace/account/${item.supplierOrganizationId}`} className="hover:underline">
-                          {item.supplierName}
-                        </Link>
-                      ) : (
-                        item.supplierName
-                      )}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Skor kredit pemasok: {formatCreditScore(item.supplierCreditScore)}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
+                    <div className="grid gap-1 md:grid-cols-2">
+                      <OrganizationIdentityBadge
+                        name={item.buyerName}
+                        logoUrl={item.buyerLogoUrl}
+                        accountHref={
+                          item.buyerOrganizationId
+                            ? `/marketplace/account/${item.buyerOrganizationId}`
+                            : undefined
+                        }
+                        creditScore={item.buyerCreditScore}
+                        roleLabel="Pembeli"
+                        containerClassName="bg-muted/30 p-1.5"
+                      />
+                      <OrganizationIdentityBadge
+                        name={item.supplierName}
+                        logoUrl={item.supplierLogoUrl}
+                        accountHref={
+                          item.supplierOrganizationId
+                            ? `/marketplace/account/${item.supplierOrganizationId}`
+                            : undefined
+                        }
+                        creditScore={item.supplierCreditScore}
+                        roleLabel="Pemasok"
+                        containerClassName="bg-muted/30 p-1.5"
+                      />
+                    </div>
+                    <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                      <CircleDollarSign className="h-3.5 w-3.5 text-primary" />
                       Penawaran: {formatCurrencyIDR(item.priceOffer)}
                       {item.quantityOffer != null ? ` x ${item.quantityOffer}` : ''}
-                      {item.leadTimeDays != null ? ` | Lead time: ${item.leadTimeDays} hari` : ''}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Lokasi: {item.supplierLocation ?? '-'} | Kedaluwarsa: {item.expirationDate ?? '-'}
+                    <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                      <Truck className="h-3.5 w-3.5 text-primary" />
+                      Lead time: {item.leadTimeDays != null ? `${item.leadTimeDays} hari` : '-'}
+                      {' · '}
+                      <Package2 className="h-3.5 w-3.5 text-primary" />
+                      Skor: {formatCreditScore(item.supplierCreditScore)}
+                    </p>
+                    <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5 text-primary" />
+                      {item.supplierLocation ?? '-'}
+                      {' · '}
+                      <CalendarClock className="h-3.5 w-3.5 text-primary" />
+                      Kedaluwarsa: {item.expirationDate ?? '-'}
                     </p>
                   </div>
                 </div>
@@ -297,10 +334,11 @@ export function BuyerQuotesAdvancedList({
                   ) : null}
                   {canDecide ? <RfqResponseDecisionActions responseId={item.id} /> : null}
                 </div>
-              </CardContent>
-            </Card>
-          </li>
-        ))}
+                </CardContent>
+              </Card>
+            </li>
+          )
+        })}
       </ul>
 
       {filtered.length === 0 ? (

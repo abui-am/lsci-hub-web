@@ -7,6 +7,7 @@ interface MarketplaceNavbarProps {
   isBuyer: boolean
   isSuperadmin: boolean
   userLabel: string
+  accountImageUrl?: string | null
 }
 
 export function MarketplaceNavbar({
@@ -14,13 +15,21 @@ export function MarketplaceNavbar({
   isBuyer,
   isSuperadmin,
   userLabel,
+  accountImageUrl,
 }: MarketplaceNavbarProps) {
+  const normalizedAccountImageUrl =
+    accountImageUrl &&
+    (/^https?:\/\//.test(accountImageUrl) || accountImageUrl.startsWith('/'))
+      ? accountImageUrl
+      : null
+  const accountInitial = userLabel.trim().charAt(0).toUpperCase() || 'U'
+
   return (
     <header className="sticky top-0 z-30 w-full border-b border-border/70 bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
         <Link href="/marketplace" className="flex items-center gap-2 rounded-md px-2 py-1 font-semibold">
           <Image
-            src="/indosourcing.png"
+            src="/indosourcing_new.png"
             alt="Logo Indosourcing"
             width={20}
             height={20}
@@ -79,10 +88,23 @@ export function MarketplaceNavbar({
           )}
           <Link
             href="/marketplace/account"
-            className="ml-2 inline-flex h-9 max-w-40 items-center truncate rounded-full border border-primary/25 bg-background/90 px-3 text-sm font-medium text-foreground/70 hover:border-primary/45 hover:bg-primary/8 hover:text-foreground"
+            className="ml-2 inline-flex h-9 max-w-48 items-center gap-2 truncate rounded-full border border-primary/25 bg-background/90 px-2.5 text-sm font-medium text-foreground/70 hover:border-primary/45 hover:bg-primary/8 hover:text-foreground"
             title={userLabel}
           >
-            {userLabel}
+            <span className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted text-[11px] font-semibold text-foreground">
+              {normalizedAccountImageUrl ? (
+                <Image
+                  src={normalizedAccountImageUrl}
+                  alt={userLabel}
+                  fill
+                  className="object-cover"
+                  sizes="24px"
+                />
+              ) : (
+                accountInitial
+              )}
+            </span>
+            <span className="truncate">{userLabel}</span>
           </Link>
           <div className="ml-1">
             <SignOutButton className="h-9 rounded-full border-primary/25 bg-background/90 px-3 font-medium hover:border-primary/45 hover:bg-primary/8" />

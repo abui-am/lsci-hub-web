@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Bot, MessageSquare, Plus, Send } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -36,7 +36,13 @@ function MarkdownMessage({ content }: { content: string }) {
   )
 }
 
-export function MarketplaceAdvisorWorkspace() {
+export function MarketplaceAdvisorWorkspace({
+  userLabel,
+  userImageUrl,
+}: {
+  userLabel: string
+  userImageUrl: string | null
+}) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -53,6 +59,11 @@ export function MarketplaceAdvisorWorkspace() {
     () => conversations.find((c) => c.id === activeConversationId) ?? null,
     [conversations, activeConversationId]
   )
+  const normalizedUserImageUrl =
+    userImageUrl && (/^https?:\/\//.test(userImageUrl) || userImageUrl.startsWith('/'))
+      ? userImageUrl
+      : null
+  const userInitial = userLabel.trim().charAt(0).toUpperCase() || 'U'
 
   const loadConversations = async () => {
     setIsLoadingConversations(true)
@@ -294,6 +305,7 @@ export function MarketplaceAdvisorWorkspace() {
                 m.role === 'assistant' ? (
                   <div key={m.id} className="flex items-start gap-2">
                     <Avatar className="h-7 w-7">
+                      <AvatarImage src="/indosourcing_new.png" alt="Penasihat AI" />
                       <AvatarFallback>
                         <Bot className="h-4 w-4" />
                       </AvatarFallback>
@@ -308,8 +320,15 @@ export function MarketplaceAdvisorWorkspace() {
                       <MarkdownMessage content={m.content} />
                     </div>
                     <Avatar className="h-7 w-7">
+                      {normalizedUserImageUrl ? (
+                        <AvatarImage src={normalizedUserImageUrl} alt={userLabel} />
+                      ) : null}
                       <AvatarFallback>
-                        <MessageSquare className="h-4 w-4" />
+                        {normalizedUserImageUrl ? (
+                          <MessageSquare className="h-4 w-4" />
+                        ) : (
+                          userInitial
+                        )}
                       </AvatarFallback>
                     </Avatar>
                   </div>

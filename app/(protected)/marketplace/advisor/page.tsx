@@ -19,6 +19,12 @@ export default async function MarketplaceAdvisorPage() {
     )
   }
 
+  const userLabel =
+    session.profile.name?.trim() ||
+    session.email?.trim() ||
+    'Pengguna'
+  const userImageUrl = session.organization?.logo_image ?? null
+
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
@@ -30,7 +36,10 @@ export default async function MarketplaceAdvisorPage() {
         </div>
       </div>
 
-      <MarketplaceAdvisorWorkspace />
+      <MarketplaceAdvisorWorkspace
+        userLabel={userLabel}
+        userImageUrl={userImageUrl}
+      />
     </div>
   )
 }

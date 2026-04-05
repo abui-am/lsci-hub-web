@@ -8,7 +8,7 @@ export function MarketplaceFooter() {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Image
-              src="/indosourcing.png"
+              src="/indosourcing_new.png"
               alt="Logo Indosourcing"
               width={24}
               height={24}

@@ -230,6 +230,7 @@ export function DemandListingForm({
   )
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [imageUploadError, setImageUploadError] = useState<string | null>(null)
 
@@ -327,6 +328,7 @@ export function DemandListingForm({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
     setSubmitError(null)
     setFieldErrors({})
 
@@ -355,50 +357,54 @@ export function DemandListingForm({
       setSubmitError('Periksa kembali form sebelum menyimpan.')
       return
     }
+    setIsSubmitting(true)
 
-    const specsObj = parseSpecificationsKeyValue(specificationsText)
+    try {
+      const specsObj = parseSpecificationsKeyValue(specificationsText)
 
-    const certs = certificationsRequiredText
-      .split(',')
-      .map((x) => x.trim())
-      .filter(Boolean)
+      const certs = certificationsRequiredText
+        .split(',')
+        .map((x) => x.trim())
+        .filter(Boolean)
 
-    const payload: Record<string, unknown> = {
-      product_id: parsed.data.productId,
-      required_quantity: Number(parsed.data.requiredQuantity),
-      required_by: parsed.data.requiredBy ? parsed.data.requiredBy : null,
-      price_range_from: parsed.data.priceFrom != null ? Number(parsed.data.priceFrom) : null,
-      price_range_to: parsed.data.priceTo != null ? Number(parsed.data.priceTo) : null,
-      specifications: specsObj,
-      certifications_required: certs,
-      target_location: parsed.data.targetLocation?.trim() ? parsed.data.targetLocation.trim() : null,
-      incoterms: parsed.data.incoterms?.trim() ? parsed.data.incoterms.trim() : null,
-      image_url: parsed.data.imageUrl?.trim() ? parsed.data.imageUrl.trim() : null,
-      is_open_for_bidding: parsed.data.openForBidding,
-      status: parsed.data.status,
-    }
-
-    const res = await fetch(
-      mode === 'create' ? '/api/marketplace/demand' : `/api/marketplace/demand/${initial?.id}`,
-      {
-        method: mode === 'create' ? 'POST' : 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
+      const payload: Record<string, unknown> = {
+        product_id: parsed.data.productId,
+        required_quantity: Number(parsed.data.requiredQuantity),
+        required_by: parsed.data.requiredBy ? parsed.data.requiredBy : null,
+        price_range_from: parsed.data.priceFrom != null ? Number(parsed.data.priceFrom) : null,
+        price_range_to: parsed.data.priceTo != null ? Number(parsed.data.priceTo) : null,
+        specifications: specsObj,
+        certifications_required: certs,
+        target_location: parsed.data.targetLocation?.trim() ? parsed.data.targetLocation.trim() : null,
+        incoterms: parsed.data.incoterms?.trim() ? parsed.data.incoterms.trim() : null,
+        image_url: parsed.data.imageUrl?.trim() ? parsed.data.imageUrl.trim() : null,
+        is_open_for_bidding: parsed.data.openForBidding,
+        status: parsed.data.status,
       }
-    )
 
-    const data: unknown = await res.json().catch(() => ({}))
-    if (!res.ok) {
-      const msg =
-        typeof data === 'object' && data && 'error' in data
-          ? String((data as { error?: unknown }).error)
-          : 'Permintaan gagal'
-      setSubmitError(msg)
-      return
+      const res = await fetch(
+        mode === 'create' ? '/api/marketplace/demand' : `/api/marketplace/demand/${initial?.id}`,
+        {
+          method: mode === 'create' ? 'POST' : 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      )
+
+      const data: unknown = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        const msg =
+          typeof data === 'object' && data && 'error' in data
+            ? String((data as { error?: unknown }).error)
+            : 'Permintaan gagal'
+        setSubmitError(msg)
+        return
+      }
+
+      router.replace(successRedirectPath)
+    } finally {
+      setIsSubmitting(false)
     }
-
-    router.push(successRedirectPath)
-    router.refresh()
   }
 
   const handleDelete = async () => {
@@ -716,7 +722,9 @@ export function DemandListingForm({
         ) : null}
 
         <div className="flex flex-wrap gap-2">
-          <Button type="submit">{submitLabel}</Button>
+          <Button type="submit" disabled={isSubmitting || isUploadingImage}>
+            {isSubmitting ? 'Menyimpan...' : submitLabel}
+          </Button>
           {mode === 'edit' && initial?.id ? (
             <Button
               type="button"
