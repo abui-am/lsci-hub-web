@@ -255,7 +255,9 @@ export default async function SupplierMarketplacePage() {
       <Tabs defaultValue="open-rfq">
         <TabsList>
           <TabsTrigger value="open-rfq">RFQ terbuka</TabsTrigger>
-          <TabsTrigger value="my-responses">Respons saya</TabsTrigger>
+          <TabsTrigger value="my-responses">
+            Bidding diajukan ({pendingCount + acceptedCount + rejectedCount})
+          </TabsTrigger>
           <TabsTrigger value="offer-requests">Offer pembeli ({offerPendingCount})</TabsTrigger>
         </TabsList>
 
@@ -437,6 +439,9 @@ export default async function SupplierMarketplacePage() {
                                 buyerOrganizationId={
                                   (buyer as { id?: string } | null)?.id ?? null
                                 }
+                                supplierOrganizationId={session.organization?.id ?? null}
+                                buyerName={buyer?.name ?? 'Pembeli'}
+                                viewerProfileId={session.profile.id}
                                 isAccepted={isAccepted}
                               />
                             ) : null}
@@ -591,6 +596,8 @@ export default async function SupplierMarketplacePage() {
                           ) : null}
                           <SupplierOfferRequestActions
                             offerRequestId={row.id}
+                            buyerName={buyer?.name ?? 'Pembeli'}
+                            viewerProfileId={session.profile.id}
                             disabled={row.status !== 'pending'}
                           />
                         </div>

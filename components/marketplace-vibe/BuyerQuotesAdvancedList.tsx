@@ -24,10 +24,12 @@ import {
 } from '@/components/ui/dialog'
 import { QuoteStatusBadge } from '@/components/marketplace-vibe/QuoteStatusBadge'
 import { RfqResponseDecisionActions } from '@/components/marketplace-vibe/RfqResponseDecisionActions'
+import { TradeChatSheet } from '@/components/marketplace-vibe/TradeChatSheet'
 import { formatCreditScore, formatCurrencyIDR } from '@/lib/utils'
 
 type QuoteItem = {
   id: string
+  demandListingId: string | null
   status: 'pending' | 'accepted' | 'rejected'
   supplyListingId: string | null
   priceOffer: number | null
@@ -56,9 +58,11 @@ type SortMode =
 export function BuyerQuotesAdvancedList({
   items,
   canDecide,
+  viewerProfileId,
 }: {
   items: QuoteItem[]
   canDecide: boolean
+  viewerProfileId: string
 }) {
   const [query, setQuery] = useState('')
   const [minPrice, setMinPrice] = useState('')
@@ -278,6 +282,18 @@ export function BuyerQuotesAdvancedList({
                     <Button asChild size="sm" variant="outline">
                       <Link href={`/marketplace/supply/${item.supplyListingId}`}>Lihat detail pasokan</Link>
                     </Button>
+                  ) : null}
+                  {item.demandListingId && item.supplierOrganizationId ? (
+                    <TradeChatSheet
+                      viewerProfileId={viewerProfileId}
+                      otherPartyName={item.supplierName}
+                      triggerLabel="Chat supplier"
+                      context={{
+                        type: 'rfq',
+                        demandListingId: item.demandListingId,
+                        supplierOrganizationId: item.supplierOrganizationId,
+                      }}
+                    />
                   ) : null}
                   {canDecide ? <RfqResponseDecisionActions responseId={item.id} /> : null}
                 </div>

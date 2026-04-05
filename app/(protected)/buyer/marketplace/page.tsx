@@ -7,6 +7,7 @@ import { CircleDollarSign, Clock3, Plus, ShoppingCart } from 'lucide-react'
 import { MarketplaceHeader } from '@/components/marketplace-vibe/MarketplaceHeader'
 import { BuyerQuotesAdvancedList } from '@/components/marketplace-vibe/BuyerQuotesAdvancedList'
 import { QuoteStatusBadge } from '@/components/marketplace-vibe/QuoteStatusBadge'
+import { TradeChatSheet } from '@/components/marketplace-vibe/TradeChatSheet'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatCurrencyIDR } from '@/lib/utils'
@@ -51,6 +52,7 @@ export default async function BuyerMarketplacePage() {
         organizations ( id, name, logo_image, supplier_credit_score )
       ),
       demand_listings (
+        id,
         products ( name ),
         organizations ( id, name )
       )
@@ -136,16 +138,19 @@ export default async function BuyerMarketplacePage() {
           <TabsContent key={status} value={status} className="space-y-4">
             <BuyerQuotesAdvancedList
               canDecide={status === 'pending'}
+              viewerProfileId={session.profile.id}
               items={((responseRows ?? [])
                 .filter((row) => row.status === status)
                 .map((row) => {
                   const demand = relationOne(
                     row.demand_listings as
                       | {
+                          id: string
                           products: { name: string } | { name: string }[] | null
                           organizations: { id: string; name: string } | { id: string; name: string }[] | null
                         }
                       | Array<{
+                          id: string
                           products: { name: string } | { name: string }[] | null
                           organizations: { id: string; name: string } | { id: string; name: string }[] | null
                         }>
@@ -197,6 +202,7 @@ export default async function BuyerMarketplacePage() {
 
                   return {
                     id: row.id,
+                    demandListingId: demand?.id ?? null,
                     status: row.status as 'pending' | 'accepted' | 'rejected',
                     supplyListingId: row.supply_listing_id ?? null,
                     priceOffer: row.price_offer ?? null,
@@ -328,6 +334,18 @@ export default async function BuyerMarketplacePage() {
                       {row.message ? (
                         <p className="text-xs text-muted-foreground">Catatan: {row.message}</p>
                       ) : null}
+
+                      <div className="pt-1">
+                        <TradeChatSheet
+                          viewerProfileId={session.profile.id}
+                          otherPartyName={supplierOrg?.name ?? 'Pemasok'}
+                          triggerLabel="Chat supplier"
+                          context={{
+                            type: 'offer',
+                            offerRequestId: row.id,
+                          }}
+                        />
+                      </div>
                     </CardContent>
                   </Card>
                 </li>

@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/providers/ToastProvider'
 import { formatCurrencyIDR } from '@/lib/utils'
+import { TradeChatSheet } from '@/components/marketplace-vibe/TradeChatSheet'
 
 export type BuyerDemandSummary = {
   id: string
@@ -42,11 +43,13 @@ export type SupplyListingSummary = {
 interface BuyerSupplyOfferWorkspaceProps {
   activeDemand: BuyerDemandSummary
   supplies: SupplyListingSummary[]
+  viewerProfileId: string
 }
 
 export function BuyerSupplyOfferWorkspace({
   activeDemand,
   supplies,
+  viewerProfileId,
 }: BuyerSupplyOfferWorkspaceProps) {
   const { toast } = useToast()
   const [search, setSearch] = useState('')
@@ -56,6 +59,10 @@ export function BuyerSupplyOfferWorkspace({
   const [leadTimeDays, setLeadTimeDays] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [createdOfferRequest, setCreatedOfferRequest] = useState<{
+    id: string
+    supplierName: string
+  } | null>(null)
 
   const priceOfferNumber = useMemo(() => {
     const n = Number(priceOffer.trim())
@@ -106,6 +113,9 @@ export function BuyerSupplyOfferWorkspace({
     }
     setIsSubmitting(true)
     try {
+      const selectedSupply =
+        supplies.find((item) => item.id === openDialogForSupplyId) ?? null
+
       const res = await fetch('/api/marketplace/offer-requests', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -131,11 +141,30 @@ export function BuyerSupplyOfferWorkspace({
         })
         return
       }
+      const offerRequestId =
+        json &&
+        typeof json === 'object' &&
+        'offerRequest' in json &&
+        (json as Record<string, unknown>).offerRequest &&
+        typeof (json as Record<string, unknown>).offerRequest === 'object' &&
+        'id' in ((json as Record<string, unknown>).offerRequest as Record<string, unknown>)
+          ? String(
+              (((json as Record<string, unknown>).offerRequest as Record<string, unknown>)
+                .id ?? '')
+            )
+          : ''
+
       toast({
         title: 'Offer Request terkirim',
         description: 'Permintaan penawaran Anda telah dikirim ke pemasok.',
         variant: 'success',
       })
+      if (offerRequestId) {
+        setCreatedOfferRequest({
+          id: offerRequestId,
+          supplierName: selectedSupply?.supplierName ?? 'Pemasok',
+        })
+      }
       setOpenDialogForSupplyId(null)
     } finally {
       setIsSubmitting(false)
@@ -144,6 +173,28 @@ export function BuyerSupplyOfferWorkspace({
 
   return (
     <div className="space-y-6">
+      {createdOfferRequest ? (
+        <div className="rounded-lg border bg-card p-4">
+          <p className="text-sm font-medium">
+            Offer request ke {createdOfferRequest.supplierName} berhasil dikirim.
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Anda bisa langsung lanjut negosiasi lewat chat demo.
+          </p>
+          <div className="mt-3">
+            <TradeChatSheet
+              viewerProfileId={viewerProfileId}
+              otherPartyName={createdOfferRequest.supplierName}
+              triggerLabel="Chat supplier sekarang"
+              context={{
+                type: 'offer',
+                offerRequestId: createdOfferRequest.id,
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
+
       <div className="rounded-lg border bg-card p-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Langkah 2 dari 2 · Pilih pemasok

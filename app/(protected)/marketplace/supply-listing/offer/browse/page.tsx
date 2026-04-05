@@ -164,7 +164,11 @@ export default async function SupplyListingOfferBrowsePage({
         ]}
       />
 
-      <BuyerSupplyOfferWorkspace activeDemand={activeDemand} supplies={supplies} />
+      <BuyerSupplyOfferWorkspace
+        activeDemand={activeDemand}
+        supplies={supplies}
+        viewerProfileId={session.profile.id}
+      />
     </div>
   )
 }
