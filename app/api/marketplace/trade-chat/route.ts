@@ -7,6 +7,7 @@ type TradeChatPayload =
       type: 'rfq'
       demand_listing_id: string
       supplier_organization_id: string
+      buyer_organization_id?: string | null
     }
   | {
       type: 'offer'
@@ -31,6 +32,10 @@ function parsePayload(v: unknown): TradeChatPayload | null {
       type: 'rfq',
       demand_listing_id: payload.demand_listing_id,
       supplier_organization_id: payload.supplier_organization_id,
+      buyer_organization_id:
+        typeof payload.buyer_organization_id === 'string'
+          ? payload.buyer_organization_id
+          : null,
     }
   }
   if (payload.type === 'offer') {
@@ -235,20 +240,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { data: demand, error: demandErr } = await supabase
-      .from('demand_listings')
-      .select('id, organization_id, deleted_at')
-      .eq('id', payload.demand_listing_id)
-      .maybeSingle()
+    let buyerOrganizationId =
+      payload.buyer_organization_id && looksLikeUuid(payload.buyer_organization_id)
+        ? payload.buyer_organization_id
+        : null
 
-    if (demandErr || !demand || demand.deleted_at != null) {
+    if (!buyerOrganizationId) {
+      const { data: demand, error: demandErr } = await supabase
+        .from('demand_listings')
+        .select('id, organization_id, deleted_at')
+        .eq('id', payload.demand_listing_id)
+        .maybeSingle()
+
+      if (demandErr || !demand || demand.deleted_at != null) {
+        return NextResponse.json(
+          { error: demandErr?.message ?? 'demand listing tidak ditemukan' },
+          { status: 404 }
+        )
+      }
+
+      buyerOrganizationId = demand.organization_id as string
+    }
+    if (!buyerOrganizationId) {
       return NextResponse.json(
-        { error: demandErr?.message ?? 'demand listing tidak ditemukan' },
-        { status: 404 }
+        { error: 'buyer organization tidak ditemukan' },
+        { status: 400 }
       )
     }
 
-    const buyerOrganizationId = demand.organization_id as string
     const supplierOrganizationId = payload.supplier_organization_id
     if (buyerOrganizationId === supplierOrganizationId) {
       return NextResponse.json(

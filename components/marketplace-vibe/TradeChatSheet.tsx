@@ -18,6 +18,7 @@ type TradeChatContext =
       type: 'rfq'
       demandListingId: string
       supplierOrganizationId: string
+      buyerOrganizationId?: string | null
     }
   | {
       type: 'offer'
@@ -78,6 +79,7 @@ export function TradeChatSheet({
             type: 'rfq',
             demand_listing_id: context.demandListingId,
             supplier_organization_id: context.supplierOrganizationId,
+            buyer_organization_id: context.buyerOrganizationId ?? null,
           }
         : {
             type: 'offer',

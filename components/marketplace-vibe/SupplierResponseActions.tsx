@@ -168,6 +168,7 @@ export function SupplierResponseActions({
             type: 'rfq',
             demandListingId: demandId,
             supplierOrganizationId,
+            buyerOrganizationId,
           }}
         />
       ) : null}

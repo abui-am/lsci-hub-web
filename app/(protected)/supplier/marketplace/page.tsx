@@ -96,11 +96,13 @@ export default async function SupplierMarketplacePage() {
     )
   )
 
-  const { data: responseRows } = await supabase
+  let responseQuery = supabase
     .from('rfq_responses')
     .select(
       `
       id,
+      demand_listing_id,
+      supplier_organization_id,
       status,
       price_offer,
       quantity_offer,
@@ -123,6 +125,38 @@ export default async function SupplierMarketplacePage() {
     )
     .order('created_at', { ascending: false })
     .limit(30)
+
+  if (session.organization?.id) {
+    responseQuery = responseQuery.eq('supplier_organization_id', session.organization.id)
+  }
+
+  const { data: responseRows } = await responseQuery
+  const responseDemandIds = Array.from(
+    new Set(
+      (responseRows ?? [])
+        .map((row) =>
+          typeof row.demand_listing_id === 'string' ? row.demand_listing_id : null
+        )
+        .filter((id): id is string => Boolean(id))
+    )
+  )
+  const { data: responseDemandRows } = responseDemandIds.length
+    ? await supabase
+        .from('demand_listings')
+        .select(
+          `
+          id,
+          required_by,
+          image_url,
+          products ( name ),
+          organizations ( id, name, logo_image )
+        `
+        )
+        .in('id', responseDemandIds)
+    : { data: null }
+  const responseDemandMap = new Map(
+    (responseDemandRows ?? []).map((row: { id: string }) => [row.id, row])
+  )
 
   const { data: offerRequestRows } = await supabase
     .from('offer_requests')
@@ -152,11 +186,20 @@ export default async function SupplierMarketplacePage() {
     .order('created_at', { ascending: false })
     .limit(50)
 
-  const { count: activeSupplyListingCount } = await supabase
+  let activeSupplyListingCountQuery = supabase
     .from('supply_listings')
     .select('id', { count: 'exact', head: true })
     .is('deleted_at', null)
     .eq('status', 'active')
+
+  if (session.organization?.id) {
+    activeSupplyListingCountQuery = activeSupplyListingCountQuery.eq(
+      'organization_id',
+      session.organization.id
+    )
+  }
+
+  const { count: activeSupplyListingCount } = await activeSupplyListingCountQuery
 
   const pendingCount = (responseRows ?? []).filter((item) => item.status === 'pending').length
   const acceptedCount = (responseRows ?? []).filter((item) => item.status === 'accepted').length
@@ -316,7 +359,7 @@ export default async function SupplierMarketplacePage() {
 
               <ul className="grid gap-3">
                 {responseRows.map((row) => {
-                  const demand = relationOne(
+                  const embeddedDemand = relationOne(
                     row.demand_listings as
                       | {
                           id: string
@@ -340,6 +383,33 @@ export default async function SupplierMarketplacePage() {
                         }>
                       | null
                   )
+                  const fallbackDemand = row.demand_listing_id
+                    ? relationOne(
+                        responseDemandMap.get(row.demand_listing_id) as
+                          | {
+                              id: string
+                              required_by: string | null
+                              image_url: string | null
+                              products: { name: string } | { name: string }[] | null
+                              organizations:
+                                | { id?: string; name: string; logo_image?: string | null }
+                                | { id?: string; name: string; logo_image?: string | null }[]
+                                | null
+                            }
+                          | {
+                              id: string
+                              required_by: string | null
+                              image_url: string | null
+                              products: { name: string } | { name: string }[] | null
+                              organizations:
+                                | { id?: string; name: string; logo_image?: string | null }
+                                | { id?: string; name: string; logo_image?: string | null }[]
+                                | null
+                            }[]
+                          | null
+                      )
+                    : null
+                  const demand = embeddedDemand ?? fallbackDemand
                   const product = relationOne(demand?.products ?? null)
                   const supply = relationOne(
                     row.supply_listings as
@@ -358,6 +428,7 @@ export default async function SupplierMarketplacePage() {
                   const supplyProduct = relationOne(supply?.products ?? null)
                   const buyer = relationOne(demand?.organizations ?? null)
                   const isAccepted = row.status === 'accepted'
+                  const demandId = (demand?.id ?? row.demand_listing_id ?? null) as string | null
                   const demandImageSrc =
                     demand?.image_url &&
                     (/^https?:\/\//.test(demand.image_url) || demand.image_url.startsWith('/')) &&
@@ -417,7 +488,11 @@ export default async function SupplierMarketplacePage() {
                                 </div>
                               </div>
                               <div>
-                                <p className="font-semibold">{product?.name ?? 'Produk tanpa nama'}</p>
+                                <p className="font-semibold">
+                                  {product?.name ??
+                                    supplyProduct?.name ??
+                                    (demandId ? `RFQ ${demandId.slice(0, 8)}` : 'Produk')}
+                                </p>
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                   <div className="relative h-5 w-5 overflow-hidden rounded-full border">
                                     <Image
@@ -496,10 +571,10 @@ export default async function SupplierMarketplacePage() {
                           </div>
 
                           <div className="flex flex-wrap items-center gap-2">
-                            {demand?.id ? (
+                            {demandId ? (
                               <SupplierResponseActions
                                 responseId={row.id}
-                                demandId={demand.id}
+                                demandId={demandId}
                                 buyerOrganizationId={
                                   (buyer as { id?: string } | null)?.id ?? null
                                 }
