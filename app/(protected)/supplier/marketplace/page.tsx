@@ -147,6 +147,12 @@ export default async function SupplierMarketplacePage() {
     .order('created_at', { ascending: false })
     .limit(50)
 
+  const { count: activeSupplyListingCount } = await supabase
+    .from('supply_listings')
+    .select('id', { count: 'exact', head: true })
+    .is('deleted_at', null)
+    .eq('status', 'active')
+
   const pendingCount = (responseRows ?? []).filter((item) => item.status === 'pending').length
   const acceptedCount = (responseRows ?? []).filter((item) => item.status === 'accepted').length
   const rejectedCount = (responseRows ?? []).filter((item) => item.status === 'rejected').length
@@ -264,7 +270,10 @@ export default async function SupplierMarketplacePage() {
         </TabsList>
 
         <TabsContent value="open-rfq" className="space-y-5">
-          <SupplierRfqAdvancedList items={openRfqItems} />
+          <SupplierRfqAdvancedList
+            items={openRfqItems}
+            hasActiveSupplyListings={(activeSupplyListingCount ?? 0) > 0}
+          />
         </TabsContent>
 
         <TabsContent value="my-responses" className="space-y-5">
@@ -443,6 +452,7 @@ export default async function SupplierMarketplacePage() {
                           <div className="flex flex-wrap items-center gap-2">
                             {demand?.id ? (
                               <SupplierResponseActions
+                                responseId={row.id}
                                 demandId={demand.id}
                                 buyerOrganizationId={
                                   (buyer as { id?: string } | null)?.id ?? null
@@ -451,6 +461,11 @@ export default async function SupplierMarketplacePage() {
                                 buyerName={buyer?.name ?? 'Pembeli'}
                                 viewerProfileId={session.profile.id}
                                 isAccepted={isAccepted}
+                                isPending={row.status === 'pending'}
+                                initialPriceOffer={row.price_offer ?? null}
+                                initialQuantityOffer={row.quantity_offer ?? null}
+                                initialLeadTimeDays={row.lead_time_days ?? null}
+                                initialMessage={row.message ?? null}
                               />
                             ) : null}
                           </div>

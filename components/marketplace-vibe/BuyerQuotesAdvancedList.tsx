@@ -67,6 +67,13 @@ type SortMode =
   | 'lead_time_asc'
   | 'score_desc'
 
+function resolveImageSrc(value: string | null | undefined): string | null {
+  const raw = typeof value === 'string' ? value.trim() : ''
+  if (!raw) return null
+  if (/^https?:\/\//.test(raw) || raw.startsWith('/')) return raw
+  return `/${raw.replace(/^\/+/, '')}`
+}
+
 export function BuyerQuotesAdvancedList({
   items,
   canDecide,
@@ -241,27 +248,42 @@ export function BuyerQuotesAdvancedList({
 
       <ul className="grid gap-3">
         {filtered.map((item) => {
-          const imageSrc =
-            item.imageUrl && (/^https?:\/\//.test(item.imageUrl) || item.imageUrl.startsWith('/'))
-              ? item.imageUrl
-              : item.demandImageUrl &&
-                  (/^https?:\/\//.test(item.demandImageUrl) ||
-                    item.demandImageUrl.startsWith('/'))
-                ? item.demandImageUrl
-                : '/dummy-cabe.png'
+          const supplyImageSrc = resolveImageSrc(item.imageUrl) ?? '/dummy-cabe.png'
+          const demandImageSrc = resolveImageSrc(item.demandImageUrl) ?? '/dummy-cabe.png'
           return (
             <li key={item.id}>
               <Card>
                 <CardContent className="p-4 flex flex-wrap items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <div className="relative h-16 w-20 overflow-hidden rounded-md border">
-                      <Image
-                        src={imageSrc}
-                        alt={item.productName || 'Produk pasokan'}
-                        fill
-                        className="object-cover"
-                        sizes="80px"
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                          RFQ
+                        </p>
+                        <div className="relative h-16 w-20 overflow-hidden rounded-md border">
+                          <Image
+                            src={demandImageSrc}
+                            alt={`RFQ ${item.productName || 'produk'}`}
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                          Pasokan
+                        </p>
+                        <div className="relative h-16 w-20 overflow-hidden rounded-md border">
+                          <Image
+                            src={supplyImageSrc}
+                            alt={`Pasokan ${item.productName || 'produk'}`}
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        </div>
+                      </div>
                     </div>
                   <div className="space-y-1">
                     <p className="font-medium">{item.productName || 'Produk'}</p>
@@ -291,25 +313,33 @@ export function BuyerQuotesAdvancedList({
                         containerClassName="bg-muted/30 p-1.5"
                       />
                     </div>
-                    <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-                      <CircleDollarSign className="h-3.5 w-3.5 text-primary" />
-                      Penawaran: {formatCurrencyIDR(item.priceOffer)}
-                      {item.quantityOffer != null ? ` x ${item.quantityOffer}` : ''}
-                    </p>
-                    <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-                      <Truck className="h-3.5 w-3.5 text-primary" />
-                      Lead time: {item.leadTimeDays != null ? `${item.leadTimeDays} hari` : '-'}
-                      {' · '}
-                      <Package2 className="h-3.5 w-3.5 text-primary" />
-                      Skor: {formatCreditScore(item.supplierCreditScore)}
-                    </p>
-                    <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5 text-primary" />
-                      {item.supplierLocation ?? '-'}
-                      {' · '}
-                      <CalendarClock className="h-3.5 w-3.5 text-primary" />
-                      Kedaluwarsa: {item.expirationDate ?? '-'}
-                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground sm:text-sm">
+                      <span className="inline-flex items-center gap-1.5">
+                        <CircleDollarSign className="h-3.5 w-3.5 text-primary" />
+                        <span>
+                          Penawaran: {formatCurrencyIDR(item.priceOffer)}
+                          {item.quantityOffer != null ? ` x ${item.quantityOffer}` : ''}
+                        </span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Truck className="h-3.5 w-3.5 text-primary" />
+                        <span>
+                          Lead time: {item.leadTimeDays != null ? `${item.leadTimeDays} hari` : '-'}
+                        </span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Package2 className="h-3.5 w-3.5 text-primary" />
+                        <span>Skor: {formatCreditScore(item.supplierCreditScore)}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-primary" />
+                        <span>{item.supplierLocation ?? '-'}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <CalendarClock className="h-3.5 w-3.5 text-primary" />
+                        <span>Kedaluwarsa: {item.expirationDate ?? '-'}</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
 

@@ -9,6 +9,16 @@ import { Badge } from '@/components/ui/badge'
 import { OrganizationIdentityBadge } from '@/components/marketplace-vibe/OrganizationIdentityBadge'
 import { formatCurrencyIDR } from '@/lib/utils'
 
+function resolveImageSrc(value: string | null | undefined): string | null {
+  const raw = typeof value === 'string' ? value.trim().replace(/^['"]|['"]$/g, '') : ''
+  if (!raw) return null
+  if (/^https?:\/\//i.test(raw)) return encodeURI(raw)
+  if (raw.startsWith('//')) return `https:${encodeURI(raw)}`
+  if (raw.startsWith('/')) return raw
+  if (/^[a-z0-9.-]+\.[a-z]{2,}(\/.*)?$/i.test(raw)) return `https://${encodeURI(raw)}`
+  return `/${raw.replace(/^\/+/, '')}`
+}
+
 export default async function MarketplaceSupplyDetailPage({
   params,
 }: {
@@ -110,6 +120,7 @@ export default async function MarketplaceSupplyDetailPage({
   const certifications = Array.isArray(row.certifications)
     ? (row.certifications as string[])
     : []
+  const imageSrc = resolveImageSrc(row.image_url) ?? '/dummy-cabe.png'
 
   return (
     <div className="space-y-4">
@@ -121,9 +132,9 @@ export default async function MarketplaceSupplyDetailPage({
       </Link>
 
       <Card>
-        <div className="relative aspect-[16/6] max-h-[360px] w-full overflow-hidden rounded-t-xl">
+        <div className="relative aspect-16/6 max-h-[360px] w-full overflow-hidden rounded-t-xl">
           <Image
-            src={row.image_url ?? '/dummy-cabe.png'}
+            src={imageSrc}
             alt={product?.name ?? 'Produk pasokan'}
             fill
             className="object-cover"

@@ -336,6 +336,9 @@ export function BuyerSupplyOfferWorkspace({
               </label>
               <Input
                 id="priceOffer"
+                type="number"
+                min={0}
+                step="0.01"
                 inputMode="decimal"
                 value={priceOffer}
                 onChange={(e) => setPriceOffer(e.target.value)}
@@ -348,6 +351,9 @@ export function BuyerSupplyOfferWorkspace({
               </label>
               <Input
                 id="quantityOffer"
+                type="number"
+                min={0}
+                step="0.01"
                 inputMode="decimal"
                 value={quantityOffer}
                 onChange={(e) => setQuantityOffer(e.target.value)}
@@ -360,6 +366,9 @@ export function BuyerSupplyOfferWorkspace({
               </label>
               <Input
                 id="leadTimeDays"
+                type="number"
+                min={0}
+                step={1}
                 inputMode="numeric"
                 value={leadTimeDays}
                 onChange={(e) => setLeadTimeDays(e.target.value)}

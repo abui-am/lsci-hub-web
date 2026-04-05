@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
       available_from,
       available_until,
       status,
+      created_at,
       products(name, unit)
     `
     )

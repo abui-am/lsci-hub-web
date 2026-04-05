@@ -84,7 +84,13 @@ function getDaysLeft(requiredBy: string | null): number | null {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24))
 }
 
-export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
+export function SupplierRfqAdvancedList({
+  items,
+  hasActiveSupplyListings,
+}: {
+  items: OpenRfqItem[]
+  hasActiveSupplyListings: boolean
+}) {
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<'all' | 'active' | 'receiving_quotes'>('all')
   const [recommendedOnly, setRecommendedOnly] = useState(false)
@@ -514,17 +520,23 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                   winProbability={item.winProbability}
                   action={
                     <div className="grid w-full gap-2">
-                      <RfqRespondSheet
-                        rfq={{
-                          demandListingId: item.id,
-                          productName: item.productName,
-                          buyerOrgName: item.buyerName,
-                          requiredQuantity: item.requiredQuantity,
-                          priceBandLabel: priceBand,
-                        }}
-                        triggerLabel={ctaLabel}
-                        triggerClassName="h-10 w-full text-sm font-semibold"
-                      />
+                      {hasActiveSupplyListings ? (
+                        <RfqRespondSheet
+                          rfq={{
+                            demandListingId: item.id,
+                            productName: item.productName,
+                            buyerOrgName: item.buyerName,
+                            requiredQuantity: item.requiredQuantity,
+                            priceBandLabel: priceBand,
+                          }}
+                          triggerLabel={ctaLabel}
+                          triggerClassName="h-10 w-full text-sm font-semibold"
+                        />
+                      ) : (
+                        <Button asChild className="h-10 w-full text-sm font-semibold">
+                          <Link href="/marketplace/supply/new">Buat listing pasokan dulu</Link>
+                        </Button>
+                      )}
                       <Button asChild variant="outline" size="sm" className="w-full">
                         <Link href={`/marketplace/demand/${item.id}`}>Lihat detail</Link>
                       </Button>

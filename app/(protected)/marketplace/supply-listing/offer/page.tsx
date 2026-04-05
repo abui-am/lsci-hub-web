@@ -2,12 +2,20 @@ import { createClient } from '@/lib/supabase/server'
 import { relationOne } from '@/lib/supabase/relation'
 import { requireSession } from '@/lib/rbac/guards'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { MarketplaceHeader } from '@/components/marketplace-vibe/MarketplaceHeader'
 import { formatCurrencyRangeIDR } from '@/lib/utils'
+
+function resolveImageSrc(value: string | null | undefined): string {
+  const raw = typeof value === 'string' ? value.trim() : ''
+  if (!raw) return '/dummy-cabe.png'
+  if (/^https?:\/\//.test(raw) || raw.startsWith('/')) return raw
+  return `/${raw.replace(/^\/+/, '')}`
+}
 
 export default async function SupplyListingOfferPage({
   searchParams,
@@ -38,6 +46,7 @@ export default async function SupplyListingOfferPage({
       price_range_to,
       target_location,
       required_by,
+      image_url,
       status,
       products ( name )
     `
@@ -63,6 +72,7 @@ export default async function SupplyListingOfferPage({
         ),
         targetLocation: (row.target_location as string | null) ?? null,
         requiredBy: (row.required_by as string | null) ?? null,
+        imageUrl: (row.image_url as string | null) ?? null,
         productName: product?.name ?? 'Produk',
         status: row.status as string,
       }
@@ -131,6 +141,15 @@ export default async function SupplyListingOfferPage({
           {filteredDemands.map((demand) => (
             <li key={demand.id}>
               <Card className="h-full">
+                <div className="relative h-36 w-full overflow-hidden rounded-t-xl border-b">
+                  <Image
+                    src={resolveImageSrc(demand.imageUrl)}
+                    alt={demand.productName}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  />
+                </div>
                 <CardHeader className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-base">{demand.productName}</CardTitle>

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { SignOutButton } from '@/components/auth/SignOutButton'
+import { MarketplaceNotificationMenu } from '@/components/marketplace-vibe/MarketplaceNotificationMenu'
 
 interface MarketplaceNavbarProps {
   isSupplier: boolean
@@ -114,6 +115,9 @@ export function MarketplaceNavbar({
             </span>
             <span className="truncate">{userLabel}</span>
           </Link>
+          <div className="ml-1">
+            <MarketplaceNotificationMenu />
+          </div>
           <div className="ml-1">
             <SignOutButton className="h-9 rounded-full border-primary/25 bg-background/90 px-3 font-medium hover:border-primary/45 hover:bg-primary/8" />
           </div>

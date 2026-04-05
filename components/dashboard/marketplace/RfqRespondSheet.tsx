@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { CalendarDays, Package, Wallet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -52,6 +53,7 @@ type SupplyOption = {
   available_from: string | null
   available_until: string | null
   status: string | null
+  created_at?: string | null
   products:
     | {
         name: string | null
@@ -62,6 +64,18 @@ type SupplyOption = {
         unit: string | null
       }[]
     | null
+}
+
+function formatSupplyDate(option: SupplyOption): string {
+  const source = option.available_from ?? option.created_at ?? null
+  if (!source) return '-'
+  const date = new Date(source)
+  if (Number.isNaN(date.getTime())) return source
+  return date.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
 }
 
 async function createRfqResponse(payload: SubmitPayload) {
@@ -172,6 +186,7 @@ export function RfqRespondSheet({
   }, [leadTimeDays])
 
   const canSubmit = useMemo(() => {
+    if (!isLoadingOptions && supplyOptions.length === 0) return false
     if (priceOfferNumber == null || priceOfferNumber <= 0) return false
     if (quantityOfferNumber != null && quantityOfferNumber <= 0) return false
     if (maxDemandQuantity != null && quantityOfferNumber != null && quantityOfferNumber > maxDemandQuantity) {
@@ -179,7 +194,14 @@ export function RfqRespondSheet({
     }
     if (leadTimeDaysNumber != null && leadTimeDaysNumber < 0) return false
     return true
-  }, [priceOfferNumber, quantityOfferNumber, maxDemandQuantity, leadTimeDaysNumber])
+  }, [
+    isLoadingOptions,
+    supplyOptions.length,
+    priceOfferNumber,
+    quantityOfferNumber,
+    maxDemandQuantity,
+    leadTimeDaysNumber,
+  ])
 
   const activeSupplyDetail = useMemo(() => {
     if (!supplyOptions.length) return null
@@ -196,6 +218,12 @@ export function RfqRespondSheet({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isLoadingOptions && supplyOptions.length === 0) {
+      setResultMessage(
+        'Belum ada pasokan aktif untuk produk ini. Buat pasokan dulu sebelum kirim penawaran.'
+      )
+      return
+    }
     if (!canSubmit) {
       setResultMessage(
         'Masukkan harga yang valid (> 0). Jumlah tidak boleh melebihi permintaan RFQ.'
@@ -273,7 +301,7 @@ export function RfqRespondSheet({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4 mx-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Listing pasokan</label>
+            <label className="text-sm font-medium">Pasokan</label>
             <Select
               value={selectedSupplyListingId}
               onValueChange={handleSupplyListingChange}
@@ -284,24 +312,44 @@ export function RfqRespondSheet({
                   placeholder={
                     isLoadingOptions
                       ? 'Memuat opsi pasokan...'
-                      : 'Pilih listing pasokan'
+                      : 'Pilih tanggal pasokan'
                   }
                 />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="auto">Pilih otomatis yang paling cocok</SelectItem>
-                {supplyOptions.map((opt, index) => (
+                {supplyOptions.map((opt) => (
                   <SelectItem key={opt.id} value={opt.id}>
-                    Listing #{index + 1} - jml {opt.quantity ?? '—'}
-                    {opt.price_estimate != null ? ` - harga ${formatCurrencyIDR(opt.price_estimate)}` : ''}
+                    <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1">
+                        <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                        {formatSupplyDate(opt)}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-muted-foreground">
+                        <Package className="h-3.5 w-3.5" />
+                        {opt.quantity ?? '—'}
+                      </span>
+                      {opt.price_estimate != null ? (
+                        <span className="inline-flex items-center gap-1 text-muted-foreground">
+                          <Wallet className="h-3.5 w-3.5" />
+                          {formatCurrencyIDR(opt.price_estimate)}
+                        </span>
+                      ) : null}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Mode otomatis memilih listing aktif terbaru untuk produk yang sama.
+              Otomatis pakai pasokan aktif terbaru untuk produk yang sama.
             </p>
           </div>
+
+          {!isLoadingOptions && supplyOptions.length === 0 ? (
+            <div className="rounded-lg border border-amber-300/70 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-200">
+              Belum ada pasokan aktif untuk produk ini. Buat pasokan dulu sebelum kirim penawaran.
+            </div>
+          ) : null}
 
           {activeSupplyDetail ? (
             <div className="rounded-lg border bg-muted/20 p-3 text-sm">
@@ -354,6 +402,9 @@ export function RfqRespondSheet({
             </label>
             <Input
               id="priceOffer"
+              type="number"
+              min={0}
+              step="0.01"
               inputMode="decimal"
               placeholder="e.g. 45000"
               value={priceOffer}
@@ -368,6 +419,9 @@ export function RfqRespondSheet({
             </label>
             <Input
               id="quantityOffer"
+              type="number"
+              min={0}
+              step="0.01"
               inputMode="decimal"
               max={maxDemandQuantity ?? undefined}
               placeholder={
@@ -391,6 +445,9 @@ export function RfqRespondSheet({
             </label>
             <Input
               id="leadTimeDays"
+              type="number"
+              min={0}
+              step={1}
               inputMode="numeric"
               placeholder="e.g. 14"
               value={leadTimeDays}
