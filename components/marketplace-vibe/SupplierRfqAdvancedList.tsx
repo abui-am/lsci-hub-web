@@ -50,6 +50,7 @@ type OpenRfqItem = {
   specSummary: string | null
   targetLocation: string | null
   incoterms: string | null
+  imageUrl: string | null
   paymentTerms: string | null
   rfqExpiresAt: string | null
   certifications: string[]
@@ -494,6 +495,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                   statusLabel={item.status}
                   targetCountry={item.targetLocation}
                   incoterms={item.incoterms}
+                  imageUrl={item.imageUrl}
                   requiredBy={item.requiredBy}
                   paymentTerms={item.paymentTerms}
                   rfqExpiresAt={item.rfqExpiresAt}

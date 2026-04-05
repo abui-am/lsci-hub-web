@@ -2,11 +2,13 @@
 
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import {
   BadgeCheck,
   CalendarClock,
   CircleDollarSign,
   Globe2,
+  Pencil,
   Scale,
   UserRound,
 } from 'lucide-react'
@@ -245,6 +247,17 @@ export function DemandAdvancedList({ items }: { items: DemandListItem[] }) {
                           ))}
                         </div>
                       )}
+                    </div>
+                    <div className="flex items-center justify-end gap-2 pt-2">
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/marketplace/demand/${item.id}`}>Detail</Link>
+                      </Button>
+                      <Button asChild size="sm">
+                        <Link href={`/marketplace/demand/edit/${item.id}`}>
+                          <Pencil className="size-3.5" aria-hidden />
+                          Edit
+                        </Link>
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>

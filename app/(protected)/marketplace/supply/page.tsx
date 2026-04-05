@@ -3,9 +3,10 @@ import { relationOne } from '@/lib/supabase/relation'
 import { requireSession } from '@/lib/rbac/guards'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Pencil, Plus } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { MarketplaceHeader } from '@/components/marketplace-vibe/MarketplaceHeader'
 import { MarketplaceFilterBar } from '@/components/marketplace-vibe/MarketplaceFilterBar'
 import { OrganizationIdentityBadge } from '@/components/marketplace-vibe/OrganizationIdentityBadge'
@@ -105,7 +106,7 @@ export default async function MarketplaceSupplyListPage() {
             return (
               <li key={row.id}>
                 <Card className="h-full">
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-t-xl">
+                  <div className="relative aspect-16/10 w-full overflow-hidden rounded-t-xl">
                     <Image
                       src={row.image_url ?? '/dummy-cabe.png'}
                       alt={product?.name ?? 'Produk pasokan'}
@@ -162,6 +163,17 @@ export default async function MarketplaceSupplyListPage() {
                       <span className="text-muted-foreground">Kedaluwarsa:</span>{' '}
                       {row.expiration_date ?? '-'}
                     </p>
+                    <div className="flex items-center justify-end gap-2 pt-2">
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/marketplace/supply/${row.id}`}>Detail</Link>
+                      </Button>
+                      <Button asChild size="sm">
+                        <Link href={`/marketplace/supply/edit/${row.id}`}>
+                          <Pencil className="size-3.5" aria-hidden />
+                          Edit
+                        </Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </li>

@@ -50,6 +50,7 @@ export default async function SupplierMarketplacePage() {
       specifications,
       target_location,
       incoterms,
+      image_url,
       certifications_required,
       payment_terms,
       rfq_expires_at,
@@ -208,6 +209,7 @@ export default async function SupplierMarketplacePage() {
           : null,
       targetLocation: row.target_location ?? null,
       incoterms: row.incoterms ?? null,
+      imageUrl: row.image_url ?? null,
       paymentTerms: row.payment_terms ?? null,
       rfqExpiresAt: row.rfq_expires_at ?? null,
       certifications: Array.isArray(row.certifications_required)

@@ -41,6 +41,7 @@ function getSpecItems(specSummary?: string | null): string[] {
 interface RfqCardProps {
   productName: string
   buyerName: string
+  imageUrl?: string | null
   buyerAccountHref?: string
   buyerLogoUrl?: string | null
   buyerCreditScore?: number | null
@@ -71,6 +72,7 @@ interface RfqCardProps {
 export function RfqCard({
   productName,
   buyerName,
+  imageUrl,
   buyerAccountHref,
   buyerLogoUrl,
   buyerCreditScore,
@@ -111,12 +113,16 @@ export function RfqCard({
     : isHighValue
       ? 'border-emerald-300 bg-emerald-50/20 dark:border-emerald-900/60 dark:bg-emerald-950/10'
       : undefined
+  const listingImageSrc =
+    imageUrl && (/^https?:\/\//.test(imageUrl) || imageUrl.startsWith('/'))
+      ? imageUrl
+      : '/dummy-cabe.png'
 
   return (
     <Card className={`overflow-hidden ${emphasisClass ?? ''}`}>
       <div className="relative aspect-video w-full">
         <Image
-          src="/dummy-cabe.png"
+          src={listingImageSrc}
           alt="Produk RFQ"
           fill
           className="object-cover"

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -663,7 +664,18 @@ export function DemandListingForm({
                 <p className="text-xs text-destructive">{imageUploadError}</p>
               ) : null}
               {imageUrl ? (
-                <p className="text-xs text-muted-foreground">Gambar terunggah.</p>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Gambar terunggah.</p>
+                  <div className="relative aspect-16/10 w-full max-w-md overflow-hidden rounded-md border bg-muted/30">
+                    <Image
+                      src={imageUrl}
+                      alt="Preview gambar listing permintaan"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 420px"
+                    />
+                  </div>
+                </div>
               ) : null}
             </div>
             {getFieldError('imageUrl') ? (
