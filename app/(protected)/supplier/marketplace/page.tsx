@@ -228,57 +228,57 @@ export default async function SupplierMarketplacePage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 md:space-y-10">
       <MarketplaceHeader
         title="Marketplace pemasok"
         description="Temukan permintaan pembeli, kirim penawaran lebih cepat, dan pantau hasil di satu tempat."
-        statsColumns={2}
+        statsColumns={3}
         stats={[
           {
             label: 'RFQ terbuka',
             value: openDemandRows?.length ?? 0,
-            icon: <ShoppingCart className="h-3.5 w-3.5" />,
+            icon: <ShoppingCart className="h-3.5 w-3.5 text-primary" />,
           },
           {
             label: 'Penawaran menunggu',
             value: pendingCount,
-            icon: <CalendarClock className="h-3.5 w-3.5" />,
+            icon: <CalendarClock className="h-3.5 w-3.5 text-primary" />,
           },
           {
             label: 'Penawaran diterima',
             value: acceptedCount,
-            icon: <CircleDollarSign className="h-3.5 w-3.5" />,
+            icon: <CircleDollarSign className="h-3.5 w-3.5 text-primary" />,
           },
         ]}
       />
 
-      <Tabs defaultValue="open-rfq">
+      <Tabs defaultValue="open-rfq" className="space-y-5">
         <TabsList>
-          <TabsTrigger value="open-rfq">RFQ terbuka</TabsTrigger>
+          <TabsTrigger value="open-rfq">RFQ terbuka ({openRfqItems.length})</TabsTrigger>
           <TabsTrigger value="my-responses">
             Bidding diajukan ({pendingCount + acceptedCount + rejectedCount})
           </TabsTrigger>
           <TabsTrigger value="offer-requests">Offer pembeli ({offerPendingCount})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="open-rfq" className="space-y-4">
+        <TabsContent value="open-rfq" className="space-y-5">
           <SupplierRfqAdvancedList items={openRfqItems} />
         </TabsContent>
 
-        <TabsContent value="my-responses">
+        <TabsContent value="my-responses" className="space-y-5">
           {!responseRows?.length ? (
             <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
               Anda belum mengirim penawaran.
             </p>
           ) : (
             <div className="space-y-4">
-              <div className="grid gap-2 rounded-lg border bg-card p-3 md:grid-cols-5 md:items-center">
+              <div className="grid gap-2 rounded-xl border border-border/70 bg-card/90 p-3 shadow-sm md:grid-cols-5 md:items-center">
                 <div className="rounded-md bg-muted/40 p-3">
                   <p className="text-xs text-muted-foreground">RFQ terbuka</p>
                   <p className="text-xl font-semibold">{openDemandRows?.length ?? 0}</p>
                 </div>
                 <div className="hidden justify-center md:flex">
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  <ArrowRight className="h-4 w-4 text-primary" />
                 </div>
                 <div className="rounded-md bg-muted/40 p-3">
                   <p className="text-xs text-muted-foreground">Penawaran terkirim</p>
@@ -288,7 +288,7 @@ export default async function SupplierMarketplacePage() {
                   </p>
                 </div>
                 <div className="hidden justify-center md:flex">
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  <ArrowRight className="h-4 w-4 text-primary" />
                 </div>
                 <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-900/60 dark:bg-emerald-950/20">
                   <p className="text-xs text-emerald-700 dark:text-emerald-300">Diterima (menang)</p>
@@ -340,7 +340,13 @@ export default async function SupplierMarketplacePage() {
 
                   return (
                     <li key={row.id}>
-                      <Card className={isAccepted ? 'border-emerald-300/70' : undefined}>
+                      <Card
+                        className={
+                          isAccepted
+                            ? 'border-emerald-300/70'
+                            : undefined
+                        }
+                      >
                         <CardContent className="space-y-3 p-4">
                           <div className="flex flex-wrap items-start justify-between gap-2">
                             <div className="flex items-center gap-3">
@@ -395,7 +401,7 @@ export default async function SupplierMarketplacePage() {
                           <div className="grid gap-2 md:grid-cols-4">
                             <div className="rounded-md bg-muted/40 p-2">
                               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <CircleDollarSign className="h-3.5 w-3.5" />
+                                <CircleDollarSign className="h-3.5 w-3.5 text-primary" />
                                 Penawaran
                               </p>
                               <p className="text-sm font-medium">
@@ -405,7 +411,7 @@ export default async function SupplierMarketplacePage() {
                             </div>
                             <div className="rounded-md bg-muted/40 p-2">
                               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <CircleDollarSign className="h-3.5 w-3.5" />
+                                <CircleDollarSign className="h-3.5 w-3.5 text-primary" />
                                 Nilai deal
                               </p>
                               <p className="text-sm font-medium">
@@ -416,7 +422,7 @@ export default async function SupplierMarketplacePage() {
                             </div>
                             <div className="rounded-md bg-muted/40 p-2">
                               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <Truck className="h-3.5 w-3.5" />
+                                <Truck className="h-3.5 w-3.5 text-primary" />
                                 Lead time
                               </p>
                               <p className="text-sm font-medium">
@@ -425,7 +431,7 @@ export default async function SupplierMarketplacePage() {
                             </div>
                             <div className="rounded-md bg-muted/40 p-2">
                               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <CalendarClock className="h-3.5 w-3.5" />
+                                <CalendarClock className="h-3.5 w-3.5 text-primary" />
                                 Tenggat pembeli
                               </p>
                               <p className="text-sm font-medium">{demand?.required_by ?? 'Tidak ditentukan'}</p>
@@ -460,7 +466,7 @@ export default async function SupplierMarketplacePage() {
           )}
         </TabsContent>
 
-        <TabsContent value="offer-requests" className="space-y-4">
+        <TabsContent value="offer-requests" className="space-y-5">
           {!offerRequestRows?.length ? (
             <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
               Belum ada offer request dari buyer.

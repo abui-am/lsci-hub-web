@@ -6,17 +6,19 @@ interface MarketplaceNavbarProps {
   isSupplier: boolean
   isBuyer: boolean
   isSuperadmin: boolean
+  userLabel: string
 }
 
 export function MarketplaceNavbar({
   isSupplier,
   isBuyer,
   isSuperadmin,
+  userLabel,
 }: MarketplaceNavbarProps) {
   return (
-    <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4">
-        <Link href="/marketplace" className="flex items-center gap-2 font-semibold">
+    <header className="sticky top-0 z-30 w-full border-b border-border/70 bg-background/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
+        <Link href="/marketplace" className="flex items-center gap-2 rounded-md px-2 py-1 font-semibold">
           <Image
             src="/indosourcing.png"
             alt="Logo Indosourcing"
@@ -26,27 +28,27 @@ export function MarketplaceNavbar({
           />
           <span>Indosourcing</span>
         </Link>
-        <nav className="flex items-center gap-2 text-sm">
+        <nav className="flex items-center gap-1.5 text-sm">
           {(isSupplier || isSuperadmin) && (
             <Link
               href="/supplier/marketplace"
-              className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="rounded-full px-3 py-1.5 font-medium text-foreground/70 hover:bg-primary/8 hover:text-foreground"
             >
-              Pemasok
+              Dashboard Pemasok
             </Link>
           )}
           {(isBuyer || isSuperadmin) && (
             <Link
               href="/buyer/marketplace"
-              className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="rounded-full px-3 py-1.5 font-medium text-foreground/70 hover:bg-primary/8 hover:text-foreground"
             >
-              Pembeli
+              Dashboard Pembeli
             </Link>
           )}
           {(isSupplier || isSuperadmin) && (
             <Link
               href="/marketplace/supply"
-              className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="rounded-full px-3 py-1.5 font-medium text-foreground/70 hover:bg-primary/8 hover:text-foreground"
             >
               Daftar pasokan
             </Link>
@@ -55,13 +57,13 @@ export function MarketplaceNavbar({
             <>
               <Link
                 href="/marketplace/demand"
-                className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="rounded-full px-3 py-1.5 font-medium text-foreground/70 hover:bg-primary/8 hover:text-foreground"
               >
                 Listing permintaan
               </Link>
               <Link
                 href="/marketplace/supply-listing/offer"
-                className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="rounded-full px-3 py-1.5 font-medium text-foreground/70 hover:bg-primary/8 hover:text-foreground"
               >
                 Offer Request
               </Link>
@@ -70,19 +72,20 @@ export function MarketplaceNavbar({
           {(isSupplier || isBuyer || isSuperadmin) && (
             <Link
               href="/marketplace/advisor"
-              className="rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="rounded-full px-3 py-1.5 font-medium text-foreground/70 hover:bg-primary/8 hover:text-foreground"
             >
               Penasihat AI
             </Link>
           )}
           <Link
             href="/marketplace/account"
-            className="rounded-md border px-2.5 py-1 hover:bg-muted"
+            className="ml-2 inline-flex h-9 max-w-40 items-center truncate rounded-full border border-primary/25 bg-background/90 px-3 text-sm font-medium text-foreground/70 hover:border-primary/45 hover:bg-primary/8 hover:text-foreground"
+            title={userLabel}
           >
-            Akun
+            {userLabel}
           </Link>
           <div className="ml-1">
-            <SignOutButton />
+            <SignOutButton className="h-9 rounded-full border-primary/25 bg-background/90 px-3 font-medium hover:border-primary/45 hover:bg-primary/8" />
           </div>
         </nav>
       </div>

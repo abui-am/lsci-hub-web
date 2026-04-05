@@ -164,56 +164,56 @@ export default async function MarketplaceDemandDetailPage({
           <div className="grid gap-2 md:grid-cols-2">
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <ScanSearch className="h-3.5 w-3.5" />
+                <ScanSearch className="h-3.5 w-3.5 text-primary" />
                 ID permintaan:
               </span>{' '}
               {row.id}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <CalendarClock className="h-3.5 w-3.5" />
+                <CalendarClock className="h-3.5 w-3.5 text-primary" />
                 Dibuat:
               </span>{' '}
               {row.created_at ? new Date(row.created_at).toLocaleString() : '-'}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <Scale className="h-3.5 w-3.5" />
+                <Scale className="h-3.5 w-3.5 text-primary" />
                 Jumlah yang dibutuhkan:
               </span>{' '}
               {row.required_quantity ?? '-'} {product?.unit ?? ''}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <CalendarClock className="h-3.5 w-3.5" />
+                <CalendarClock className="h-3.5 w-3.5 text-primary" />
                 Dibutuhkan pada:
               </span>{' '}
               {row.required_by ?? '-'}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <CircleDollarSign className="h-3.5 w-3.5" />
+                <CircleDollarSign className="h-3.5 w-3.5 text-primary" />
                 Rentang harga:
               </span>{' '}
               {priceBand}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <BadgeCheck className="h-3.5 w-3.5" />
+                <BadgeCheck className="h-3.5 w-3.5 text-primary" />
                 Status:
               </span>{' '}
               {row.status ?? '-'}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <Globe2 className="h-3.5 w-3.5" />
+                <Globe2 className="h-3.5 w-3.5 text-primary" />
                 Tujuan:
               </span>{' '}
               {[row.target_location, row.incoterms].filter(Boolean).join(' / ') || '-'}
             </p>
             <p>
               <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <Factory className="h-3.5 w-3.5" />
+                <Factory className="h-3.5 w-3.5 text-primary" />
                 Jenis pembeli:
               </span>{' '}
               {buyer?.type ?? '-'}{' '}
@@ -223,7 +223,7 @@ export default async function MarketplaceDemandDetailPage({
 
           <div>
             <h3 className="mb-2 inline-flex items-center gap-1 font-medium">
-              <BadgeCheck className="h-4 w-4" />
+              <BadgeCheck className="h-4 w-4 text-primary" />
               Sertifikasi wajib
             </h3>
             <p>{certs.length ? certs.join(', ') : '-'}</p>
@@ -231,7 +231,7 @@ export default async function MarketplaceDemandDetailPage({
 
           <div>
             <h3 className="mb-2 inline-flex items-center gap-1 font-medium">
-              <ListChecks className="h-4 w-4" />
+              <ListChecks className="h-4 w-4 text-primary" />
               Spesifikasi
             </h3>
             {Object.keys(specs).length === 0 ? (
@@ -249,7 +249,7 @@ export default async function MarketplaceDemandDetailPage({
 
           <div>
             <h3 className="mb-2 inline-flex items-center gap-1 font-medium">
-              <Package2 className="h-4 w-4" />
+              <Package2 className="h-4 w-4 text-primary" />
               Penawaran diterima
             </h3>
             {accepted.length === 0 ? (

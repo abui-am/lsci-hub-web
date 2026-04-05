@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DatePicker } from '@/components/ui/date-picker'
 import type { FormEvent } from 'react'
 
 type ProductRow = {
@@ -50,6 +52,76 @@ type Props = {
 }
 
 const ADD_NEW_PRODUCT_VALUE = '__add_new_product__'
+const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/
+const EMPTY_TO_UNDEFINED = (value: string) => {
+  const trimmed = value.trim()
+  return trimmed.length ? trimmed : undefined
+}
+
+const demandListingFormSchema = z
+  .object({
+    productId: z.string().min(1, 'Produk wajib dipilih'),
+    requiredQuantity: z
+      .string()
+      .min(1, 'Jumlah yang dibutuhkan wajib diisi')
+      .refine((v) => Number.isFinite(Number(v)) && Number(v) > 0, {
+        message: 'Jumlah yang dibutuhkan harus > 0',
+      }),
+    requiredBy: z
+      .string()
+      .transform((v) => v.trim())
+      .refine((v) => v.length === 0 || DATE_FORMAT_REGEX.test(v), {
+        message: 'Tanggal harus berformat YYYY-MM-DD',
+      }),
+    priceFrom: z
+      .string()
+      .transform(EMPTY_TO_UNDEFINED)
+      .optional()
+      .refine((v) => v === undefined || (Number.isFinite(Number(v)) && Number(v) >= 0), {
+        message: 'Rentang harga dari harus angka >= 0',
+      }),
+    priceTo: z
+      .string()
+      .transform(EMPTY_TO_UNDEFINED)
+      .optional()
+      .refine((v) => v === undefined || (Number.isFinite(Number(v)) && Number(v) >= 0), {
+        message: 'Rentang harga sampai harus angka >= 0',
+      }),
+    status: z.enum([
+      'draft',
+      'active',
+      'receiving_quotes',
+      'negotiating',
+      'finalized',
+      'closed',
+    ]),
+    targetLocation: z.string().optional(),
+    incoterms: z.string().optional(),
+    imageUrl: z
+      .string()
+      .min(1, 'Gambar wajib diunggah')
+      .refine((v) => /^https?:\/\//.test(v), {
+        message: 'URL gambar tidak valid',
+      }),
+    openForBidding: z.boolean(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.productId === ADD_NEW_PRODUCT_VALUE) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['productId'],
+        message: 'Produk wajib dipilih',
+      })
+    }
+
+    if (values.priceFrom && values.priceTo && Number(values.priceTo) < Number(values.priceFrom)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['priceTo'],
+        message: 'Rentang harga sampai harus >= rentang harga dari',
+      })
+    }
+  })
 
 function certsToText(certs: string[] | null | undefined): string {
   return (certs ?? []).join(', ')
@@ -155,8 +227,42 @@ export function DemandListingForm({
   const [status, setStatus] = useState<DemandListingStatus>(
     initial?.status ?? (mode === 'create' ? 'active' : 'draft')
   )
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null)
 
   const specsPlaceholder = 'grade: A\nkemasan: peti 10kg\nasal: Indonesia'
+  const getFieldError = (field: string) => fieldErrors[field]
+
+  const handleUploadImage = async (file: File) => {
+    setImageUploadError(null)
+    setIsUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'marketplace/demand')
+
+      const res = await fetch('/api/cloudinary/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = (await res.json().catch(() => ({}))) as {
+        secure_url?: string
+        error?: string
+      }
+
+      if (!res.ok || !data.secure_url) {
+        setImageUploadError('Gagal mengunggah gambar. Coba lagi.')
+        return
+      }
+
+      setImageUrl(data.secure_url)
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
 
   const submitLabel = useMemo(() => {
     return mode === 'create' ? 'Buat listing permintaan' : 'Perbarui listing permintaan'
@@ -220,11 +326,34 @@ export function DemandListingForm({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    setSubmitError(null)
+    setFieldErrors({})
 
-    const requiredQtyN = Number(requiredQuantity)
-    if (!productId || productId === ADD_NEW_PRODUCT_VALUE) return alert('Produk wajib dipilih')
-    if (!Number.isFinite(requiredQtyN) || requiredQtyN <= 0)
-      return alert('Jumlah yang dibutuhkan harus > 0')
+    const parsed = demandListingFormSchema.safeParse({
+      productId,
+      requiredQuantity,
+      requiredBy,
+      priceFrom,
+      priceTo,
+      status,
+      targetLocation,
+      incoterms,
+      imageUrl,
+      openForBidding,
+    })
+
+    if (!parsed.success) {
+      const flattened = parsed.error.flatten().fieldErrors
+      const nextErrors: Record<string, string> = {}
+      for (const [key, values] of Object.entries(flattened)) {
+        if (values && values.length > 0 && typeof values[0] === 'string') {
+          nextErrors[key] = values[0]
+        }
+      }
+      setFieldErrors(nextErrors)
+      setSubmitError('Periksa kembali form sebelum menyimpan.')
+      return
+    }
 
     const specsObj = parseSpecificationsKeyValue(specificationsText)
 
@@ -234,18 +363,18 @@ export function DemandListingForm({
       .filter(Boolean)
 
     const payload: Record<string, unknown> = {
-      product_id: productId,
-      required_quantity: requiredQtyN,
-      required_by: requiredBy.trim() ? requiredBy : null,
-      price_range_from: priceFrom.trim() ? Number(priceFrom) : null,
-      price_range_to: priceTo.trim() ? Number(priceTo) : null,
+      product_id: parsed.data.productId,
+      required_quantity: Number(parsed.data.requiredQuantity),
+      required_by: parsed.data.requiredBy ? parsed.data.requiredBy : null,
+      price_range_from: parsed.data.priceFrom != null ? Number(parsed.data.priceFrom) : null,
+      price_range_to: parsed.data.priceTo != null ? Number(parsed.data.priceTo) : null,
       specifications: specsObj,
       certifications_required: certs,
-      target_location: targetLocation.trim() ? targetLocation.trim() : null,
-      incoterms: incoterms.trim() ? incoterms.trim() : null,
-      image_url: imageUrl.trim() ? imageUrl.trim() : null,
-      is_open_for_bidding: openForBidding,
-      status,
+      target_location: parsed.data.targetLocation?.trim() ? parsed.data.targetLocation.trim() : null,
+      incoterms: parsed.data.incoterms?.trim() ? parsed.data.incoterms.trim() : null,
+      image_url: parsed.data.imageUrl?.trim() ? parsed.data.imageUrl.trim() : null,
+      is_open_for_bidding: parsed.data.openForBidding,
+      status: parsed.data.status,
     }
 
     const res = await fetch(
@@ -263,7 +392,7 @@ export function DemandListingForm({
         typeof data === 'object' && data && 'error' in data
           ? String((data as { error?: unknown }).error)
           : 'Permintaan gagal'
-      alert(msg)
+      setSubmitError(msg)
       return
     }
 
@@ -339,6 +468,9 @@ export function DemandListingForm({
                 ))}
               </SelectContent>
             </Select>
+            {getFieldError('productId') ? (
+              <p className="text-xs text-destructive">{getFieldError('productId')}</p>
+            ) : null}
 
             {showAddProduct && (
               <div className="mt-3 space-y-3 rounded-md border bg-background p-3">
@@ -429,30 +561,65 @@ export function DemandListingForm({
                 </option>
               ))}
             </select>
+            {getFieldError('status') ? (
+              <p className="text-xs text-destructive">{getFieldError('status')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Jumlah yang dibutuhkan</label>
             <Input
+              type="number"
+              min={1}
+              step="any"
+              inputMode="decimal"
               value={requiredQuantity}
               onChange={(e) => setRequiredQuantity(e.target.value)}
               placeholder="mis. 200"
             />
+            {getFieldError('requiredQuantity') ? (
+              <p className="text-xs text-destructive">{getFieldError('requiredQuantity')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Dibutuhkan pada</label>
-            <Input value={requiredBy} onChange={(e) => setRequiredBy(e.target.value)} placeholder="YYYY-MM-DD" />
+            <DatePicker value={requiredBy} onChange={setRequiredBy} placeholder="YYYY-MM-DD" />
+            {getFieldError('requiredBy') ? (
+              <p className="text-xs text-destructive">{getFieldError('requiredBy')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Rentang harga dari</label>
-            <Input value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} placeholder="opsional" />
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              inputMode="numeric"
+              value={priceFrom}
+              onChange={(e) => setPriceFrom(e.target.value)}
+              placeholder="opsional"
+            />
+            {getFieldError('priceFrom') ? (
+              <p className="text-xs text-destructive">{getFieldError('priceFrom')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Rentang harga sampai</label>
-            <Input value={priceTo} onChange={(e) => setPriceTo(e.target.value)} placeholder="opsional" />
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              inputMode="numeric"
+              value={priceTo}
+              onChange={(e) => setPriceTo(e.target.value)}
+              placeholder="opsional"
+            />
+            {getFieldError('priceTo') ? (
+              <p className="text-xs text-destructive">{getFieldError('priceTo')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -475,12 +642,33 @@ export function DemandListingForm({
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium">URL foto</label>
-            <Input
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://example.com/product.jpg"
-            />
+            <label className="text-sm font-medium">Upload gambar (wajib)</label>
+            <div className="space-y-2 rounded-md border border-dashed border-border px-3 py-3">
+              <label className="text-xs text-muted-foreground">
+                Pilih gambar untuk diunggah
+              </label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  void handleUploadImage(file)
+                }}
+              />
+              {isUploadingImage ? (
+                <p className="text-xs text-muted-foreground">Mengunggah gambar...</p>
+              ) : null}
+              {imageUploadError ? (
+                <p className="text-xs text-destructive">{imageUploadError}</p>
+              ) : null}
+              {imageUrl ? (
+                <p className="text-xs text-muted-foreground">Gambar terunggah.</p>
+              ) : null}
+            </div>
+            {getFieldError('imageUrl') ? (
+              <p className="text-xs text-destructive">{getFieldError('imageUrl')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -508,6 +696,12 @@ export function DemandListingForm({
             />
           </div>
         </div>
+
+        {submitError ? (
+          <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {submitError}
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap gap-2">
           <Button type="submit">{submitLabel}</Button>

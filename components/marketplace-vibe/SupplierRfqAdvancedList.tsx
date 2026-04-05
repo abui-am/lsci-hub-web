@@ -232,24 +232,24 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
     setSortBy('urgency')
   }
 
-  const filterInputClass = 'h-8 text-xs'
+  const filterInputClass = ''
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border bg-card p-3">
+    <div className="space-y-5">
+      <div className="rounded-lg border bg-card p-4">
         <form
           onSubmit={(e) => e.preventDefault()}
-          className="flex w-full flex-wrap items-center gap-2"
+          className="mb-3 flex w-full items-center gap-2"
           role="search"
         >
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari produk, pembeli, atau lokasi tujuan"
-            className={`min-w-48 flex-1 ${filterInputClass}`}
+            className="h-11 min-w-48 flex-1 text-base"
           />
-          <Button type="submit" size="sm" className="h-8 shrink-0 gap-1.5 px-3 text-xs">
-            <Search className="h-3.5 w-3.5" />
+          <Button type="submit" size="default" className="h-11 shrink-0 px-4">
+            <Search className="mr-2 h-4 w-4" />
             Cari
           </Button>
           <Tooltip>
@@ -258,21 +258,21 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
                 type="button"
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 shrink-0"
+                className="h-11 w-11 shrink-0"
                 aria-label="Pencarian AI"
                 onClick={() => setIsAiModalOpen(true)}
               >
-                <Sparkles className="h-3.5 w-3.5" />
+                <Sparkles className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Pencarian AI</TooltipContent>
           </Tooltip>
         </form>
 
-        <p className="mt-3 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           Filter lanjutan
         </p>
-        <div className="mt-1.5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <select
             value={status}
             onChange={(e) =>
@@ -334,7 +334,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
           />
         </div>
 
-        <div className="mt-3 flex flex-col gap-2 border-t border-border/60 pt-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-1">
             <span className="mr-1 text-[10px] text-muted-foreground">Cepat</span>
             <Tooltip>
@@ -419,7 +419,7 @@ export function SupplierRfqAdvancedList({ items }: { items: OpenRfqItem[] }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
-                  <ArrowDownUp className="h-3.5 w-3.5" />
+                  <ArrowDownUp className="h-3.5 w-3.5 text-primary" />
                   Urutkan
                 </Button>
               </DropdownMenuTrigger>

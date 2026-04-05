@@ -3,9 +3,11 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DatePicker } from '@/components/ui/date-picker'
 
 type ProductRow = {
   id: string
@@ -49,6 +51,87 @@ function toCertText(certs: string[] | null | undefined): string {
 }
 
 const ADD_NEW_PRODUCT_VALUE = '__add_new_product__'
+const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/
+const EMPTY_TO_UNDEFINED = (value: string) => {
+  const trimmed = value.trim()
+  return trimmed.length ? trimmed : undefined
+}
+
+const supplyListingFormSchema = z
+  .object({
+    productId: z.string().min(1, 'Produk wajib dipilih'),
+    quantity: z
+      .string()
+      .min(1, 'Jumlah wajib diisi')
+      .refine((v) => Number.isFinite(Number(v)) && Number(v) > 0, {
+        message: 'Jumlah harus > 0',
+      }),
+    priceEstimate: z
+      .string()
+      .transform(EMPTY_TO_UNDEFINED)
+      .optional()
+      .refine((v) => v === undefined || (Number.isFinite(Number(v)) && Number(v) >= 0), {
+        message: 'Perkiraan harga harus angka >= 0',
+      }),
+    minOrderQty: z
+      .string()
+      .transform(EMPTY_TO_UNDEFINED)
+      .optional()
+      .refine((v) => v === undefined || (Number.isFinite(Number(v)) && Number(v) >= 0), {
+        message: 'MOQ harus angka >= 0',
+      }),
+    leadTimeDays: z
+      .string()
+      .transform(EMPTY_TO_UNDEFINED)
+      .optional()
+      .refine((v) => v === undefined || (Number.isFinite(Number(v)) && Number(v) >= 0), {
+        message: 'Lead time harus angka >= 0',
+      }),
+    availableFrom: z
+      .string()
+      .transform((v) => v.trim())
+      .refine((v) => v.length === 0 || DATE_FORMAT_REGEX.test(v), {
+        message: 'Tanggal harus berformat YYYY-MM-DD',
+      }),
+    availableUntil: z
+      .string()
+      .transform((v) => v.trim())
+      .refine((v) => v.length === 0 || DATE_FORMAT_REGEX.test(v), {
+        message: 'Tanggal harus berformat YYYY-MM-DD',
+      }),
+    expirationDate: z
+      .string()
+      .transform((v) => v.trim())
+      .refine((v) => v.length === 0 || DATE_FORMAT_REGEX.test(v), {
+        message: 'Tanggal harus berformat YYYY-MM-DD',
+      }),
+    status: z.enum(['active', 'matched', 'closed']),
+    priceType: z.enum(['fixed', 'negotiable']),
+    exportCapability: z.boolean(),
+    imageUrl: z
+      .string()
+      .min(1, 'Gambar wajib diunggah')
+      .refine((v) => /^https?:\/\//.test(v), {
+        message: 'URL gambar tidak valid',
+      }),
+    supplierLocation: z.string().optional(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.productId === ADD_NEW_PRODUCT_VALUE) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['productId'],
+        message: 'Produk wajib dipilih',
+      })
+    }
+    if (values.availableFrom && values.availableUntil && values.availableUntil < values.availableFrom) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['availableUntil'],
+        message: 'Tersedia hingga harus sama atau setelah tersedia dari',
+      })
+    }
+  })
 
 export function SupplyListingForm({
   mode,
@@ -108,8 +191,42 @@ export function SupplyListingForm({
   const [status, setStatus] = useState<'active' | 'matched' | 'closed'>(
     initial?.status ?? 'active'
   )
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null)
 
   const canDelete = mode === 'edit' && initial?.id
+  const getFieldError = (field: string) => fieldErrors[field]
+
+  const handleUploadImage = async (file: File) => {
+    setImageUploadError(null)
+    setIsUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'marketplace/supply')
+
+      const res = await fetch('/api/cloudinary/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = (await res.json().catch(() => ({}))) as {
+        secure_url?: string
+        error?: string
+      }
+
+      if (!res.ok || !data.secure_url) {
+        setImageUploadError('Gagal mengunggah gambar. Coba lagi.')
+        return
+      }
+
+      setImageUrl(data.secure_url)
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
 
   const submitLabel = useMemo(() => {
     return mode === 'create' ? 'Buat listing pasokan' : 'Perbarui listing pasokan'
@@ -173,26 +290,53 @@ export function SupplyListingForm({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    setSubmitError(null)
+    setFieldErrors({})
 
-    const quantityN = Number(quantity)
-    if (!productId || productId === ADD_NEW_PRODUCT_VALUE) return alert('Produk wajib dipilih')
-    if (!Number.isFinite(quantityN) || quantityN <= 0) return alert('Jumlah harus > 0')
+    const parsed = supplyListingFormSchema.safeParse({
+      productId,
+      quantity,
+      priceEstimate,
+      minOrderQty,
+      leadTimeDays,
+      availableFrom,
+      availableUntil,
+      expirationDate,
+      status,
+      priceType,
+      exportCapability,
+      imageUrl,
+      supplierLocation,
+    })
+
+    if (!parsed.success) {
+      const flattened = parsed.error.flatten().fieldErrors
+      const nextErrors: Record<string, string> = {}
+      for (const [key, values] of Object.entries(flattened)) {
+        if (values && values.length > 0 && typeof values[0] === 'string') {
+          nextErrors[key] = values[0]
+        }
+      }
+      setFieldErrors(nextErrors)
+      setSubmitError('Periksa kembali form sebelum menyimpan.')
+      return
+    }
 
     const payload: Record<string, unknown> = {
-      product_id: productId,
-      quantity: quantityN,
-      price_estimate: priceEstimate.trim() ? Number(priceEstimate) : null,
-      min_order_quantity: minOrderQty.trim() ? Number(minOrderQty) : null,
-      lead_time_days: leadTimeDays.trim() ? Number(leadTimeDays) : null,
-      export_capability: exportCapability,
-      price_type: priceType,
+      product_id: parsed.data.productId,
+      quantity: Number(parsed.data.quantity),
+      price_estimate: parsed.data.priceEstimate != null ? Number(parsed.data.priceEstimate) : null,
+      min_order_quantity: parsed.data.minOrderQty != null ? Number(parsed.data.minOrderQty) : null,
+      lead_time_days: parsed.data.leadTimeDays != null ? Number(parsed.data.leadTimeDays) : null,
+      export_capability: parsed.data.exportCapability,
+      price_type: parsed.data.priceType,
       certifications: certificationsText,
-      available_from: availableFrom.trim() ? availableFrom : null,
-      available_until: availableUntil.trim() ? availableUntil : null,
-      image_url: imageUrl.trim() ? imageUrl.trim() : null,
-      supplier_location: supplierLocation.trim() ? supplierLocation.trim() : null,
-      expiration_date: expirationDate.trim() ? expirationDate.trim() : null,
-      status,
+      available_from: parsed.data.availableFrom ? parsed.data.availableFrom : null,
+      available_until: parsed.data.availableUntil ? parsed.data.availableUntil : null,
+      image_url: parsed.data.imageUrl?.trim() ? parsed.data.imageUrl.trim() : null,
+      supplier_location: parsed.data.supplierLocation?.trim() ? parsed.data.supplierLocation.trim() : null,
+      expiration_date: parsed.data.expirationDate ? parsed.data.expirationDate : null,
+      status: parsed.data.status,
     }
 
     const res = await fetch(
@@ -210,7 +354,7 @@ export function SupplyListingForm({
         typeof data === 'object' && data && 'error' in data
           ? String((data as { error?: unknown }).error)
           : 'Permintaan gagal'
-      alert(msg)
+      setSubmitError(msg)
       return
     }
 
@@ -286,6 +430,9 @@ export function SupplyListingForm({
                 ))}
               </SelectContent>
             </Select>
+            {getFieldError('productId') ? (
+              <p className="text-xs text-destructive">{getFieldError('productId')}</p>
+            ) : null}
 
             {showAddProduct && (
               <div className="mt-3 space-y-3 rounded-md border bg-background p-3">
@@ -357,11 +504,25 @@ export function SupplyListingForm({
                 </option>
               ))}
             </select>
+            {getFieldError('status') ? (
+              <p className="text-xs text-destructive">{getFieldError('status')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Jumlah</label>
-            <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="mis. 500" />
+            <Input
+              type="number"
+              min={1}
+              step={1}
+              inputMode="numeric"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder="mis. 500"
+            />
+            {getFieldError('quantity') ? (
+              <p className="text-xs text-destructive">{getFieldError('quantity')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -377,21 +538,57 @@ export function SupplyListingForm({
                 </option>
               ))}
             </select>
+            {getFieldError('priceType') ? (
+              <p className="text-xs text-destructive">{getFieldError('priceType')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Perkiraan harga</label>
-            <Input value={priceEstimate} onChange={(e) => setPriceEstimate(e.target.value)} placeholder="opsional" />
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              inputMode="numeric"
+              value={priceEstimate}
+              onChange={(e) => setPriceEstimate(e.target.value)}
+              placeholder="opsional"
+            />
+            {getFieldError('priceEstimate') ? (
+              <p className="text-xs text-destructive">{getFieldError('priceEstimate')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Jumlah pesanan minimum (MOQ)</label>
-            <Input value={minOrderQty} onChange={(e) => setMinOrderQty(e.target.value)} placeholder="opsional" />
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              inputMode="numeric"
+              value={minOrderQty}
+              onChange={(e) => setMinOrderQty(e.target.value)}
+              placeholder="opsional"
+            />
+            {getFieldError('minOrderQty') ? (
+              <p className="text-xs text-destructive">{getFieldError('minOrderQty')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Lead time (hari)</label>
-            <Input value={leadTimeDays} onChange={(e) => setLeadTimeDays(e.target.value)} placeholder="opsional" />
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              inputMode="numeric"
+              value={leadTimeDays}
+              onChange={(e) => setLeadTimeDays(e.target.value)}
+              placeholder="opsional"
+            />
+            {getFieldError('leadTimeDays') ? (
+              <p className="text-xs text-destructive">{getFieldError('leadTimeDays')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -414,21 +611,48 @@ export function SupplyListingForm({
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Tersedia dari</label>
-            <Input value={availableFrom} onChange={(e) => setAvailableFrom(e.target.value)} placeholder="YYYY-MM-DD" />
+            <DatePicker value={availableFrom} onChange={setAvailableFrom} placeholder="YYYY-MM-DD" />
+            {getFieldError('availableFrom') ? (
+              <p className="text-xs text-destructive">{getFieldError('availableFrom')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Tersedia hingga</label>
-            <Input value={availableUntil} onChange={(e) => setAvailableUntil(e.target.value)} placeholder="YYYY-MM-DD" />
+            <DatePicker value={availableUntil} onChange={setAvailableUntil} placeholder="YYYY-MM-DD" />
+            {getFieldError('availableUntil') ? (
+              <p className="text-xs text-destructive">{getFieldError('availableUntil')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium">URL foto</label>
-            <Input
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://example.com/product.jpg"
-            />
+            <label className="text-sm font-medium">Upload gambar (wajib)</label>
+            <div className="space-y-2 rounded-md border border-dashed border-border px-3 py-3">
+              <label className="text-xs text-muted-foreground">
+                Pilih gambar untuk diunggah
+              </label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  void handleUploadImage(file)
+                }}
+              />
+              {isUploadingImage ? (
+                <p className="text-xs text-muted-foreground">Mengunggah gambar...</p>
+              ) : null}
+              {imageUploadError ? (
+                <p className="text-xs text-destructive">{imageUploadError}</p>
+              ) : null}
+              {imageUrl ? (
+                <p className="text-xs text-muted-foreground">Gambar terunggah.</p>
+              ) : null}
+            </div>
+            {getFieldError('imageUrl') ? (
+              <p className="text-xs text-destructive">{getFieldError('imageUrl')}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -442,13 +666,18 @@ export function SupplyListingForm({
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Tanggal kedaluwarsa</label>
-            <Input
-              value={expirationDate}
-              onChange={(e) => setExpirationDate(e.target.value)}
-              placeholder="YYYY-MM-DD"
-            />
+            <DatePicker value={expirationDate} onChange={setExpirationDate} placeholder="YYYY-MM-DD" />
+            {getFieldError('expirationDate') ? (
+              <p className="text-xs text-destructive">{getFieldError('expirationDate')}</p>
+            ) : null}
           </div>
         </div>
+
+        {submitError ? (
+          <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {submitError}
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap gap-2">
           <Button type="submit">{submitLabel}</Button>

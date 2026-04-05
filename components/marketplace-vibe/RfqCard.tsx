@@ -154,21 +154,21 @@ export function RfqCard({
         <div className="grid grid-cols-2 gap-1">
           <div className="rounded-md bg-muted/40 p-1.5">
             <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-              <CircleDollarSign className="h-3.5 w-3.5" />
+              <CircleDollarSign className="h-3.5 w-3.5 text-primary" />
               Est. nilai
             </p>
             <p className="text-xs font-semibold">{formatCurrencyIDR(estimatedDealValue, '-')}</p>
           </div>
           <div className="rounded-md bg-muted/40 p-1.5">
             <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-              <Package2 className="h-3.5 w-3.5" />
+              <Package2 className="h-3.5 w-3.5 text-primary" />
               Kompetisi
             </p>
             <p className="text-xs font-semibold">{quotesCount} penawar</p>
           </div>
           <div className="rounded-md bg-muted/40 p-1.5">
             <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-              <Timer className="h-3.5 w-3.5" />
+              <Timer className="h-3.5 w-3.5 text-primary" />
               Peluang menang
             </p>
             <p className="text-xs font-semibold">{winProbability != null ? `${winProbability}%` : '-'}</p>
@@ -177,24 +177,25 @@ export function RfqCard({
         <div className="grid grid-cols-2 gap-1">
           <div className="rounded-md bg-muted/40 p-1.5">
             <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-              <Scale className="h-3.5 w-3.5" />
+              <Scale className="h-3.5 w-3.5 text-primary" />
               Jml dibutuhkan
             </p>
             <p className="text-sm font-semibold leading-tight">{quantityLabel}</p>
           </div>
           <div className="rounded-md bg-muted/40 p-1.5">
             <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-              <Tag className="h-3.5 w-3.5" />
+              <Tag className="h-3.5 w-3.5 text-primary" />
               Rentang harga
             </p>
             <p className="text-sm font-medium leading-tight">{priceBandLabel}</p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-1">
+        <div className="rounded-md bg-muted/40 p-1.5">
+          <div className="grid grid-cols-2 gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Badge variant="outline" className="h-5 justify-center px-1.5 text-[11px]">
-                <Package2 className="mr-1 h-3 w-3" />
+              <Badge variant="secondary" className={`${logisticsBadgeClass} w-full justify-center`}>
+                <Package2 className="mr-1 h-3 w-3 text-primary" />
                 {buyerCompletedDeals ?? 0}
               </Badge>
             </TooltipTrigger>
@@ -204,8 +205,8 @@ export function RfqCard({
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Badge variant="outline" className="h-5 justify-center px-1.5 text-[11px]">
-                <HandCoins className="mr-1 h-3 w-3" />
+              <Badge variant="secondary" className={`${logisticsBadgeClass} w-full justify-center`}>
+                <HandCoins className="mr-1 h-3 w-3 text-primary" />
                 {paymentTerms?.trim() || '-'}
               </Badge>
             </TooltipTrigger>
@@ -215,8 +216,8 @@ export function RfqCard({
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Badge variant="outline" className="h-5 justify-center px-1.5 text-[11px]">
-                <Building2 className="mr-1 h-3 w-3" />
+              <Badge variant="secondary" className={`${logisticsBadgeClass} w-full justify-center`}>
+                <Building2 className="mr-1 h-3 w-3 text-primary" />
                 {buyerOrgType?.trim() || '-'}
               </Badge>
             </TooltipTrigger>
@@ -226,8 +227,8 @@ export function RfqCard({
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Badge variant="outline" className="h-5 justify-center px-1.5 text-[11px]">
-                <Tag className="mr-1 h-3 w-3" />
+              <Badge variant="secondary" className={`${logisticsBadgeClass} w-full justify-center`}>
+                <Tag className="mr-1 h-3 w-3 text-primary" />
                 {buyerSector?.trim() || '-'}
               </Badge>
             </TooltipTrigger>
@@ -237,8 +238,11 @@ export function RfqCard({
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Badge variant="outline" className="col-span-2 h-5 justify-center px-1.5 text-[11px]">
-                <Scale className="mr-1 h-3 w-3" />
+              <Badge
+                variant="secondary"
+                className={`${logisticsBadgeClass} col-span-2 w-full justify-center`}
+              >
+                <Scale className="mr-1 h-3 w-3 text-primary" />
                 {marketGapPercent != null ? `${Math.round(marketGapPercent)}%` : '-'}
               </Badge>
             </TooltipTrigger>
@@ -246,6 +250,7 @@ export function RfqCard({
               Gap pasar : {marketGapPercent != null ? `${Math.round(marketGapPercent)}%` : 'Tidak ditentukan'}
             </TooltipContent>
           </Tooltip>
+          </div>
         </div>
         <div className="rounded-md bg-muted/40 p-1.5">
           <p className="text-[10px] text-muted-foreground">Logistik dan kepatuhan</p>
@@ -253,7 +258,7 @@ export function RfqCard({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge variant="secondary" className={logisticsBadgeClass}>
-                  <Globe2 className="h-3 w-3" />
+                  <Globe2 className="h-3 w-3 text-primary" />
                   {targetCountry?.trim() || '-'}
                 </Badge>
               </TooltipTrigger>
@@ -264,7 +269,7 @@ export function RfqCard({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge variant="secondary" className={logisticsBadgeClass}>
-                  <Truck className="h-3 w-3" />
+                  <Truck className="h-3 w-3 text-primary" />
                   {incoterms?.trim() || '-'}
                 </Badge>
               </TooltipTrigger>
@@ -275,7 +280,7 @@ export function RfqCard({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge variant="secondary" className={logisticsBadgeClass}>
-                  <CalendarClock className="h-3 w-3" />
+                  <CalendarClock className="h-3 w-3 text-primary" />
                   {requiredBy?.trim() || '-'}
                 </Badge>
               </TooltipTrigger>
@@ -286,7 +291,7 @@ export function RfqCard({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge variant="secondary" className={logisticsBadgeClass}>
-                  <Package2 className="h-3 w-3" />
+                  <Package2 className="h-3 w-3 text-primary" />
                   {productCategory?.trim() || '-'}
                 </Badge>
               </TooltipTrigger>
@@ -320,7 +325,7 @@ export function RfqCard({
                 <Tooltip key={cert}>
                   <TooltipTrigger asChild>
                     <Badge variant="outline" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
-                      <ShieldCheck className="h-3 w-3" />
+                      <ShieldCheck className="h-3 w-3 text-primary" />
                       {cert}
                     </Badge>
                   </TooltipTrigger>
@@ -333,7 +338,7 @@ export function RfqCard({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Badge variant="outline" className="inline-flex h-5 items-center gap-1 px-1.5 text-[11px]">
-                    <ShieldCheck className="h-3 w-3" />-
+                    <ShieldCheck className="h-3 w-3 text-primary" />-
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent sideOffset={6}>

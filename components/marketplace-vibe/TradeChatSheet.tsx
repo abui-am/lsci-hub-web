@@ -220,7 +220,7 @@ export function TradeChatSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button type="button" size="sm" variant="outline" className="relative">
-          <MessageSquare className="mr-1.5 h-4 w-4" />
+          <MessageSquare className="mr-1.5 h-4 w-4 text-primary" />
           {triggerLabel}
           {unreadCount > 0 ? (
             <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-semibold text-white">
@@ -292,7 +292,7 @@ export function TradeChatSheet({
               }}
             />
             <Button type="button" size="icon" disabled={!canSend} onClick={() => void sendMessage()}>
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4 text-primary" />
               <span className="sr-only">Kirim</span>
             </Button>
           </div>

@@ -1,16 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { relationOne } from '@/lib/supabase/relation'
 import { requireSession } from '@/lib/rbac/guards'
-import Image from 'next/image'
 import Link from 'next/link'
 import { CircleDollarSign, Clock3, Plus, ShoppingCart } from 'lucide-react'
 import { MarketplaceHeader } from '@/components/marketplace-vibe/MarketplaceHeader'
 import { BuyerQuotesAdvancedList } from '@/components/marketplace-vibe/BuyerQuotesAdvancedList'
-import { QuoteStatusBadge } from '@/components/marketplace-vibe/QuoteStatusBadge'
-import { TradeChatSheet } from '@/components/marketplace-vibe/TradeChatSheet'
-import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { formatCurrencyIDR } from '@/lib/utils'
 
 export default async function BuyerMarketplacePage() {
   const session = await requireSession()
@@ -61,37 +56,10 @@ export default async function BuyerMarketplacePage() {
     .order('created_at', { ascending: false })
     .limit(200)
 
-  const { data: offerRequestRows } = await supabase
-    .from('offer_requests')
-    .select(
-      `
-      id,
-      status,
-      price_offer,
-      quantity_offer,
-      lead_time_days,
-      message,
-      created_at,
-      demand_listings (
-        id,
-        products ( name )
-      ),
-      supply_listings (
-        id,
-        image_url,
-        supplier_location,
-        organizations ( id, name, logo_image )
-      )
-    `
-    )
-    .order('created_at', { ascending: false })
-    .limit(100)
-
   const activeDemandCount = (demandRows ?? []).filter((row) => row.status === 'active').length
   const incomingCount = (responseRows ?? []).filter((row) => row.status === 'pending').length
   const acceptedCount = (responseRows ?? []).filter((row) => row.status === 'accepted').length
   const rejectedCount = (responseRows ?? []).filter((row) => row.status === 'rejected').length
-  const offerCount = offerRequestRows?.length ?? 0
 
   return (
     <div className="space-y-6">
@@ -112,17 +80,17 @@ export default async function BuyerMarketplacePage() {
           {
             label: 'Permintaan aktif',
             value: activeDemandCount,
-            icon: <ShoppingCart className="h-3.5 w-3.5" />,
+            icon: <ShoppingCart className="h-3.5 w-3.5 text-primary" />,
           },
           {
             label: 'Penawaran masuk',
             value: incomingCount,
-            icon: <Clock3 className="h-3.5 w-3.5" />,
+            icon: <Clock3 className="h-3.5 w-3.5 text-primary" />,
           },
           {
             label: 'Penawaran diterima',
             value: acceptedCount,
-            icon: <CircleDollarSign className="h-3.5 w-3.5" />,
+            icon: <CircleDollarSign className="h-3.5 w-3.5 text-primary" />,
           },
         ]}
       />
@@ -224,136 +192,6 @@ export default async function BuyerMarketplacePage() {
           </TabsContent>
         ))}
       </Tabs>
-
-      <section id="offers" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">Offer Request saya</h2>
-          <span className="text-sm text-muted-foreground">{offerCount} offer</span>
-        </div>
-        {!offerRequestRows?.length ? (
-          <p className="rounded-lg border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-            Anda belum mengirim offer request ke pemasok.
-          </p>
-        ) : (
-          <ul className="grid gap-3">
-            {offerRequestRows.map((row) => {
-              const demand = relationOne(
-                row.demand_listings as
-                  | { id: string; products: { name: string } | { name: string }[] | null }
-                  | { id: string; products: { name: string } | { name: string }[] | null }[]
-                  | null
-              )
-              const demandProduct = relationOne(demand?.products ?? null)
-              const supply = relationOne(
-                row.supply_listings as
-                  | {
-                      id: string
-                      image_url: string | null
-                      supplier_location: string | null
-                      organizations:
-                        | { id: string; name: string; logo_image?: string | null }
-                        | { id: string; name: string; logo_image?: string | null }[]
-                        | null
-                    }
-                  | Array<{
-                      id: string
-                      image_url: string | null
-                      supplier_location: string | null
-                      organizations:
-                        | { id: string; name: string; logo_image?: string | null }
-                        | { id: string; name: string; logo_image?: string | null }[]
-                        | null
-                    }>
-                  | null
-              )
-              const supplierOrg = relationOne(supply?.organizations ?? null)
-              const imageSrc =
-                supply?.image_url &&
-                (/^https?:\/\//.test(supply.image_url) || supply.image_url.startsWith('/'))
-                  ? supply.image_url
-                  : '/dummy-cabe.png'
-
-              return (
-                <li key={row.id}>
-                  <Card>
-                    <CardContent className="space-y-3 p-4">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div className="flex items-center gap-3">
-                          <div className="relative h-12 w-14 overflow-hidden rounded-md border">
-                            <Image
-                              src={imageSrc}
-                              alt={demandProduct?.name ?? 'Produk'}
-                              fill
-                              className="object-cover"
-                              sizes="56px"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-semibold">
-                              {demandProduct?.name ?? 'Produk'}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Supplier:{' '}
-                              {supplierOrg?.id ? (
-                                <Link
-                                  href={`/marketplace/account/${supplierOrg.id}`}
-                                  className="hover:underline"
-                                >
-                                  {supplierOrg.name}
-                                </Link>
-                              ) : (
-                                supplierOrg?.name ?? 'Pemasok'
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        <QuoteStatusBadge
-                          status={row.status as 'pending' | 'accepted' | 'rejected'}
-                        />
-                      </div>
-
-                      <div className="grid gap-2 md:grid-cols-3">
-                        <div className="rounded-md bg-muted/40 p-2 text-sm">
-                          <p className="text-xs text-muted-foreground">Harga offer</p>
-                          <p className="font-medium">{formatCurrencyIDR(row.price_offer)}</p>
-                        </div>
-                        <div className="rounded-md bg-muted/40 p-2 text-sm">
-                          <p className="text-xs text-muted-foreground">Jumlah offer</p>
-                          <p className="font-medium">{row.quantity_offer ?? '-'}</p>
-                        </div>
-                        <div className="rounded-md bg-muted/40 p-2 text-sm">
-                          <p className="text-xs text-muted-foreground">Lead time</p>
-                          <p className="font-medium">
-                            {row.lead_time_days != null
-                              ? `${row.lead_time_days} hari`
-                              : 'Tidak ditentukan'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {row.message ? (
-                        <p className="text-xs text-muted-foreground">Catatan: {row.message}</p>
-                      ) : null}
-
-                      <div className="pt-1">
-                        <TradeChatSheet
-                          viewerProfileId={session.profile.id}
-                          otherPartyName={supplierOrg?.name ?? 'Pemasok'}
-                          triggerLabel="Chat supplier"
-                          context={{
-                            type: 'offer',
-                            offerRequestId: row.id,
-                          }}
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </section>
     </div>
   )
 }

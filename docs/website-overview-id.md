@@ -51,8 +51,8 @@ Website melayani tiga kelompok pengguna:
   - pilih RFQ aktif,
   - browse pemasok yang relevan,
   - kirim offer request ke supplier terpilih.
-- **Trade Chat (Offer Context)**
-  - chat antara buyer dan supplier untuk konteks transaksi tertentu.
+- **Trade Chat (RFQ/Transaksi Context)**
+  - chat antara buyer dan supplier yang melekat pada RFQ/transaksi tertentu (bukan chat per akun umum).
 
 ### 4) Fitur Supplier
 
@@ -98,7 +98,7 @@ Website melayani tiga kelompok pengguna:
 2. Buat RFQ (demand listing) atau pilih RFQ aktif.
 3. Terima penawaran dari supplier.
 4. Review dan putuskan (accept/reject) atau kirim offer request.
-5. Lanjut negosiasi melalui chat transaksi.
+5. Lanjut negosiasi melalui chat per RFQ/transaksi.
 
 ### Alur Supplier
 1. Login -> masuk ke marketplace supplier.

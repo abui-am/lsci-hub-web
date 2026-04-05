@@ -20,25 +20,25 @@ export function MarketplaceHeader({
   statsColumns = 3,
 }: MarketplaceHeaderProps) {
   const statsGridClass =
-    statsColumns === 2 ? 'grid gap-3 sm:grid-cols-2' : 'grid gap-3 sm:grid-cols-3'
+    statsColumns === 2 ? 'grid gap-4 sm:grid-cols-2' : 'grid gap-4 sm:grid-cols-3'
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{title}</h1>
+        <p className="max-w-2xl text-base text-muted-foreground">{description}</p>
       </div>
       <div className={statsGridClass}>
         {stats.map((item) => (
-          <Card key={item.label}>
+          <Card key={item.label} className="border-border/70 bg-card/90 shadow-sm">
             <CardContent className="p-4">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm">
                 <span className="inline-flex items-center gap-1">
                   {item.icon}
                   {item.label}
                 </span>
               </p>
-              <p className="mt-1 text-xl font-semibold">{item.value}</p>
+              <p className="mt-1.5 text-2xl font-semibold">{item.value}</p>
             </CardContent>
           </Card>
         ))}

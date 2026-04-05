@@ -16,7 +16,7 @@
 
 - **End-to-end sourcing dalam satu platform**: dari pembuatan RFQ hingga keputusan deal.
 - **Workspace berbasis peran**: alur buyer dan supplier dipisahkan agar lebih fokus.
-- **Keputusan lebih cepat**: status quote, ringkasan data, dan chat transaksi tersedia dalam satu tempat.
+- **Keputusan lebih cepat**: status quote, ringkasan data, dan chat per RFQ tersedia dalam satu tempat.
 
 ## Struktur Konten Landing Page
 
@@ -37,14 +37,14 @@
 - Pembuatan dan pengelolaan RFQ (buyer).
 - Pengajuan dan pemantauan quote (supplier).
 - Offer request workflow untuk tindak lanjut transaksi.
-- Trade chat berbasis konteks transaksi.
+- Trade chat berbasis RFQ/transaksi (bukan chat umum antar akun).
 - Profil organisasi dan trust signal (verifikasi dan credit score).
 
 ### 4) How It Works (3 Langkah)
 
 1. Buyer membuat RFQ sesuai kebutuhan.
 2. Supplier mengirim penawaran dengan detail harga, jumlah, dan lead time.
-3. Buyer mereview, berdiskusi via chat, lalu memutuskan deal.
+3. Buyer mereview, berdiskusi via chat per RFQ, lalu memutuskan deal.
 
 ### 5) Buyer vs Supplier Value Section
 

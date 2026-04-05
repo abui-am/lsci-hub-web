@@ -29,7 +29,7 @@ export function SupplierResponseActions({
     <div className="flex flex-wrap items-center gap-2">
       <Button asChild size="sm" variant="outline">
         <Link href={`/marketplace/demand/${demandId}`}>
-          <FileText className="mr-1.5 h-4 w-4" />
+          <FileText className="mr-1.5 h-4 w-4 text-primary" />
           Lihat detail RFQ
         </Link>
       </Button>
@@ -37,7 +37,7 @@ export function SupplierResponseActions({
       {buyerOrganizationId ? (
         <Button asChild size="sm" variant="outline">
           <Link href={`/marketplace/account/${buyerOrganizationId}`}>
-            <MessageSquare className="mr-1.5 h-4 w-4" />
+            <MessageSquare className="mr-1.5 h-4 w-4 text-primary" />
             Lihat detail pembeli
           </Link>
         </Button>
