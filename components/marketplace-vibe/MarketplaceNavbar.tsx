@@ -27,15 +27,23 @@ export function MarketplaceNavbar({
   return (
     <header className="sticky top-0 z-30 w-full border-b border-border/70 bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
-        <Link href="/marketplace" className="flex items-center gap-2 rounded-md px-2 py-1 font-semibold">
+        <Link href="/marketplace" className="flex shrink-0 items-center gap-2 rounded-md px-1 py-1">
           <Image
             src="/indosourcing_new.png"
             alt="Logo Indosourcing"
-            width={20}
-            height={20}
-            className="rounded-sm"
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-sm object-contain"
+            priority
           />
-          <span>Indosourcing</span>
+          <span className="leading-tight">
+            <span className="block text-sm font-semibold tracking-tight text-primary">
+              Indosourcing
+            </span>
+            <span className="block text-xs font-medium text-muted-foreground">
+              Marketplace B2B
+            </span>
+          </span>
         </Link>
         <nav className="flex items-center gap-1.5 text-sm">
           {(isSupplier || isSuperadmin) && (
